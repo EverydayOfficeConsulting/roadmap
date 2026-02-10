@@ -1,11 +1,10 @@
 <script>
-    // THE MASTER ROADMAP DATA
     const roadmapData = [
         {
             id: 1,
             phase: "Phase 0: Foundations (Setup)",
             title: "Business Bank Account",
-            desc: "Open a dedicated business account and credit card. Essential for keeping personal and business finances separate.",
+            desc: "Open a dedicated business account and credit card. This is Step 1 for a clean audit trail.",
             videoUrl: "#", 
             toolUrl: "#",
             completed: false,
@@ -15,7 +14,7 @@
             id: 2,
             phase: "Phase 0: Foundations (Setup)",
             title: "Accounting Software (QBO)",
-            desc: "Create your QuickBooks Online account. This will be the hub for all your financial data.",
+            desc: "Setup your QuickBooks Online account to act as your central financial hub.",
             videoUrl: "#", 
             toolUrl: "https://quickbooks.intuit.com/ca/",
             completed: false,
@@ -25,7 +24,7 @@
             id: 3,
             phase: "Phase 0: Foundations (Setup)",
             title: "Contractor Chart of Accounts",
-            desc: "Import or create a Chart of Accounts specifically designed for the trades to track project costs accurately.",
+            desc: "Import a specialized Chart of Accounts to track labor, materials, and overhead properly.",
             videoUrl: "#", 
             toolUrl: "#",
             completed: false,
@@ -35,7 +34,7 @@
             id: 4,
             phase: "Phase 0: Foundations (Setup)",
             title: "Company Profile & Settings",
-            desc: "Update your logo, address, and fiscal year end in the QBO settings menu.",
+            desc: "Input your logo, address, and fiscal year end into QBO settings.",
             videoUrl: "#", 
             toolUrl: "#",
             completed: false,
@@ -45,7 +44,7 @@
             id: 5,
             phase: "Phase 0: Foundations (Setup)",
             title: "Connect Bank Feeds",
-            desc: "Link your business bank and credit card to QBO so transactions flow in automatically.",
+            desc: "Link your business accounts so your transaction data imports automatically.",
             videoUrl: "#", 
             toolUrl: "#",
             completed: false,
@@ -55,37 +54,47 @@
             id: 6,
             phase: "Phase 1: Expansion (Milestones)",
             title: "Register for HST",
-            desc: "MANDATORY if sales exceed $30k in 12 months. Includes getting your Business Number (BN) from the CRA.",
+            desc: "Required once you hit $30k in sales. Includes getting your BN from the CRA.",
             videoUrl: "#", 
             toolUrl: "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/gst-hst-businesses/register-a-gst-hst-account.html",
             completed: false,
-            canSkip: true // Added 'Skip for now' logic
+            canSkip: true 
         },
         {
             id: 7,
             phase: "Phase 1: Expansion (Milestones)",
+            title: "WCB Registration",
+            desc: "Mandatory if you have employees or sub-contractors without their own coverage.",
+            videoUrl: "#", 
+            toolUrl: "https://www.wcb.ns.ca/", // Defaulted to NS since you're there
+            completed: false,
+            canSkip: true 
+        },
+        {
+            id: 8,
+            phase: "Phase 1: Expansion (Milestones)",
             title: "Payroll Registration",
-            desc: "Register for a Payroll (RP) account with the CRA if you are hiring employees or paying yourself a salary.",
+            desc: "Get an RP account number from CRA to pay employees or yourself via salary.",
             videoUrl: "#", 
             toolUrl: "#",
             completed: false,
             canSkip: true
         },
         {
-            id: 8,
+            id: 9,
             phase: "Phase 2: Organization",
             title: "Receipt Capture (Dext)",
-            desc: "Connect Dext to your QBO account to automate receipt collection and stop the paper trail.",
+            desc: "Setup Dext to digitize receipts and push them directly into QBO.",
             videoUrl: "#", 
             toolUrl: "https://dext.com/ca",
             completed: false,
             canSkip: false
         },
         {
-            id: 9,
+            id: 10,
             phase: "Phase 3: Annual Maintenance",
             title: "Monthly Reconcile",
-            desc: "Close out the month by matching all transactions and checking bank balances.",
+            desc: "Standard end-of-month check to ensure your bank and QBO match perfectly.",
             videoUrl: "#", 
             toolUrl: "https://tools.eoco.ca/newcalculator/",
             completed: false,
@@ -119,7 +128,7 @@
 
                 <div class="btn-row">
                     <button class="btn btn-outline" onclick="window.location.href='${task.toolUrl}'">Open Tool/Portal</button>
-                    ${task.canSkip && !task.completed ? `<button class="btn btn-outline" style="border-color: #f39c12; color: #d35400;" onclick="skipTask(${task.id})">Skip for Now</button>` : ''}
+                    ${task.canSkip && !task.completed ? `<button class="btn btn-outline" style="border-color: #f39c12; color: #d35400;" onclick="completeTask(${task.id})">Skip for Now</button>` : ''}
                     <button class="btn btn-done" onclick="completeTask(${task.id})">
                         ${task.completed ? 'FINISHED' : 'MARK AS DONE'}
                     </button>
@@ -136,11 +145,6 @@
             roadmapData[idx].completed = true;
             renderRoadmap();
         }
-    }
-
-    function skipTask(id) {
-        alert("This task has been moved to your 'Watch List'. Remember to return here once your business reaches the required milestone.");
-        // Logic to hide or move task can be added here
     }
 
     function updateProgress() {
