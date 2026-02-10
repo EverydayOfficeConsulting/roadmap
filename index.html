@@ -3,259 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compliance Coach | Roadmap</title>
+    <title>EOCO | Compliance Roadmap</title>
     <style>
         :root {
             --evergreen: #2d5a27;
-            --caution: #f39c12;
-            --danger: #e74c3c;
-            --light-bg: #f4f7f6;
+            --charcoal: #2c3e50;
+            --accent: #f39c12;
+            --success: #27ae60;
+            --light-grey: #f8f9fa;
             --white: #ffffff;
-            --text-dark: #2c3e50;
+            --dave-blue: #3498db;
         }
 
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--light-bg);
-            color: var(--text-dark);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--light-grey);
+            color: var(--charcoal);
             margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding-bottom: 50px;
         }
 
         header {
             background-color: var(--evergreen);
             color: var(--white);
-            width: 100%;
-            padding: 20px;
+            padding: 25px 20px;
             text-align: center;
             position: sticky;
             top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        .progress-container {
-            width: 90%;
-            background-color: rgba(255,255,255,0.3);
-            border-radius: 10px;
-            margin: 10px auto 0;
-            height: 12px;
-            overflow: hidden;
-        }
+        .header-title { font-size: 1.4rem; font-weight: 800; margin: 0; }
 
-        #progress-bar {
-            height: 100%;
-            background-color: #5cb85c;
-            width: 0%;
-            transition: width 0.5s ease;
-        }
+        .progress-wrapper { max-width: 500px; margin: 15px auto 0; }
+        .progress-text { font-size: 0.8rem; text-transform: uppercase; margin-bottom: 8px; display: block; }
+        .progress-container { background-color: rgba(255,255,255,0.2); border-radius: 20px; height: 10px; overflow: hidden; }
+        #progress-bar { background-color: var(--success); width: 0%; height: 100%; transition: width 0.6s ease; }
 
-        main {
-            width: 95%;
-            max-width: 500px;
-            padding: 20px 0;
-        }
+        main { max-width: 600px; margin: 20px auto; padding: 0 15px; }
 
-        .month-section {
-            margin-bottom: 30px;
-        }
-
-        .month-header {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            padding-left: 10px;
-            border-left: 5px solid var(--evergreen);
+        .phase-header {
+            background: var(--charcoal);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-weight: 700;
+            margin: 35px 0 15px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
         }
 
         .task-card {
             background: var(--white);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border: 1px solid #ddd;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+            border: 1px solid #dee2e6;
+            transition: opacity 0.3s;
         }
 
-        .task-card.completed {
-            border-left: 8px solid #5cb85c;
-            opacity: 0.8;
-        }
+        .task-card.completed { border-left: 10px solid var(--success); opacity: 0.8; }
 
-        .task-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
+        .task-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; }
+        .task-desc { font-size: 0.9rem; color: #6c757d; margin-bottom: 20px; }
 
-        .video-placeholder {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background-color: #000;
-            border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        /* The Tutorial Link (Coffee Table with Dave style) */
+        .tutorial-link {
+            background-color: var(--dave-blue);
             color: white;
-            margin-bottom: 15px;
-            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-decoration: none;
-        }
-
-        .button-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .btn {
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            text-align: center;
-            text-decoration: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .btn-tool { background-color: #ecf0f1; color: var(--text-dark); border: 1px solid #bdc3c7; }
-        .btn-portal { background-color: var(--text-dark); color: white; }
-        .btn-done { 
-            grid-column: span 2; 
-            background-color: var(--evergreen); 
-            color: white; 
-            font-size: 1.1rem;
             padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            font-size: 1rem;
         }
 
-        .completed .btn-done {
-            background-color: #bdc3c7;
-            pointer-events: none;
-        }
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; text-align: center; border: none; cursor: pointer; font-size: 0.85rem; }
+        .btn-outline { background: #eee; color: var(--charcoal); }
+        .btn-done { grid-column: span 2; background-color: var(--evergreen); color: white; margin-top: 5px; }
 
-        .status-badge {
-            float: right;
-            font-size: 0.7rem;
-            padding: 4px 8px;
-            border-radius: 4px;
-            text-transform: uppercase;
-        }
-
-        .status-due { background: var(--caution); color: white; }
-        .status-done { background: #5cb85c; color: white; display: none; }
-        .completed .status-done { display: inline; }
-        .completed .status-due { display: none; }
-
+        .completed .btn-done { background-color: #ced4da; pointer-events: none; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-weight: bold; font-size: 1.2rem;">COMPLIANCE COACH</div>
-    <div style="font-size: 0.9rem; margin-top: 5px;">Roadmap Progress</div>
-    <div class="progress-container">
-        <div id="progress-bar"></div>
+    <p class="header-title">COMPLIANCE ROADMAP</p>
+    <div class="progress-wrapper">
+        <span class="progress-text" id="progress-label">Total Progress: 0%</span>
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
     </div>
 </header>
 
-<main id="roadmap-container">
+<main id="roadmap-root">
     </main>
 
 <script>
-    const tasks = [
+    const roadmapData = [
         {
             id: 1,
-            month: "Phase 1: Setup",
+            phase: "Step 1: The Foundations (Setup)",
             title: "Business Bank Account",
-            desc: "Setup your primary operating account.",
-            videoUrl: "#",
+            desc: "Watch 'Coffee Table with Dave' on why mixing personal and business money is your biggest risk.",
+            videoUrl: "#", // Link to Coffee Table video
             toolUrl: "#",
-            portalUrl: "https://www.google.com/search?q=business+banking+nova+scotia",
-            done: false
+            completed: false
         },
         {
             id: 2,
-            month: "Phase 1: Setup",
-            title: "Connect QBO / Software",
-            desc: "Link your bank feed to your accounting software.",
-            videoUrl: "#",
+            phase: "Step 1: The Foundations (Setup)",
+            title: "New QBO Account Setup",
+            desc: "Dave walks you through the initial settings you need to toggle on before entering a single transaction.",
+            videoUrl: "#", // Link to QBO Setup video
             toolUrl: "#",
-            portalUrl: "https://qbo.intuit.com",
-            done: false
+            completed: false
         },
         {
             id: 3,
-            month: "March",
-            title: "Q1 HST Filing",
-            desc: "Calculate and file your first quarter HST return.",
+            phase: "Step 2: Annual Calendar (Jan - Dec)",
+            title: "January: Monthly Reconcile",
+            desc: "Time to close out the previous month. Match your bank feed and ensure all receipts are in.",
             videoUrl: "#",
-            toolUrl: "https://EverydayOfficeConsulting.github.io/calculator/",
-            portalUrl: "https://www.canada.ca/en/revenue-agency/services/e-services/e-services-businesses/business-registration-online.html",
-            done: false
+            toolUrl: "https://tools.eoco.ca/calculator/",
+            completed: false
+        },
+        {
+            id: 4,
+            phase: "Step 2: Annual Calendar (Jan - Dec)",
+            title: "March: Q1 HST Filing",
+            desc: "Quarterly deadline. Run your report, use the calculator, and pay the CRA.",
+            videoUrl: "#",
+            toolUrl: "https://tools.eoco.ca/calculator/",
+            completed: false
         }
     ];
 
     function renderRoadmap() {
-        const container = document.getElementById('roadmap-container');
-        container.innerHTML = '';
-        
-        let currentMonth = "";
-        
-        tasks.forEach(task => {
-            if (task.month !== currentMonth) {
-                currentMonth = task.month;
-                const monthHead = document.createElement('div');
-                monthHead.className = 'month-header';
-                monthHead.innerText = currentMonth;
-                container.appendChild(monthHead);
+        const root = document.getElementById('roadmap-root');
+        root.innerHTML = '';
+        let currentPhase = "";
+
+        roadmapData.forEach(task => {
+            if (task.phase !== currentPhase) {
+                currentPhase = task.phase;
+                const header = document.createElement('div');
+                header.className = 'phase-header';
+                header.innerText = currentPhase;
+                root.appendChild(header);
             }
 
             const card = document.createElement('div');
-            card.className = `task-card ${task.done ? 'completed' : ''}`;
+            card.className = `task-card ${task.completed ? 'completed' : ''}`;
             card.innerHTML = `
-                <span class="status-badge status-due">Action Required</span>
-                <span class="status-badge status-done">Completed</span>
-                <div class="task-title">${task.title}</div>
-                <p style="font-size: 0.85rem; color: #666;">${task.desc}</p>
+                <div class="task-title">${task.completed ? '✅ ' : ''}${task.title}</div>
+                <p class="task-desc">${task.desc}</p>
                 
-                <a href="${task.videoUrl}" class="video-placeholder">
-                    <span>▶ Play Tutorial Video</span>
+                <a href="${task.videoUrl}" class="tutorial-link">
+                    ☕ Watch Tutorial with Dave
                 </a>
 
-                <div class="button-group">
-                    <a href="${task.toolUrl}" class="btn btn-tool">Open Tool</a>
-                    <a href="${task.portalUrl}" target="_blank" class="btn btn-portal">Go to Portal</a>
-                    <button class="btn btn-done" onclick="markDone(${task.id})">
-                        ${task.done ? '✓ Task Finished' : 'Mark as Done'}
+                <div class="btn-row">
+                    <button class="btn btn-outline" onclick="window.location.href='${task.toolUrl}'">Open Tool</button>
+                    <button class="btn btn-done" onclick="completeTask(${task.id})">
+                        ${task.completed ? 'FINISHED' : 'MARK AS DONE'}
                     </button>
                 </div>
             `;
-            container.appendChild(card);
+            root.appendChild(card);
         });
         updateProgress();
     }
 
-    function markDone(id) {
-        const task = tasks.find(t => t.id === id);
-        if (task) {
-            task.done = true;
+    function completeTask(id) {
+        const idx = roadmapData.findIndex(t => t.id === id);
+        if (idx !== -1) {
+            roadmapData[idx].completed = true;
             renderRoadmap();
         }
     }
 
     function updateProgress() {
-        const total = tasks.length;
-        const done = tasks.filter(t => t.done).length;
-        const percent = (done / total) * 100;
+        const finished = roadmapData.filter(t => t.completed).length;
+        const percent = Math.round((finished / roadmapData.length) * 100);
         document.getElementById('progress-bar').style.width = percent + '%';
+        document.getElementById('progress-label').innerText = `Total Progress: ${percent}%`;
     }
 
-    // Initial Render
     renderRoadmap();
 </script>
 
