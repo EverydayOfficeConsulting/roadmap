@@ -38,22 +38,47 @@
 
         main { max-width: 600px; margin: 20px auto; padding: 0 15px; }
 
+        /* Collapsible Header Style */
         .phase-header {
             background: var(--charcoal);
             color: white;
-            padding: 12px 15px;
+            padding: 15px;
             border-radius: 8px;
             font-weight: 700;
-            margin: 35px 0 15px;
+            margin: 20px 0 5px;
             text-transform: uppercase;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .phase-header:after {
+            content: '▼';
+            font-size: 0.7rem;
+            transition: transform 0.3s;
+        }
+
+        .phase-header.collapsed:after {
+            transform: rotate(-90deg);
+        }
+
+        .phase-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .phase-content.hidden {
+            display: none;
         }
 
         .task-card {
             background: var(--white);
             border-radius: 16px;
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             border: 1px solid #dee2e6;
         }
@@ -96,28 +121,50 @@
 
 <script>
     const roadmapData = [
-        { id: 1, phase: "Phase 0: Foundations", title: "Business Bank Account", desc: "Open a dedicated account. Never mix personal and business money.", toolUrl: "#", completed: false, canSkip: false },
-        { id: 2, phase: "Phase 0: Foundations", title: "Accounting Software (QBO)", desc: "Setup your QuickBooks Online account.", toolUrl: "https://quickbooks.intuit.com/ca/", completed: false, canSkip: false },
-        { id: 3, phase: "Phase 0: Foundations", title: "Contractor Chart of Accounts", desc: "Import a specialized COA for trades.", toolUrl: "#", completed: false, canSkip: false },
-        { id: 4, phase: "Phase 0: Foundations", title: "Connect Bank Feeds", desc: "Link your business accounts to QBO.", toolUrl: "#", completed: false, canSkip: false },
-        { id: 5, phase: "Phase 1: Milestones", title: "Register for HST", desc: "Mandatory once you hit $30k in sales.", toolUrl: "https://www.canada.ca/en/revenue-agency.html", completed: false, canSkip: true },
-        { id: 6, phase: "Phase 1: Milestones", title: "WCB Registration", desc: "Mandatory if you have workers or subs without coverage.", toolUrl: "https://www.wcb.ns.ca/", completed: false, canSkip: true },
-        { id: 7, phase: "Phase 1: Milestones", title: "Payroll Registration", desc: "Get an RP account from CRA for hiring.", toolUrl: "#", completed: false, canSkip: true },
-        { id: 8, phase: "Phase 2: Organization", title: "Receipt Capture (Dext)", desc: "Automate your paperwork with Dext.", toolUrl: "https://dext.com/ca", completed: false, canSkip: false },
-        { id: 9, phase: "Phase 3: Annual Maintenance", title: "Monthly Reconcile", desc: "Match your bank and QBO balances.", toolUrl: "https://tools.eoco.ca/newcalculator/", completed: false, canSkip: false }
+        { id: 1, phase: "Phase 1: Foundations", title: "Business Bank Account", desc: "Open a dedicated account. Never mix personal and business money.", toolUrl: "#", completed: false, canSkip: false },
+        { id: 2, phase: "Phase 1: Foundations", title: "Accounting Software (QBO)", desc: "Setup your QuickBooks Online account.", toolUrl: "https://quickbooks.intuit.com/ca/", completed: false, canSkip: false },
+        { id: 3, phase: "Phase 1: Foundations", title: "Contractor Chart of Accounts", desc: "Import a specialized COA for trades.", toolUrl: "#", completed: false, canSkip: false },
+        { id: 4, phase: "Phase 1: Foundations", title: "Connect Bank Feeds", desc: "Link your business accounts to QBO.", toolUrl: "#", completed: false, canSkip: false },
+        { id: 5, phase: "Phase 2: Milestones", title: "Register for HST", desc: "Mandatory once you hit $30k in sales.", toolUrl: "https://www.canada.ca/en/revenue-agency.html", completed: false, canSkip: true },
+        { id: 6, phase: "Phase 2: Milestones", title: "WCB Registration", desc: "Mandatory if you have workers or subs without coverage.", toolUrl: "https://www.wcb.ns.ca/", completed: false, canSkip: true },
+        { id: 7, phase: "Phase 2: Milestones", title: "Payroll Registration", desc: "Get an RP account from CRA for hiring.", toolUrl: "#", completed: false, canSkip: true },
+        { id: 8, phase: "Phase 3: Organization", title: "Receipt Capture (Dext)", desc: "Automate your paperwork with Dext.", toolUrl: "https://dext.com/ca", completed: false, canSkip: false },
+        { id: 9, phase: "Phase 4: Annual Maintenance", title: "Monthly Reconcile", desc: "Match your bank and QBO balances.", toolUrl: "https://tools.eoco.ca/newcalculator/", completed: false, canSkip: false }
     ];
+
+    // Keep track of which phases are collapsed
+    const collapsedPhases = new Set();
+
+    function togglePhase(phaseName) {
+        if (collapsedPhases.has(phaseName)) {
+            collapsedPhases.delete(phaseName);
+        } else {
+            collapsedPhases.add(phaseName);
+        }
+        renderRoadmap();
+    }
 
     function renderRoadmap() {
         const root = document.getElementById('roadmap-root');
         root.innerHTML = '';
         let lastPhase = "";
+        let currentContentContainer = null;
 
         roadmapData.forEach(task => {
             if (task.phase !== lastPhase) {
+                // Create Header
                 const header = document.createElement('div');
-                header.className = 'phase-header';
+                const isCollapsed = collapsedPhases.has(task.phase);
+                header.className = `phase-header ${isCollapsed ? 'collapsed' : ''}`;
                 header.innerText = task.phase;
+                header.onclick = () => togglePhase(task.phase);
                 root.appendChild(header);
+
+                // Create Content Wrapper
+                currentContentContainer = document.createElement('div');
+                currentContentContainer.className = `phase-content ${isCollapsed ? 'hidden' : ''}`;
+                root.appendChild(currentContentContainer);
+                
                 lastPhase = task.phase;
             }
 
@@ -133,7 +180,7 @@
                     <button class="btn btn-done" onclick="completeTask(${task.id})">${task.completed ? 'FINISHED' : 'MARK AS DONE'}</button>
                 </div>
             `;
-            root.appendChild(card);
+            currentContentContainer.appendChild(card);
         });
         updateProgress();
     }
