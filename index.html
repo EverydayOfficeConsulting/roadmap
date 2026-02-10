@@ -11,7 +11,6 @@
             --success: #27ae60; 
             --light-grey: #f8f9fa; 
             --white: #ffffff; 
-            --accent: #f39c12;
         }
 
         * { box-sizing: border-box; }
@@ -21,13 +20,12 @@
             background-color: var(--light-grey); 
             color: var(--charcoal); 
             margin: 0; 
-            padding-bottom: 50px; 
         }
 
         header { 
             background-color: var(--evergreen); 
             color: var(--white); 
-            padding: 25px 20px; 
+            padding: 20px; 
             text-align: center; 
             position: sticky; 
             top: 0; 
@@ -35,70 +33,107 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        .header-title { font-size: 1.4rem; font-weight: 800; margin: 0; letter-spacing: 1px; }
+        .header-title { font-size: 1.2rem; font-weight: 800; margin: 0; text-transform: uppercase; }
 
-        .progress-wrapper { max-width: 500px; margin: 15px auto 0; }
-        .progress-container { background-color: rgba(255,255,255,0.2); border-radius: 20px; height: 12px; overflow: hidden; }
-        #progress-bar { background-color: var(--success); width: 0%; height: 100%; transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        /* Progress Bar */
+        .progress-wrapper { max-width: 400px; margin: 10px auto 0; }
+        .progress-container { background-color: rgba(255,255,255,0.2); border-radius: 20px; height: 8px; overflow: hidden; }
+        #progress-bar { background-color: var(--success); width: 0%; height: 100%; transition: width 0.5s ease; }
 
-        main { max-width: 600px; margin: 20px auto; padding: 0 15px; }
-        
-        .phase-header { 
-            background: var(--charcoal); 
-            color: white; 
-            padding: 15px; 
-            border-radius: 8px; 
-            font-weight: 700; 
-            margin: 25px 0 8px; 
-            text-transform: uppercase; 
-            font-size: 0.85rem; 
-            cursor: pointer; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        /* Layout Container */
+        .app-container {
+            display: flex;
+            flex-direction: row;
+            height: calc(100vh - 85px); /* Full height minus header */
+            overflow: hidden;
         }
 
-        .phase-header:after { content: '▼'; font-size: 0.7rem; transition: transform 0.3s; }
+        /* Roadmap Side */
+        #roadmap-root {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Video Side (PC) */
+        #video-theater {
+            flex: 1.2;
+            background: #000;
+            display: none; /* Hidden until a video is clicked */
+            flex-direction: column;
+            border-left: 4px solid var(--charcoal);
+            position: relative;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        .close-video {
+            background: var(--evergreen);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        /* Phase Headers & Cards */
+        .phase-header { background: var(--charcoal); color: white; padding: 15px; border-radius: 8px; font-weight: 700; margin: 20px 0 8px; text-transform: uppercase; font-size: 0.8rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .phase-header:after { content: '▼'; font-size: 0.7rem; }
         .phase-header.collapsed:after { transform: rotate(-90deg); }
         
-        .task-card { 
-            background: var(--white); 
-            border-radius: 16px; 
-            padding: 20px; 
-            margin-bottom: 15px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
-            border: 1px solid #dee2e6; 
-            transition: all 0.3s ease;
-        }
-
-        .task-card.completed { border-left: 10px solid var(--success); background-color: #f0fff4; }
-        .task-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; }
-        .task-desc { font-size: 0.9rem; color: #6c757d; margin-bottom: 15px; line-height: 1.4; }
+        .task-card { background: var(--white); border-radius: 12px; padding: 20px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #dee2e6; }
+        .task-card.completed { border-left: 8px solid var(--success); background: #f0fff4; }
+        .task-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; }
+        .task-desc { font-size: 0.85rem; color: #666; margin-bottom: 15px; }
         
-        .video-btn { 
-            background-color: #000; 
+        .watch-btn { 
+            background-color: var(--charcoal); 
             color: #fff; 
             display: block; 
             text-align: center; 
             text-decoration: none; 
-            padding: 14px; 
-            border-radius: 10px; 
-            margin-bottom: 12px; 
-            font-weight: 700; 
-            font-size: 1rem;
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-bottom: 10px; 
+            font-weight: 700;
+            cursor: pointer;
         }
 
-        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn { padding: 12px; border-radius: 10px; text-decoration: none; font-weight: 700; text-align: center; border: none; cursor: pointer; font-size: 0.85rem; transition: filter 0.2s; }
-        .btn:active { filter: brightness(0.9); }
-        
-        .btn-outline { background: #eee; color: var(--charcoal); border: 1px solid #ccc; }
-        .btn-done { grid-column: span 2; background-color: var(--evergreen); color: white; padding: 15px; font-size: 1rem; }
-        .completed .btn-done { background-color: #ced4da; color: #6c757d; pointer-events: none; }
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn { padding: 10px; border-radius: 8px; text-decoration: none; font-weight: 700; text-align: center; border: none; cursor: pointer; font-size: 0.75rem; }
+        .btn-outline { background: #eee; color: var(--charcoal); }
+        .btn-done { grid-column: span 2; background-color: var(--evergreen); color: white; margin-top: 5px; }
+        .completed .btn-done { background-color: #ced4da; pointer-events: none; }
 
-        .loading-msg { text-align: center; margin-top: 50px; font-weight: bold; font-size: 1.1rem; color: #666; }
-        .error-msg { color: #e74c3c; padding: 20px; background: #fff; border-radius: 10px; text-align: center; margin-top: 20px; }
+        /* Mobile Adjustments */
+        @media (max-width: 900px) {
+            .app-container { flex-direction: column; height: auto; }
+            #roadmap-root { max-width: 100%; overflow-y: visible; }
+            #video-theater.active {
+                display: flex;
+                position: fixed;
+                top: 0; left: 0; width: 100%; height: 100%;
+                z-index: 2000;
+            }
+        }
     </style>
 </head>
 <body>
@@ -110,56 +145,49 @@
     </div>
 </header>
 
-<main id="roadmap-root">
-    <div class="loading-msg">Fetching latest roadmap data...</div>
-</main>
+<div class="app-container">
+    <main id="roadmap-root">
+        <div style="text-align:center; margin-top:50px;">Syncing Roadmap...</div>
+    </main>
+
+    <section id="video-theater">
+        <button class="close-video" onclick="closeVideo()">✕ CLOSE VIDEO & RETURN TO LIST</button>
+        <div class="video-container" id="player-frame">
+            </div>
+        <div style="padding: 20px; color: white; background: #111; flex-grow: 1;">
+            <h3 id="video-title">Select a Task</h3>
+            <p id="video-desc" style="font-size: 0.9rem; opacity: 0.8;">Watch the tutorial below to complete this step.</p>
+        </div>
+    </section>
+</div>
 
 <script>
-    // THE SOURCE OF TRUTH
     const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv';
 
     let roadmapData = [];
     const collapsedPhases = new Set();
-    // Load existing completions from user's browser storage
     const completedTasks = new Set(JSON.parse(localStorage.getItem('eoco_completed')) || []);
 
     async function fetchSheetData() {
-        const root = document.getElementById('roadmap-root');
         try {
             const response = await fetch(SHEET_CSV_URL);
-            if (!response.ok) throw new Error('Failed to fetch spreadsheet.');
-            
             const rawText = await response.text();
-            const parsedRows = parseCSV(rawText).slice(1); // Exclude Header Row
+            const parsedRows = parseCSV(rawText).slice(1);
             
-            if (parsedRows.length === 0) {
-                root.innerHTML = '<div class="loading-msg">The spreadsheet is currently empty.</div>';
-                return;
-            }
-
             roadmapData = parsedRows.map(cols => ({
-                id: cols[0] ? cols[0].trim() : Math.random().toString(),
-                phase: cols[1] || "Uncategorized",
-                title: cols[2] || "Untitled Task",
-                desc: cols[3] || "",
-                videoUrl: cols[4] || "#",
-                toolUrl: cols[5] || "#",
+                id: cols[0].trim(),
+                phase: cols[1],
+                title: cols[2],
+                desc: cols[3],
+                videoUrl: cols[4],
+                toolUrl: cols[5],
                 canSkip: cols[6] ? cols[6].toLowerCase().includes('true') : false,
-                completed: completedTasks.has(cols[0] ? cols[0].trim() : '')
+                completed: completedTasks.has(cols[0].trim())
             }));
-            
             renderRoadmap();
-        } catch (error) {
-            console.error('App Error:', error);
-            root.innerHTML = `
-                <div class="error-msg">
-                    <strong>Unable to load Roadmap.</strong><br>
-                    <small>Check your internet connection or verify the Google Sheet is "Published to Web" as CSV.</small>
-                </div>`;
-        }
+        } catch (e) { console.error(e); }
     }
 
-    // CSV Parser that handles commas within quotes
     function parseCSV(text) {
         const re = /(?!\s*$)\s*(?:"([^"]*(?:""[^"]*)*)"|([^",\r\n]*))\s*(?:,|$)/g;
         const result = [];
@@ -174,6 +202,31 @@
             result.push(row);
         });
         return result;
+    }
+
+    function openVideo(url, title, desc) {
+        // Convert YouTube URL to Embed URL
+        let videoId = url.split('v=')[1];
+        if(videoId) {
+            let ampersandPosition = videoId.indexOf('&');
+            if(ampersandPosition != -1) { videoId = videoId.substring(0, ampersandPosition); }
+            
+            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            document.getElementById('player-frame').innerHTML = `<iframe src="${embedUrl}" allow="autoplay; fullscreen"></iframe>`;
+            document.getElementById('video-title').innerText = title;
+            document.getElementById('video-desc').innerText = desc;
+            
+            const theater = document.getElementById('video-theater');
+            theater.style.display = 'flex';
+            theater.classList.add('active');
+        }
+    }
+
+    function closeVideo() {
+        const theater = document.getElementById('video-theater');
+        theater.style.display = 'none';
+        theater.classList.remove('active');
+        document.getElementById('player-frame').innerHTML = ''; // Stop the video
     }
 
     function togglePhase(phaseName) {
@@ -192,7 +245,7 @@
                 const isCollapsed = collapsedPhases.has(task.phase);
                 const header = document.createElement('div');
                 header.className = `phase-header ${isCollapsed ? 'collapsed' : ''}`;
-                header.innerHTML = `<span>${task.phase}</span>`;
+                header.innerText = task.phase;
                 header.onclick = () => togglePhase(task.phase);
                 root.appendChild(header);
 
@@ -205,17 +258,13 @@
             const card = document.createElement('div');
             card.className = `task-card ${task.completed ? 'completed' : ''}`;
             card.innerHTML = `
-                <div class="task-title">${task.completed ? '<span style="color:#27ae60; margin-right:8px;">✅</span>' : ''}${task.title}</div>
+                <div class="task-title">${task.completed ? '✅ ' : ''}${task.title}</div>
                 <p class="task-desc">${task.desc}</p>
-                
-                <a href="${task.videoUrl}" target="_blank" class="video-btn">▶ Watch Tutorial</a>
-                
+                <button class="watch-btn" onclick="openVideo('${task.videoUrl}', '${task.title}', '${task.desc}')">▶ WATCH TUTORIAL</button>
                 <div class="btn-row">
-                    <a href="${task.toolUrl}" target="_blank" class="btn btn-outline">Open Tool/Portal</a>
-                    ${task.canSkip && !task.completed ? `<button class="btn btn-outline" style="color: #d35400; border-color: #f39c12;" onclick="completeTask('${task.id}')">Skip for Now</button>` : ''}
-                    <button class="btn btn-done" onclick="completeTask('${task.id}')">
-                        ${task.completed ? 'COMPLETED' : 'MARK AS FINISHED'}
-                    </button>
+                    <a href="${task.toolUrl}" target="_blank" class="btn btn-outline">OPEN TOOL</a>
+                    ${task.canSkip && !task.completed ? `<button class="btn btn-outline" style="color:#d35400;" onclick="completeTask('${task.id}')">SKIP</button>` : ''}
+                    <button class="btn btn-done" onclick="completeTask('${task.id}')">${task.completed ? 'FINISHED' : 'MARK AS DONE'}</button>
                 </div>
             `;
             currentContainer.appendChild(card);
@@ -224,26 +273,20 @@
     }
 
     function completeTask(id) {
-        const taskId = id.toString();
-        completedTasks.add(taskId);
+        completedTasks.add(id.toString());
         localStorage.setItem('eoco_completed', JSON.stringify([...completedTasks]));
-        
-        const task = roadmapData.find(t => t.id == taskId);
-        if (task) {
-            task.completed = true;
-            renderRoadmap();
-        }
+        const task = roadmapData.find(t => t.id == id);
+        if (task) task.completed = true;
+        renderRoadmap();
     }
 
     function updateProgress() {
         const total = roadmapData.length;
         if (total === 0) return;
-        const doneCount = roadmapData.filter(t => t.completed).length;
-        const percentage = (doneCount / total) * 100;
-        document.getElementById('progress-bar').style.width = percentage + '%';
+        const done = roadmapData.filter(t => t.completed).length;
+        document.getElementById('progress-bar').style.width = (done / total * 100) + '%';
     }
 
-    // Initialize the fetch
     fetchSheetData();
 </script>
 </body>
