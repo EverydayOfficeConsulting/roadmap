@@ -5,107 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EOCO | Compliance Roadmap</title>
     <style>
-        :root {
-            --evergreen: #2d5a27;
-            --charcoal: #2c3e50;
-            --success: #27ae60;
-            --light-grey: #f8f9fa;
-            --white: #ffffff;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--light-grey);
-            color: var(--charcoal);
-            margin: 0;
-            padding-bottom: 50px;
-        }
-
-        header {
-            background-color: var(--evergreen);
-            color: var(--white);
-            padding: 25px 20px;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
+        :root { --evergreen: #2d5a27; --charcoal: #2c3e50; --success: #27ae60; --light-grey: #f8f9fa; --white: #ffffff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--light-grey); color: var(--charcoal); margin: 0; padding-bottom: 50px; }
+        header { background-color: var(--evergreen); color: var(--white); padding: 25px 20px; text-align: center; position: sticky; top: 0; z-index: 1000; }
         .header-title { font-size: 1.4rem; font-weight: 800; margin: 0; }
         .progress-wrapper { max-width: 500px; margin: 15px auto 0; }
         .progress-container { background-color: rgba(255,255,255,0.2); border-radius: 20px; height: 10px; overflow: hidden; }
         #progress-bar { background-color: var(--success); width: 0%; height: 100%; transition: width 0.6s ease; }
-
         main { max-width: 600px; margin: 20px auto; padding: 0 15px; }
-
-        /* Collapsible Header Style */
-        .phase-header {
-            background: var(--charcoal);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            font-weight: 700;
-            margin: 20px 0 5px;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            user-select: none;
-        }
-
-        .phase-header:after {
-            content: '▼';
-            font-size: 0.7rem;
-            transition: transform 0.3s;
-        }
-
-        .phase-header.collapsed:after {
-            transform: rotate(-90deg);
-        }
-
-        .phase-content {
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-
-        .phase-content.hidden {
-            display: none;
-        }
-
-        .task-card {
-            background: var(--white);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            border: 1px solid #dee2e6;
-        }
-
+        .phase-header { background: var(--charcoal); color: white; padding: 15px; border-radius: 8px; font-weight: 700; margin: 20px 0 5px; text-transform: uppercase; font-size: 0.85rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .phase-header:after { content: '▼'; font-size: 0.7rem; transition: transform 0.3s; }
+        .phase-header.collapsed:after { transform: rotate(-90deg); }
+        .task-card { background: var(--white); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #dee2e6; }
         .task-card.completed { border-left: 10px solid var(--success); opacity: 0.7; }
-
         .task-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
         .task-desc { font-size: 0.9rem; color: #6c757d; margin-bottom: 15px; }
-
-        .video-btn {
-            background-color: #000;
-            color: #fff;
-            display: block;
-            text-align: center;
-            text-decoration: none;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
+        .video-btn { background-color: #000; color: #fff; display: block; text-align: center; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 10px; font-weight: 600; }
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn { padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; text-align: center; border: none; cursor: pointer; font-size: 0.8rem; }
         .btn-outline { background: #eee; color: var(--charcoal); }
         .btn-done { grid-column: span 2; background-color: var(--evergreen); color: white; }
-
         .completed .btn-done { background-color: #ced4da; pointer-events: none; }
+        .loading-msg { text-align: center; margin-top: 50px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -117,30 +38,45 @@
     </div>
 </header>
 
-<main id="roadmap-root"></main>
+<main id="roadmap-root">
+    <div class="loading-msg">Fetching latest roadmap data...</div>
+</main>
 
 <script>
-    const roadmapData = [
-        { id: 1, phase: "Phase 1: Foundations", title: "Business Bank Account", desc: "Open a dedicated account. Never mix personal and business money.", toolUrl: "#", completed: false, canSkip: false },
-        { id: 2, phase: "Phase 1: Foundations", title: "Accounting Software (QBO)", desc: "Setup your QuickBooks Online account.", toolUrl: "https://quickbooks.intuit.com/ca/", completed: false, canSkip: false },
-        { id: 3, phase: "Phase 1: Foundations", title: "Contractor Chart of Accounts", desc: "Import a specialized COA for trades.", toolUrl: "#", completed: false, canSkip: false },
-        { id: 4, phase: "Phase 1: Foundations", title: "Connect Bank Feeds", desc: "Link your business accounts to QBO.", toolUrl: "#", completed: false, canSkip: false },
-        { id: 5, phase: "Phase 2: Milestones", title: "Register for HST", desc: "Mandatory once you hit $30k in sales.", toolUrl: "https://www.canada.ca/en/revenue-agency.html", completed: false, canSkip: true },
-        { id: 6, phase: "Phase 2: Milestones", title: "WCB Registration", desc: "Mandatory if you have workers or subs without coverage.", toolUrl: "https://www.wcb.ns.ca/", completed: false, canSkip: true },
-        { id: 7, phase: "Phase 2: Milestones", title: "Payroll Registration", desc: "Get an RP account from CRA for hiring.", toolUrl: "#", completed: false, canSkip: true },
-        { id: 8, phase: "Phase 3: Organization", title: "Receipt Capture (Dext)", desc: "Automate your paperwork with Dext.", toolUrl: "https://dext.com/ca", completed: false, canSkip: false },
-        { id: 9, phase: "Phase 4: Annual Maintenance", title: "Monthly Reconcile", desc: "Match your bank and QBO balances.", toolUrl: "https://tools.eoco.ca/newcalculator/", completed: false, canSkip: false }
-    ];
+    // PASTE YOUR GOOGLE SHEET CSV URL HERE
+    const SHEET_CSV_URL = 'REPLACE_THIS_WITH_YOUR_CSV_LINK';
 
-    // Keep track of which phases are collapsed
+    let roadmapData = [];
     const collapsedPhases = new Set();
+    const completedTasks = new Set(JSON.parse(localStorage.getItem('eoco_completed')) || []);
+
+    async function fetchSheetData() {
+        try {
+            const response = await fetch(SHEET_CSV_URL);
+            const data = await response.text();
+            const rows = data.split('\n').slice(1); // Skip header row
+            
+            roadmapData = rows.filter(row => row.trim() !== '').map(row => {
+                const cols = row.split(',');
+                return {
+                    id: cols[0],
+                    phase: cols[1],
+                    title: cols[2],
+                    desc: cols[3],
+                    videoUrl: cols[4],
+                    toolUrl: cols[5],
+                    canSkip: cols[6].toLowerCase().includes('true'),
+                    completed: completedTasks.has(cols[0])
+                };
+            });
+            renderRoadmap();
+        } catch (error) {
+            document.getElementById('roadmap-root').innerHTML = 'Error loading data. Check CSV link.';
+        }
+    }
 
     function togglePhase(phaseName) {
-        if (collapsedPhases.has(phaseName)) {
-            collapsedPhases.delete(phaseName);
-        } else {
-            collapsedPhases.add(phaseName);
-        }
+        collapsedPhases.has(phaseName) ? collapsedPhases.delete(phaseName) : collapsedPhases.add(phaseName);
         renderRoadmap();
     }
 
@@ -148,23 +84,20 @@
         const root = document.getElementById('roadmap-root');
         root.innerHTML = '';
         let lastPhase = "";
-        let currentContentContainer = null;
+        let currentContainer = null;
 
         roadmapData.forEach(task => {
             if (task.phase !== lastPhase) {
-                // Create Header
-                const header = document.createElement('div');
                 const isCollapsed = collapsedPhases.has(task.phase);
+                const header = document.createElement('div');
                 header.className = `phase-header ${isCollapsed ? 'collapsed' : ''}`;
                 header.innerText = task.phase;
                 header.onclick = () => togglePhase(task.phase);
                 root.appendChild(header);
 
-                // Create Content Wrapper
-                currentContentContainer = document.createElement('div');
-                currentContentContainer.className = `phase-content ${isCollapsed ? 'hidden' : ''}`;
-                root.appendChild(currentContentContainer);
-                
+                currentContainer = document.createElement('div');
+                currentContainer.style.display = isCollapsed ? 'none' : 'block';
+                root.appendChild(currentContainer);
                 lastPhase = task.phase;
             }
 
@@ -173,21 +106,24 @@
             card.innerHTML = `
                 <div class="task-title">${task.completed ? '✅ ' : ''}${task.title}</div>
                 <p class="task-desc">${task.desc}</p>
-                <a href="#" class="video-btn">▶ Watch Tutorial</a>
+                <a href="${task.videoUrl}" target="_blank" class="video-btn">▶ Watch Tutorial</a>
                 <div class="btn-row">
                     <button class="btn btn-outline" onclick="window.location.href='${task.toolUrl}'">Open Tool</button>
-                    ${task.canSkip && !task.completed ? `<button class="btn btn-outline" style="color: #d35400;" onclick="completeTask(${task.id})">Skip for Now</button>` : ''}
-                    <button class="btn btn-done" onclick="completeTask(${task.id})">${task.completed ? 'FINISHED' : 'MARK AS DONE'}</button>
+                    ${task.canSkip && !task.completed ? `<button class="btn btn-outline" style="color: #d35400;" onclick="completeTask('${task.id}')">Skip for Now</button>` : ''}
+                    <button class="btn btn-done" onclick="completeTask('${task.id}')">${task.completed ? 'FINISHED' : 'MARK AS DONE'}</button>
                 </div>
             `;
-            currentContentContainer.appendChild(card);
+            currentContainer.appendChild(card);
         });
         updateProgress();
     }
 
     function completeTask(id) {
-        const t = roadmapData.find(item => item.id === id);
-        if (t) { t.completed = true; renderRoadmap(); }
+        completedTasks.add(id);
+        localStorage.setItem('eoco_completed', JSON.stringify([...completedTasks]));
+        const task = roadmapData.find(t => t.id == id);
+        if (task) task.completed = true;
+        renderRoadmap();
     }
 
     function updateProgress() {
@@ -195,7 +131,7 @@
         document.getElementById('progress-bar').style.width = (done / roadmapData.length * 100) + '%';
     }
 
-    renderRoadmap();
+    fetchSheetData();
 </script>
 </body>
 </html>
