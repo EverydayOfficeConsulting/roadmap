@@ -1,152 +1,95 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EOCO | Compliance Roadmap</title>
-    <style>
-        :root {
-            --evergreen: #2d5a27;
-            --charcoal: #2c3e50;
-            --accent: #f39c12;
-            --success: #27ae60;
-            --light-grey: #f8f9fa;
-            --white: #ffffff;
-            --dave-blue: #3498db;
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--light-grey);
-            color: var(--charcoal);
-            margin: 0;
-            padding-bottom: 50px;
-        }
-
-        header {
-            background-color: var(--evergreen);
-            color: var(--white);
-            padding: 25px 20px;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .header-title { font-size: 1.4rem; font-weight: 800; margin: 0; }
-
-        .progress-wrapper { max-width: 500px; margin: 15px auto 0; }
-        .progress-text { font-size: 0.8rem; text-transform: uppercase; margin-bottom: 8px; display: block; }
-        .progress-container { background-color: rgba(255,255,255,0.2); border-radius: 20px; height: 10px; overflow: hidden; }
-        #progress-bar { background-color: var(--success); width: 0%; height: 100%; transition: width 0.6s ease; }
-
-        main { max-width: 600px; margin: 20px auto; padding: 0 15px; }
-
-        .phase-header {
-            background: var(--charcoal);
-            color: white;
-            padding: 12px 15px;
-            border-radius: 8px;
-            font-weight: 700;
-            margin: 35px 0 15px;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-        }
-
-        .task-card {
-            background: var(--white);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.05);
-            border: 1px solid #dee2e6;
-            transition: opacity 0.3s;
-        }
-
-        .task-card.completed { border-left: 10px solid var(--success); opacity: 0.8; }
-
-        .task-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; }
-        .task-desc { font-size: 0.9rem; color: #6c757d; margin-bottom: 20px; }
-
-        /* The Tutorial Link (Coffee Table with Dave style) */
-        .tutorial-link {
-            background-color: var(--dave-blue);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            font-weight: 700;
-            font-size: 1rem;
-        }
-
-        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn { padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; text-align: center; border: none; cursor: pointer; font-size: 0.85rem; }
-        .btn-outline { background: #eee; color: var(--charcoal); }
-        .btn-done { grid-column: span 2; background-color: var(--evergreen); color: white; margin-top: 5px; }
-
-        .completed .btn-done { background-color: #ced4da; pointer-events: none; }
-    </style>
-</head>
-<body>
-
-<header>
-    <p class="header-title">COMPLIANCE ROADMAP</p>
-    <div class="progress-wrapper">
-        <span class="progress-text" id="progress-label">Total Progress: 0%</span>
-        <div class="progress-container">
-            <div id="progress-bar"></div>
-        </div>
-    </div>
-</header>
-
-<main id="roadmap-root">
-    </main>
-
 <script>
+    // THE MASTER ROADMAP DATA
     const roadmapData = [
         {
             id: 1,
-            phase: "Step 1: The Foundations (Setup)",
+            phase: "Phase 0: Foundations (Setup)",
             title: "Business Bank Account",
-            desc: "Watch 'Coffee Table with Dave' on why mixing personal and business money is your biggest risk.",
-            videoUrl: "#", // Link to Coffee Table video
+            desc: "Open a dedicated business account and credit card. Essential for keeping personal and business finances separate.",
+            videoUrl: "#", 
             toolUrl: "#",
-            completed: false
+            completed: false,
+            canSkip: false
         },
         {
             id: 2,
-            phase: "Step 1: The Foundations (Setup)",
-            title: "New QBO Account Setup",
-            desc: "Dave walks you through the initial settings you need to toggle on before entering a single transaction.",
-            videoUrl: "#", // Link to QBO Setup video
-            toolUrl: "#",
-            completed: false
+            phase: "Phase 0: Foundations (Setup)",
+            title: "Accounting Software (QBO)",
+            desc: "Create your QuickBooks Online account. This will be the hub for all your financial data.",
+            videoUrl: "#", 
+            toolUrl: "https://quickbooks.intuit.com/ca/",
+            completed: false,
+            canSkip: false
         },
         {
             id: 3,
-            phase: "Step 2: Annual Calendar (Jan - Dec)",
-            title: "January: Monthly Reconcile",
-            desc: "Time to close out the previous month. Match your bank feed and ensure all receipts are in.",
-            videoUrl: "#",
-            toolUrl: "https://tools.eoco.ca/calculator/",
-            completed: false
+            phase: "Phase 0: Foundations (Setup)",
+            title: "Contractor Chart of Accounts",
+            desc: "Import or create a Chart of Accounts specifically designed for the trades to track project costs accurately.",
+            videoUrl: "#", 
+            toolUrl: "#",
+            completed: false,
+            canSkip: false
         },
         {
             id: 4,
-            phase: "Step 2: Annual Calendar (Jan - Dec)",
-            title: "March: Q1 HST Filing",
-            desc: "Quarterly deadline. Run your report, use the calculator, and pay the CRA.",
-            videoUrl: "#",
-            toolUrl: "https://tools.eoco.ca/calculator/",
-            completed: false
+            phase: "Phase 0: Foundations (Setup)",
+            title: "Company Profile & Settings",
+            desc: "Update your logo, address, and fiscal year end in the QBO settings menu.",
+            videoUrl: "#", 
+            toolUrl: "#",
+            completed: false,
+            canSkip: false
+        },
+        {
+            id: 5,
+            phase: "Phase 0: Foundations (Setup)",
+            title: "Connect Bank Feeds",
+            desc: "Link your business bank and credit card to QBO so transactions flow in automatically.",
+            videoUrl: "#", 
+            toolUrl: "#",
+            completed: false,
+            canSkip: false
+        },
+        {
+            id: 6,
+            phase: "Phase 1: Expansion (Milestones)",
+            title: "Register for HST",
+            desc: "MANDATORY if sales exceed $30k in 12 months. Includes getting your Business Number (BN) from the CRA.",
+            videoUrl: "#", 
+            toolUrl: "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/gst-hst-businesses/register-a-gst-hst-account.html",
+            completed: false,
+            canSkip: true // Added 'Skip for now' logic
+        },
+        {
+            id: 7,
+            phase: "Phase 1: Expansion (Milestones)",
+            title: "Payroll Registration",
+            desc: "Register for a Payroll (RP) account with the CRA if you are hiring employees or paying yourself a salary.",
+            videoUrl: "#", 
+            toolUrl: "#",
+            completed: false,
+            canSkip: true
+        },
+        {
+            id: 8,
+            phase: "Phase 2: Organization",
+            title: "Receipt Capture (Dext)",
+            desc: "Connect Dext to your QBO account to automate receipt collection and stop the paper trail.",
+            videoUrl: "#", 
+            toolUrl: "https://dext.com/ca",
+            completed: false,
+            canSkip: false
+        },
+        {
+            id: 9,
+            phase: "Phase 3: Annual Maintenance",
+            title: "Monthly Reconcile",
+            desc: "Close out the month by matching all transactions and checking bank balances.",
+            videoUrl: "#", 
+            toolUrl: "https://tools.eoco.ca/newcalculator/",
+            completed: false,
+            canSkip: false
         }
     ];
 
@@ -170,12 +113,13 @@
                 <div class="task-title">${task.completed ? '✅ ' : ''}${task.title}</div>
                 <p class="task-desc">${task.desc}</p>
                 
-                <a href="${task.videoUrl}" class="tutorial-link">
-                    ☕ Watch Tutorial with Dave
+                <a href="${task.videoUrl}" class="video-btn">
+                    ▶ Watch Tutorial
                 </a>
 
                 <div class="btn-row">
-                    <button class="btn btn-outline" onclick="window.location.href='${task.toolUrl}'">Open Tool</button>
+                    <button class="btn btn-outline" onclick="window.location.href='${task.toolUrl}'">Open Tool/Portal</button>
+                    ${task.canSkip && !task.completed ? `<button class="btn btn-outline" style="border-color: #f39c12; color: #d35400;" onclick="skipTask(${task.id})">Skip for Now</button>` : ''}
                     <button class="btn btn-done" onclick="completeTask(${task.id})">
                         ${task.completed ? 'FINISHED' : 'MARK AS DONE'}
                     </button>
@@ -194,15 +138,17 @@
         }
     }
 
+    function skipTask(id) {
+        alert("This task has been moved to your 'Watch List'. Remember to return here once your business reaches the required milestone.");
+        // Logic to hide or move task can be added here
+    }
+
     function updateProgress() {
         const finished = roadmapData.filter(t => t.completed).length;
         const percent = Math.round((finished / roadmapData.length) * 100);
         document.getElementById('progress-bar').style.width = percent + '%';
-        document.getElementById('progress-label').innerText = `Total Progress: ${percent}%`;
+        document.getElementById('progress-label').innerText = `Roadmap Progress: ${percent}%`;
     }
 
     renderRoadmap();
 </script>
-
-</body>
-</html>
