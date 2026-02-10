@@ -5,22 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EOCO | Compliance Roadmap</title>
     <style>
-        :root { --evergreen: #2d5a27; --charcoal: #2c3e50; --success: #27ae60; --light-grey: #f8f9fa; --white: #ffffff; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--light-grey); color: var(--charcoal); margin: 0; padding-bottom: 50px; }
-        header { background-color: var(--evergreen); color: var(--white); padding: 25px 20px; text-align: center; position: sticky; top: 0; z-index: 1000; }
+        :root { 
+            --evergreen: #2d5a27; 
+            --charcoal: #2c3e50; 
+            --success: #27ae60; 
+            --light-grey: #f8f9fa; 
+            --white: #ffffff; 
+        }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: var(--light-grey); 
+            color: var(--charcoal); 
+            margin: 0; 
+            padding-bottom: 50px; 
+        }
+        header { 
+            background-color: var(--evergreen); 
+            color: var(--white); 
+            padding: 25px 20px; 
+            text-align: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
         .header-title { font-size: 1.4rem; font-weight: 800; margin: 0; }
         .progress-wrapper { max-width: 500px; margin: 15px auto 0; }
         .progress-container { background-color: rgba(255,255,255,0.2); border-radius: 20px; height: 10px; overflow: hidden; }
         #progress-bar { background-color: var(--success); width: 0%; height: 100%; transition: width 0.6s ease; }
         main { max-width: 600px; margin: 20px auto; padding: 0 15px; }
-        .phase-header { background: var(--charcoal); color: white; padding: 15px; border-radius: 8px; font-weight: 700; margin: 20px 0 5px; text-transform: uppercase; font-size: 0.85rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        
+        .phase-header { 
+            background: var(--charcoal); 
+            color: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-weight: 700; 
+            margin: 20px 0 5px; 
+            text-transform: uppercase; 
+            font-size: 0.85rem; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
         .phase-header:after { content: '▼'; font-size: 0.7rem; transition: transform 0.3s; }
         .phase-header.collapsed:after { transform: rotate(-90deg); }
-        .task-card { background: var(--white); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #dee2e6; }
+        
+        .task-card { 
+            background: var(--white); 
+            border-radius: 16px; 
+            padding: 20px; 
+            margin-bottom: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+            border: 1px solid #dee2e6; 
+        }
         .task-card.completed { border-left: 10px solid var(--success); opacity: 0.7; }
         .task-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
         .task-desc { font-size: 0.9rem; color: #6c757d; margin-bottom: 15px; }
-        .video-btn { background-color: #000; color: #fff; display: block; text-align: center; text-decoration: none; padding: 12px; border-radius: 8px; margin-bottom: 10px; font-weight: 600; }
+        
+        .video-btn { 
+            background-color: #000; 
+            color: #fff; 
+            display: block; 
+            text-align: center; 
+            text-decoration: none; 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-bottom: 10px; 
+            font-weight: 600; 
+        }
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn { padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 700; text-align: center; border: none; cursor: pointer; font-size: 0.8rem; }
         .btn-outline { background: #eee; color: var(--charcoal); }
@@ -43,8 +97,8 @@
 </main>
 
 <script>
-    // PASTE YOUR GOOGLE SHEET CSV URL HERE
-    const SHEET_CSV_URL = 'REPLACE_THIS_WITH_YOUR_CSV_LINK';
+    // YOUR GOOGLE SHEET CSV LINK
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv';
 
     let roadmapData = [];
     const collapsedPhases = new Set();
@@ -57,21 +111,23 @@
             const rows = data.split('\n').slice(1); // Skip header row
             
             roadmapData = rows.filter(row => row.trim() !== '').map(row => {
-                const cols = row.split(',');
+                // Using a regex to split by comma while ignoring commas inside quotes
+                const cols = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || row.split(',');
                 return {
-                    id: cols[0],
-                    phase: cols[1],
-                    title: cols[2],
-                    desc: cols[3],
-                    videoUrl: cols[4],
-                    toolUrl: cols[5],
+                    id: cols[0].replace(/"/g, ''),
+                    phase: cols[1].replace(/"/g, ''),
+                    title: cols[2].replace(/"/g, ''),
+                    desc: cols[3].replace(/"/g, ''),
+                    videoUrl: cols[4].replace(/"/g, ''),
+                    toolUrl: cols[5].replace(/"/g, ''),
                     canSkip: cols[6].toLowerCase().includes('true'),
-                    completed: completedTasks.has(cols[0])
+                    completed: completedTasks.has(cols[0].replace(/"/g, ''))
                 };
             });
             renderRoadmap();
         } catch (error) {
-            document.getElementById('roadmap-root').innerHTML = 'Error loading data. Check CSV link.';
+            console.error(error);
+            document.getElementById('roadmap-root').innerHTML = 'Error loading data. Ensure the spreadsheet is Published to Web as CSV.';
         }
     }
 
@@ -96,42 +152,4 @@
                 root.appendChild(header);
 
                 currentContainer = document.createElement('div');
-                currentContainer.style.display = isCollapsed ? 'none' : 'block';
-                root.appendChild(currentContainer);
-                lastPhase = task.phase;
-            }
-
-            const card = document.createElement('div');
-            card.className = `task-card ${task.completed ? 'completed' : ''}`;
-            card.innerHTML = `
-                <div class="task-title">${task.completed ? '✅ ' : ''}${task.title}</div>
-                <p class="task-desc">${task.desc}</p>
-                <a href="${task.videoUrl}" target="_blank" class="video-btn">▶ Watch Tutorial</a>
-                <div class="btn-row">
-                    <button class="btn btn-outline" onclick="window.location.href='${task.toolUrl}'">Open Tool</button>
-                    ${task.canSkip && !task.completed ? `<button class="btn btn-outline" style="color: #d35400;" onclick="completeTask('${task.id}')">Skip for Now</button>` : ''}
-                    <button class="btn btn-done" onclick="completeTask('${task.id}')">${task.completed ? 'FINISHED' : 'MARK AS DONE'}</button>
-                </div>
-            `;
-            currentContainer.appendChild(card);
-        });
-        updateProgress();
-    }
-
-    function completeTask(id) {
-        completedTasks.add(id);
-        localStorage.setItem('eoco_completed', JSON.stringify([...completedTasks]));
-        const task = roadmapData.find(t => t.id == id);
-        if (task) task.completed = true;
-        renderRoadmap();
-    }
-
-    function updateProgress() {
-        const done = roadmapData.filter(t => t.completed).length;
-        document.getElementById('progress-bar').style.width = (done / roadmapData.length * 100) + '%';
-    }
-
-    fetchSheetData();
-</script>
-</body>
-</html>
+                currentContainer.style.display = isCollapsed ? 'none' : 'block
