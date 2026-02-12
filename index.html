@@ -10,7 +10,7 @@
             --evergreen: #2d5a27; 
             --accent-orange: #e67e22; 
             --bg-main: #f4f7f6; 
-            --bg-panel: #eceff1; /* Slight grey for side panes */
+            --bg-panel: #eceff1; 
             --border-grey: #d1d8db;
             --white: #ffffff; 
             --text-main: #2c3e50;
@@ -18,195 +18,127 @@
 
         * { box-sizing: border-box; }
         body { 
-            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: var(--bg-main); 
-            margin: 0; 
-            overflow: hidden; 
-            color: var(--text-main);
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main);
         }
 
-        /* Top Navigation Bar */
         header { 
-            background: var(--primary-dark); 
-            color: white; 
-            padding: 0 25px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 60px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-            position: relative;
+            background: var(--primary-dark); color: white; padding: 0 25px; 
+            display: flex; justify-content: center; align-items: center; height: 60px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; position: relative;
         }
         .header-title { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; }
 
-        /* Main Workspace Container */
         .workspace { display: flex; height: calc(100vh - 60px); width: 100vw; }
 
-        /* PANE 1: TOOL (LEFT) */
+        /* Left Pane (Now displays the Step Tips/Tool) */
         #pane-tool { 
-            flex: 0; 
-            display: none; 
-            border-right: 2px solid var(--border-grey); 
-            background: var(--bg-panel); 
-            position: relative; 
-            transition: all 0.3s ease;
+            flex: 0; display: none; border-right: 2px solid var(--border-grey); 
+            background: var(--bg-panel); position: relative; transition: all 0.3s ease;
+            padding: 40px 25px; overflow-y: auto;
         }
         #pane-tool.active { flex: 1; display: block; }
-        #pane-tool iframe { width: 100%; height: 100%; border: none; }
 
-        /* PANE 2: MODULES (CENTER) */
+        /* Center Pane (Roadmap) */
         #pane-modules { 
-            flex: 1.2; 
-            background: var(--bg-main); 
-            overflow-y: auto; 
-            padding: 40px 20px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
+            flex: 1.2; background: var(--bg-main); overflow-y: auto; 
+            padding: 40px 20px; display: flex; flex-direction: column; align-items: center;
         }
         #module-list { width: 100%; max-width: 550px; }
 
-        /* PANE 3: VIDEO (RIGHT) */
+        /* Right Pane (Video) */
         #pane-video { 
-            flex: 0; 
-            display: flex; 
-            visibility: hidden;
-            width: 0;
-            background: var(--bg-panel); 
-            flex-direction: column; 
-            border-left: 0px solid var(--border-grey); 
-            transition: all 0.3s ease;
-            overflow: hidden;
+            flex: 0; display: flex; visibility: hidden; width: 0;
+            background: var(--bg-panel); flex-direction: column; 
+            border-left: 0px solid var(--border-grey); transition: all 0.3s ease;
         }
-        #pane-video.active { 
-            flex: 1; 
-            visibility: visible;
-            width: auto;
-            border-left: 2px solid var(--border-grey); 
-        }
+        #pane-video.active { flex: 1; visibility: visible; width: auto; border-left: 2px solid var(--border-grey); }
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; margin: auto 0; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
-        /* Module Card Styling */
+        /* Module Card */
         .module-card { 
-            background: var(--white); 
-            border: 2px solid var(--border-grey); 
-            border-radius: 12px; 
-            padding: 25px; 
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            background: var(--white); border: 2px solid var(--border-grey); 
+            border-radius: 12px; padding: 25px; margin-bottom: 30px;
         }
-        .module-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 12px; color: var(--primary-dark); }
-        .module-desc { font-size: 0.9rem; color: #666; line-height: 1.5; margin-bottom: 20px; }
-
-        /* Steps Checklist Area */
-        .checklist-container { 
-            margin: 20px 0; 
-            background: #f8fafb; 
-            padding: 20px; 
-            border-radius: 8px; 
-            border: 1px solid #edf2f4; 
-        }
-        .checklist-label { font-size: 0.7rem; font-weight: 800; color: #999; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 15px; }
-        .check-item { display: flex; align-items: flex-start; margin-bottom: 12px; font-size: 0.9rem; cursor: pointer; color: #333; }
-        .check-item input { margin-right: 12px; margin-top: 3px; width: 18px; height: 18px; accent-color: var(--evergreen); cursor: pointer; }
+        .module-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 12px; color: var(--primary-dark); }
         
+        /* Checklist with Tip Trigger */
+        .checklist-container { margin: 20px 0; }
+        .step-wrapper { 
+            border-bottom: 1px solid #eee; padding: 10px 0; 
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .step-left { display: flex; align-items: center; flex: 1; cursor: pointer; }
+        .step-left input { margin-right: 12px; width: 18px; height: 18px; accent-color: var(--evergreen); }
+        .step-name { font-weight: 600; font-size: 0.95rem; }
+        .tip-indicator { font-size: 0.7rem; color: var(--evergreen); font-weight: 800; text-transform: uppercase; }
+
         .mini-progress { height: 8px; background: #e0e0e0; border-radius: 4px; margin-top: 20px; overflow: hidden; }
         .mini-bar { height: 100%; background: var(--evergreen); width: 0%; transition: width 0.4s ease; }
 
-        /* Action Buttons Row */
-        .btn-row { display: flex; gap: 15px; margin-top: 25px; }
-        .action-btn { 
-            flex: 1; 
-            padding: 14px; 
-            border-radius: 8px; 
-            font-size: 0.8rem; 
-            font-weight: 800; 
-            text-align: center; 
-            cursor: pointer; 
-            text-transform: uppercase;
-            border: 2px solid var(--border-grey); 
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-        .btn-portal { background: #ffffff; color: var(--primary-dark); }
-        .btn-portal:hover { border-color: var(--primary-dark); }
-        .btn-video { background: var(--primary-dark); color: white; border: none; }
-        .btn-video:hover { background: #333; }
-
-        /* Close Sidebar Button */
-        .close-pane-btn { 
-            background: var(--accent-orange); 
-            color: white; 
-            border: none; 
-            padding: 12px; 
-            cursor: pointer; 
-            font-weight: 800; 
-            width: 100%; 
-            font-size: 0.75rem;
-            letter-spacing: 1px;
+        .btn-video { 
+            width: 100%; background: var(--primary-dark); color: white; border: none; 
+            padding: 14px; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 20px;
         }
 
-        /* Mobile View (Stacking) */
-        @media (max-width: 1000px) {
-            .workspace { flex-direction: column; height: auto; overflow: visible; }
-            #pane-tool, #pane-video { height: 500px; border: none; }
-            #pane-tool.active, #pane-video.active { flex: none; display: block; width: 100%; }
-            #pane-modules { height: auto; padding: 20px; }
+        /* Tips Display (Left Pane) */
+        .tip-header { font-size: 0.75rem; color: #999; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+        .tip-title { font-size: 1.5rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 15px; }
+        .tip-content { line-height: 1.6; color: #444; margin-bottom: 30px; }
+        .btn-launch { 
+            display: block; background: var(--evergreen); color: white; text-align: center; 
+            padding: 15px; border-radius: 8px; text-decoration: none; font-weight: 800; text-transform: uppercase;
         }
+
+        .close-pane-btn { background: var(--accent-orange); color: white; border: none; padding: 12px; cursor: pointer; font-weight: 800; width: 100%; font-size: 0.75rem; margin-bottom: 20px;}
     </style>
 </head>
 <body>
 
-<header>
-    <div class="header-title">EOCO Compliance Command Center</div>
-</header>
+<header><div class="header-title">EOCO Command Center</div></header>
 
 <div class="workspace">
     <section id="pane-tool">
-        <button class="close-pane-btn" onclick="togglePortal(null)">✕ CLOSE TOOL PORTAL</button>
-        <iframe id="portal-frame"></iframe>
+        <button class="close-pane-btn" onclick="closeTips()">✕ CLOSE TIPS</button>
+        <div id="tip-display">
+            <p style="color:#888;">Select a step in the roadmap to see detailed tips and tools here.</p>
+        </div>
     </section>
 
     <section id="pane-modules">
-        <div id="module-list">Loading Hub...</div>
+        <div id="module-list">Connecting to Roadmap...</div>
     </section>
 
     <section id="pane-video">
-        <button class="close-pane-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL VIDEO</button>
+        <button class="close-pane-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button>
         <div class="video-wrapper" id="video-frame"></div>
     </section>
 </div>
 
 <script>
     const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv';
-
     let modules = [];
     const userState = JSON.parse(localStorage.getItem('eoco_command_state')) || {};
 
     async function init() {
-        try {
-            const response = await fetch(SHEET_CSV_URL);
-            const text = await response.text();
-            const rows = parseCSV(text).slice(1);
-            
-            modules = rows.filter(r => r.length > 0).map(cols => {
-                const rawSteps = cols[6] ? cols[6].split(';') : ["Complete all requirements"];
-                return {
-                    id: cols[0].trim(),
-                    phase: cols[1],
-                    title: cols[2],
-                    desc: cols[3],
-                    videoUrl: cols[4],
-                    portalUrl: cols[5],
-                    steps: rawSteps.map(s => s.trim())
-                };
-            });
-            render();
-        } catch (e) { 
-            console.error("Connection Error", e); 
-        }
+        const response = await fetch(SHEET_CSV_URL);
+        const text = await response.text();
+        const rows = parseCSV(text).slice(1);
+        
+        modules = rows.filter(r => r.length > 0).map(cols => {
+            const rawSteps = cols[6] ? cols[6].split(';') : ["Complete requirements||"];
+            return {
+                id: cols[0].trim(),
+                title: cols[2],
+                videoUrl: cols[4],
+                steps: rawSteps.map(s => {
+                    const parts = s.split('|');
+                    return { name: parts[0]?.trim(), tips: parts[1]?.trim() || "No additional tips for this step.", url: parts[2]?.trim() || "" };
+                })
+            };
+        });
+        render();
     }
 
     function parseCSV(text) {
@@ -233,26 +165,41 @@
             return `
                 <div class="module-card">
                     <div class="module-title">${m.title}</div>
-                    <p class="module-desc">${m.desc}</p>
                     <div class="checklist-container">
-                        <span class="checklist-label">Action Items</span>
                         ${m.steps.map((step, i) => `
-                            <label class="check-item">
-                                <input type="checkbox" ${state.checks.includes(i) ? 'checked' : ''} 
-                                       onchange="toggleStep('${m.id}', ${i})">
-                                ${step}
-                            </label>
+                            <div class="step-wrapper">
+                                <div class="step-left" onclick="showTips('${m.id}', ${i})">
+                                    <input type="checkbox" ${state.checks.includes(i) ? 'checked' : ''} 
+                                           onclick="event.stopPropagation(); toggleStep('${m.id}', ${i})">
+                                    <span class="step-name">${step.name}</span>
+                                </div>
+                                <span class="tip-indicator">Tips ➔</span>
+                            </div>
                         `).join('')}
                         <div class="mini-progress"><div class="mini-bar" style="width:${progress}%"></div></div>
                     </div>
-                    <div class="btn-row">
-                        <div class="action-btn btn-portal" onclick="togglePortal('${m.portalUrl}')">Open Tool</div>
-                        <div class="action-btn btn-video" onclick="toggleVideo('${m.videoUrl}')">Watch Tutorial</div>
-                    </div>
+                    <button class="btn-video" onclick="toggleVideo('${m.videoUrl}')">Watch Module Tutorial</button>
                 </div>
             `;
         }).join('');
     }
+
+    function showTips(modId, stepIdx) {
+        const module = modules.find(m => m.id === modId);
+        const step = module.steps[stepIdx];
+        const display = document.getElementById('tip-display');
+        const pane = document.getElementById('pane-tool');
+        
+        display.innerHTML = `
+            <div class="tip-header">Instructions for Step ${stepIdx + 1}</div>
+            <div class="tip-title">${step.name}</div>
+            <div class="tip-content">${step.tips}</div>
+            ${step.url ? `<a href="${step.url}" target="_blank" class="btn-launch">Open Step Tool</a>` : ''}
+        `;
+        pane.classList.add('active');
+    }
+
+    function closeTips() { document.getElementById('pane-tool').classList.remove('active'); }
 
     function toggleStep(modId, stepIdx) {
         if (!userState[modId]) userState[modId] = { checks: [] };
@@ -263,38 +210,21 @@
         render();
     }
 
-    function togglePortal(url) {
-        const pane = document.getElementById('pane-tool');
-        const frame = document.getElementById('portal-frame');
-        if (!url || (pane.classList.contains('active') && frame.src.includes(url))) {
-            pane.classList.remove('active');
-            frame.src = "";
-        } else {
-            frame.src = url;
-            pane.classList.add('active');
-        }
-    }
-
     function toggleVideo(url) {
         const pane = document.getElementById('pane-video');
         const frameContainer = document.getElementById('video-frame');
         const iframe = frameContainer.querySelector('iframe');
-        
         if (!url || pane.classList.contains('active')) {
             pane.classList.remove('active');
-            if (iframe) {
-                iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-            }
+            if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
             return;
         }
-
         let vidId = url.split('v=')[1];
         if (vidId) {
-            let ampersandPosition = vidId.indexOf('&');
-            if (ampersandPosition != -1) vidId = vidId.substring(0, ampersandPosition);
-            const embedUrl = `https://www.youtube.com/embed/${vidId}?enablejsapi=1&autoplay=1`;
+            let amp = vidId.indexOf('&');
+            if (amp != -1) vidId = vidId.substring(0, amp);
             if (frameContainer.innerHTML.indexOf(vidId) === -1) {
-                frameContainer.innerHTML = `<iframe src="${embedUrl}" allow="autoplay; fullscreen"></iframe>`;
+                frameContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${vidId}?enablejsapi=1&autoplay=1" allow="autoplay; fullscreen"></iframe>`;
             } else if (iframe) {
                 iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
             }
