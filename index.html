@@ -25,101 +25,99 @@
 
         header { 
             background: var(--primary-dark); color: white; padding: 0 25px; 
-            display: flex; justify-content: center; align-items: center; height: 60px;
+            display: flex; justify-content: space-between; align-items: center; height: 60px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 2000; position: relative;
         }
         .header-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; }
+        .nav-btn { background: var(--evergreen); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.75rem; }
 
         .workspace { display: flex; height: calc(100vh - 60px); width: 100vw; position: relative; }
 
-        /* CENTER MODULES PANE - FIXED WIDTH TO PREVENT JIGGLE */
+        /* CENTER MODULES PANE */
         #pane-modules { 
             flex: 1; background: var(--bg-main); overflow-y: auto;
             padding: 40px 20px; display: flex; flex-direction: column; align-items: center;
-            z-index: 1;
+            z-index: 1; transition: flex 0.4s var(--ease-out);
         }
 
-        /* SIDE PANES - USING HARDWARE ACCELERATED TRANSFORMS */
+        /* SIDE PANES - HARDWARE ACCELERATED TRANSFORMS */
         .side-pane {
             position: absolute;
             top: 0;
-            width: 450px; /* Specific width prevents layout recalculation */
             height: 100%;
             background: var(--bg-panel);
-            transition: transform 0.4s var(--ease-out);
+            transition: transform 0.4s var(--ease-out), width 0.4s var(--ease-out);
             z-index: 1000;
             box-shadow: 0 0 40px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
         }
 
-        #pane-video { right: 0; transform: translateX(100%); border-left: 1px solid var(--border-grey); }
+        /* LEFT: Resource Gallery */
+        #pane-resources { 
+            left: 0; width: 350px; transform: translateX(-100%); 
+            border-right: 1px solid var(--border-grey); padding: 25px;
+        }
+        #pane-resources.active { transform: translateX(0); }
+
+        /* RIGHT: 50% Video Pane */
+        #pane-video { 
+            right: 0; width: 50%; transform: translateX(100%); 
+            border-left: 1px solid var(--border-grey); 
+        }
         #pane-video.active { transform: translateX(0); }
 
-        #module-list { width: 100%; max-width: 550px; }
-
-        /* MODULE CARDS */
-        .module-card { 
-            background: var(--white); border-radius: 16px; padding: 32px; margin-bottom: 30px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.05);
+        /* RESOURCE TILES (Steam Style) */
+        .gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .tool-tile { 
+            background: white; border-radius: 10px; overflow: hidden; 
+            border: 1px solid var(--border-grey); transition: transform 0.2s; cursor: pointer;
+            text-decoration: none; color: inherit;
         }
+        .tool-tile:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .tile-img { width: 100%; height: 80px; background: #eee; background-size: cover; background-position: top center; border-bottom: 1px solid #f0f0f0; }
+        .tile-name { padding: 10px; font-size: 0.7rem; font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* ACCORDION CARDS */
+        .module-card { background: var(--white); border-radius: 16px; padding: 32px; margin-bottom: 30px; width: 100%; max-width: 550px; border: 1px solid rgba(0,0,0,0.05); }
         .module-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 24px; }
 
-        /* ACCORDION STEPS */
-        .step-container {
-            border: 1px solid var(--border-grey); border-radius: 12px;
-            margin-bottom: 12px; transition: border-color 0.3s ease; overflow: hidden;
-            background: #fff;
-        }
+        .step-container { border: 1px solid var(--border-grey); border-radius: 12px; margin-bottom: 12px; overflow: hidden; background: #fff; }
         .step-container.open { border-color: var(--evergreen); }
-
-        .step-header { 
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 16px 20px; cursor: pointer;
-        }
+        .step-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; }
         .step-name { font-weight: 700; font-size: 0.95rem; }
-        .step-header input { width: 20px; height: 20px; accent-color: var(--evergreen); cursor: pointer; }
+        .step-header input { width: 20px; height: 20px; accent-color: var(--evergreen); }
 
-        /* SMOOTH HEIGHT TRANSITION */
-        .step-content {
-            display: grid;
-            grid-template-rows: 0fr;
-            transition: grid-template-rows 0.3s var(--ease-out);
-            padding: 0 20px;
-        }
+        .step-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s var(--ease-out); padding: 0 20px; }
         .step-container.open .step-content { grid-template-rows: 1fr; padding-bottom: 20px; }
-        
-        .content-inner { overflow: hidden; font-size: 0.9rem; line-height: 1.6; color: #64748b; }
-        .tip-text { padding-top: 15px; border-top: 1px solid #f1f5f9; }
-        
-        .btn-launch { 
-            display: inline-block; margin-top: 15px; font-size: 0.75rem; font-weight: 800;
-            color: var(--evergreen); text-decoration: none; text-transform: uppercase; border-bottom: 2px solid var(--evergreen);
-        }
+        .content-inner { overflow: hidden; font-size: 0.9rem; line-height: 1.6; color: #64748b; padding-top: 15px; border-top: 1px solid #f1f5f9; }
 
-        .btn-video { 
-            width: 100%; background: #000; color: white; border: none; 
-            padding: 16px; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 20px;
-            text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px;
-        }
-
+        .btn-video { width: 100%; background: #000; color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 20px; text-transform: uppercase; font-size: 0.75rem; }
         .close-btn { background: var(--accent-orange); color: white; border: none; padding: 15px; cursor: pointer; font-weight: 800; }
-        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; margin: 20px; border-radius: 12px; overflow: hidden; }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; margin: auto 25px; border-radius: 12px; overflow: hidden; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-
     </style>
 </head>
 <body>
 
-<header><div class="header-title">EOCO HUB</div></header>
+<header>
+    <button class="nav-btn" onclick="toggleResources()">Links & Tools</button>
+    <div class="header-title">EOCO HUB</div>
+    <div style="width:100px;"></div> </header>
 
 <div class="workspace">
+    <section id="pane-resources" class="side-pane">
+        <div class="header-title" style="color:var(--text-main); margin-bottom:20px;">Resource Gallery</div>
+        <div class="gallery-grid" id="resource-grid">
+            </div>
+    </section>
+
     <section id="pane-modules">
-        <div id="module-list">Syncing Roadmap...</div>
+        <div id="module-list">Loading Hub...</div>
     </section>
 
     <section id="pane-video" class="side-pane">
-        <button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE VIDEO</button>
+        <button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button>
         <div class="video-wrapper" id="video-frame"></div>
     </section>
 </div>
@@ -142,11 +140,12 @@
                 video: cols[4],
                 steps: rawSteps.slice(0, 4).map(s => {
                     const p = s.split('|');
-                    return { name: p[0]?.trim(), tip: p[1]?.trim() || "Instructions pending.", url: p[2]?.trim() || "" };
+                    return { name: p[0]?.trim(), tip: p[1]?.trim() || "No tips.", url: p[2]?.trim() || "" };
                 })
             };
         });
         render();
+        updateResourceGallery();
     }
 
     function parseCSV(t) {
@@ -172,14 +171,10 @@
                     <div class="step-container" id="step-${m.id}-${i}">
                         <div class="step-header" onclick="toggleAccordion('${m.id}', ${i})">
                             <span class="step-name">${s.name}</span>
-                            <input type="checkbox" ${(state[m.id]?.includes(i)) ? 'checked' : ''} 
-                                   onclick="event.stopPropagation(); toggleCheck('${m.id}', ${i})">
+                            <input type="checkbox" ${(state[m.id]?.includes(i)) ? 'checked' : ''} onclick="event.stopPropagation(); toggleCheck('${m.id}', ${i})">
                         </div>
                         <div class="step-content">
-                            <div class="content-inner">
-                                <div class="tip-text">${s.tip}</div>
-                                ${s.url ? `<a href="${s.url}" target="_blank" class="btn-launch">Launch Tool ➔</a>` : ''}
-                            </div>
+                            <div class="content-inner">${s.tip}</div>
                         </div>
                     </div>
                 `).join('')}
@@ -187,6 +182,26 @@
             </div>
         `).join('');
     }
+
+    function updateResourceGallery() {
+        const grid = document.getElementById('resource-grid');
+        // Extract all unique URLs from all steps
+        const links = [];
+        modules.forEach(m => m.steps.forEach(s => { if(s.url) links.push({name: s.name, url: s.url}); }));
+        
+        grid.innerHTML = links.map(l => {
+            // Use a screenshot service to get a "mini-mini" preview of the site
+            const thumbUrl = `https://s0.wp.com/mshots/v1/${encodeURIComponent(l.url)}?w=400`;
+            return `
+                <a href="${l.url}" target="_blank" class="tool-tile">
+                    <div class="tile-img" style="background-image: url('${thumbUrl}')"></div>
+                    <div class="tile-name">${l.name}</div>
+                </a>
+            `;
+        }).join('');
+    }
+
+    function toggleResources() { document.getElementById('pane-resources').classList.toggle('active'); }
 
     function toggleAccordion(mid, idx) {
         const el = document.getElementById(`step-${mid}-${idx}`);
@@ -212,8 +227,7 @@
             return;
         }
         let id = url.split('v=')[1]?.split('&')[0];
-        if(f.innerHTML.indexOf(id) === -1) f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1" allow="autoplay; fullscreen"></iframe>`;
-        else f.querySelector('iframe').contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1" allow="autoplay; fullscreen"></iframe>`;
         p.classList.add('active');
     }
 
