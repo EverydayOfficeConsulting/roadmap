@@ -28,11 +28,11 @@
 
         /* PANE 1: LIBRARY (LEFT) */
         #pane-library { 
-            flex: 0; opacity: 0; transform: translateX(-100%); 
+            flex: 0; opacity: 0; overflow: hidden;
             background: var(--bg-panel); border-right: 1px solid var(--border-grey);
             padding: 30px; overflow-y: auto; transition: all 0.5s var(--ease);
         }
-        #pane-library.active { flex: 1; opacity: 1; transform: translateX(0); }
+        #pane-library.active { flex: 1; opacity: 1; }
 
         /* PANE 2: MODULES (CENTER/LEFT) */
         #pane-modules { 
@@ -43,23 +43,24 @@
 
         /* PANE 3: VIDEO (RIGHT) */
         #pane-video { 
-            flex: 0; opacity: 0; transform: translateX(100%);
+            flex: 0; opacity: 0; overflow: hidden;
             background: var(--bg-panel); border-left: 1px solid var(--border-grey);
             display: flex; flex-direction: column; transition: all 0.5s var(--ease);
         }
-        #pane-video.active { flex: 1; opacity: 1; transform: translateX(0); }
+        #pane-video.active { flex: 1; opacity: 1; }
 
         /* TILES & CARDS */
         #module-list { width: 100%; max-width: 550px; }
         .module-card { background: var(--white); border-radius: 16px; padding: 32px; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.05); }
+        .module-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 24px; }
         
-        .gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-top: 20px; }
         .tool-tile { 
             background: white; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-grey); 
             transition: transform 0.2s; cursor: pointer; text-decoration: none; color: inherit;
         }
         .tool-tile:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .tile-img { height: 70px; background: #eee; background-size: cover; background-position: top; border-bottom: 1px solid #f0f0f0; }
+        .tile-img { height: 80px; background: #eee; background-size: cover; background-position: top; border-bottom: 1px solid #f0f0f0; }
         .tile-name { padding: 8px; font-size: 0.65rem; font-weight: 800; text-align: center; text-transform: uppercase; }
 
         /* ACCORDION */
@@ -73,9 +74,10 @@
 
         /* BUTTONS */
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .action-btn { padding: 16px; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; border: none; }
+        .action-btn { padding: 16px; border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; border: none; transition: 0.2s; }
         .btn-lib { background: var(--evergreen); color: white; }
         .btn-vid { background: #000; color: white; }
+        .action-btn:hover { filter: brightness(1.2); }
 
         .close-btn { background: var(--accent-orange); color: white; border: none; padding: 15px; cursor: pointer; font-weight: 800; }
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; margin: auto 20px; border-radius: 12px; overflow: hidden; }
@@ -84,21 +86,21 @@
 </head>
 <body>
 
-<header><div class="header-title">EOCO Command Center</div></header>
+<header><div class="header-title">EOCO HUB</div></header>
 
 <div class="workspace">
     <section id="pane-library">
-        <button class="close-btn" style="width:100%; margin-bottom:20px;" onclick="closeLibrary()">✕ CLOSE LIBRARY</button>
-        <div id="lib-title" style="font-weight:900; font-size:1.2rem; color:var(--primary-dark);">MODULE TOOLS</div>
+        <button class="close-btn" style="width:100%; margin-bottom:20px; border-radius:8px;" onclick="closeLibrary()">✕ CLOSE TOOLS</button>
+        <div id="lib-title" style="font-weight:900; font-size:1.1rem; color:var(--primary-dark); letter-spacing:1px; text-transform:uppercase;">Module Library</div>
         <div class="gallery-grid" id="resource-grid"></div>
     </section>
 
     <section id="pane-modules">
-        <div id="module-list">Synchronizing...</div>
+        <div id="module-list">Syncing Command Center...</div>
     </section>
 
     <section id="pane-video">
-        <button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE VIDEO</button>
+        <button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button>
         <div class="video-wrapper" id="video-frame"></div>
     </section>
 </div>
@@ -114,19 +116,21 @@
         const rows = parseCSV(text).slice(1);
         
         modules = rows.filter(r => r.length > 0).map(cols => {
-            const rawSteps = cols[6] ? cols[6].split(';') : ["Complete||"];
-            const rawLib = cols[7] ? cols[7].split(';') : []; // New 8th Column
+            // NEW ORDER: Library is Column 7 (Index 6), Steps is Column 8 (Index 7)
+            const rawLib = cols[6] ? cols[6].split(';') : []; 
+            const rawSteps = cols[7] ? cols[7].split(';') : ["Complete||"];
+            
             return {
                 id: cols[0].trim(),
                 title: cols[2],
                 video: cols[4],
-                steps: rawSteps.slice(0, 4).map(s => {
-                    const p = s.split('|');
-                    return { name: p[0]?.trim(), tip: p[1]?.trim() || "Instructions pending." };
-                }),
                 library: rawLib.map(l => {
                     const p = l.split('|');
                     return { name: p[0]?.trim(), url: p[1]?.trim() };
+                }),
+                steps: rawSteps.slice(0, 4).map(s => {
+                    const p = s.split('|');
+                    return { name: p[0]?.trim(), tip: p[1]?.trim() || "Ready to begin." };
                 })
             };
         });
