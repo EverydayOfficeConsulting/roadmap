@@ -18,7 +18,6 @@
         * { box-sizing: border-box; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main); }
         
-        /* UPDATED BRANDED HEADER */
         header { 
             background: var(--primary-dark); color: white; 
             display: flex; flex-direction: column; align-items: center; 
@@ -39,7 +38,6 @@
 
         .workspace { display: flex; height: calc(100vh - 120px); width: 100vw; position: relative; overflow: hidden; }
         
-        /* PANEL LOGIC */
         .side-pane { position: absolute; top: 0; height: 100%; background: var(--bg-panel); border-color: var(--border-grey); transition: transform 0.6s var(--ease), width 0.6s var(--ease); z-index: 3000; display: flex; flex-direction: column; padding: 25px; }
         #pane-library { left: 0; border-right: 1px solid var(--border-grey); transform: translateX(-100%); width: 50%; }
         #pane-library.active { transform: translateX(0); }
@@ -169,17 +167,29 @@
         document.getElementById('resource-grid').innerHTML = m.library.map(l => `<a href="${l.url}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.url}')"></div><div class="tile-name">${l.name}</div></a>`).join('');
         p.classList.add('active'); activeLibId = mid; updateLayoutClasses();
     }
-    function toggleVideo(mid) {
+    
+    async function toggleVideo(mid) {
         const p = document.getElementById('pane-video'), f = document.getElementById('video-frame');
         const iframe = f.querySelector('iframe');
         const m = modules.find(mod => mod.id === mid);
+
         if (!mid || p.classList.contains('active')) {
             p.classList.remove('active'); updateLayoutClasses();
             if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
             return;
         }
+
         let id = m.video.includes('v=') ? m.video.split('v=')[1]?.split('&')[0] : m.video.split('/').pop();
-        document.getElementById('video-display-title').innerText = m.title;
+        
+        // FETCH LIVE YOUTUBE TITLE
+        try {
+            const response = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`);
+            const data = await response.json();
+            document.getElementById('video-display-title').innerText = data.title || m.title;
+        } catch (e) {
+            document.getElementById('video-display-title').innerText = m.title;
+        }
+
         if (currentVideoId !== id) {
             f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&cc_load_policy=1" allow="autoplay; fullscreen"></iframe>`;
             currentVideoId = id;
@@ -188,6 +198,7 @@
         }
         p.classList.add('active'); updateLayoutClasses();
     }
+    
     function toggleCheck(mid, idx) { if(!state[mid]) state[mid] = []; const i = state[mid].indexOf(idx); i > -1 ? state[mid].splice(i, 1) : state[mid].push(idx); localStorage.setItem('eoco_state', JSON.stringify(state)); render(); }
     init();
 </script>
