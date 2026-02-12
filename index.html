@@ -12,40 +12,68 @@
             --bg-light: #f4f7f6; 
             --border-grey: #d1d8db;
             --white: #ffffff; 
+            --text-main: #2c3e50;
         }
 
         * { box-sizing: border-box; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-light); margin: 0; overflow: hidden; }
-
-        header { 
-            background: var(--primary-dark); color: white; padding: 15px 25px; 
-            display: flex; justify-content: center; align-items: center; height: 60px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        body { 
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg-light); 
+            margin: 0; 
+            overflow: hidden; 
+            color: var(--text-main);
         }
-        .header-title { font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* Main Workspace Layout */
+        /* Top Navigation Bar */
+        header { 
+            background: var(--primary-dark); 
+            color: white; 
+            padding: 0 25px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 60px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            position: relative;
+        }
+        .header-title { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; }
+
+        /* Main Workspace Container */
         .workspace { display: flex; height: calc(100vh - 60px); width: 100vw; }
 
-        /* PANE 1: TOOL (LEFT) */
+        /* PANE 1: TOOL (LEFT) - Slides in when "Open Tool" is clicked */
         #pane-tool { 
-            flex: 0; display: none; border-right: 2px solid var(--border-grey); 
-            background: #eee; position: relative; transition: flex 0.3s ease;
+            flex: 0; 
+            display: none; 
+            border-right: 2px solid var(--border-grey); 
+            background: #ffffff; 
+            position: relative; 
+            transition: all 0.3s ease;
         }
         #pane-tool.active { flex: 1; display: block; }
         #pane-tool iframe { width: 100%; height: 100%; border: none; }
 
-        /* PANE 2: MODULES (CENTER) */
+        /* PANE 2: MODULES (CENTER) - Stays anchored in the middle */
         #pane-modules { 
-            flex: 1.5; background: var(--bg-light); overflow-y: auto; padding: 40px 20px; 
-            display: flex; flex-direction: column; align-items: center;
+            flex: 1.2; 
+            background: var(--bg-light); 
+            overflow-y: auto; 
+            padding: 40px 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
         }
-        #module-list { width: 100%; max-width: 600px; }
+        #module-list { width: 100%; max-width: 550px; }
 
-        /* PANE 3: VIDEO (RIGHT) */
+        /* PANE 3: VIDEO (RIGHT) - Slides in when "Watch Tutorial" is clicked */
         #pane-video { 
-            flex: 0; display: none; background: #000; flex-direction: column; 
-            border-left: 2px solid var(--border-grey); transition: flex 0.3s ease;
+            flex: 0; 
+            display: none; 
+            background: #000000; 
+            flex-direction: column; 
+            border-left: 2px solid var(--border-grey); 
+            transition: all 0.3s ease;
         }
         #pane-video.active { flex: 1; display: flex; }
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; margin: auto 0; }
@@ -53,85 +81,149 @@
 
         /* Module Card Styling */
         .module-card { 
-            background: var(--white); border: 2px solid var(--border-grey); 
-            border-radius: 12px; padding: 25px; margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            background: var(--white); 
+            border: 1px solid var(--border-grey); 
+            border-radius: 12px; 
+            padding: 25px; 
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
-        .module-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 10px; color: var(--primary-dark); }
+        .module-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 12px; color: var(--primary-dark); }
+        .module-desc { font-size: 0.9rem; color: #666; line-height: 1.5; margin-bottom: 20px; }
+
+        /* Steps Checklist Area */
+        .checklist-container { 
+            margin: 20px 0; 
+            background: #f8fafb; 
+            padding: 20px; 
+            border-radius: 8px; 
+            border: 1px solid #edf2f4; 
+        }
+        .checklist-label { font-size: 0.7rem; font-weight: 800; color: #999; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 15px; }
         
-        /* Checklist Styling */
-        .checklist-container { margin: 20px 0; background: #f8fafb; padding: 15px; border-radius: 8px; border: 1px solid #edf2f4; }
-        .check-item { display: flex; align-items: center; margin-bottom: 12px; font-size: 0.9rem; cursor: pointer; color: #444; }
-        .check-item input { margin-right: 12px; width: 18px; height: 18px; accent-color: var(--evergreen); cursor: pointer; }
+        .check-item { display: flex; align-items: flex-start; margin-bottom: 12px; font-size: 0.9rem; cursor: pointer; color: #333; }
+        .check-item input { margin-right: 12px; margin-top: 3px; width: 18px; height: 18px; accent-color: var(--evergreen); cursor: pointer; }
         
-        .mini-progress { height: 6px; background: #e0e0e0; border-radius: 3px; margin-top: 15px; overflow: hidden; }
+        /* Module Progress Bar */
+        .mini-progress { height: 8px; background: #e0e0e0; border-radius: 4px; margin-top: 20px; overflow: hidden; }
         .mini-bar { height: 100%; background: var(--evergreen); width: 0%; transition: width 0.4s ease; }
 
         /* Action Buttons Row */
-        .btn-row { display: flex; gap: 12px; margin-top: 20px; }
+        .btn-row { display: flex; gap: 15px; margin-top: 25px; }
         .action-btn { 
-            flex: 1; padding: 14px; border-radius: 8px; font-size: 0.8rem; 
-            font-weight: 800; text-align: center; cursor: pointer; text-transform: uppercase;
-            border: 2px solid var(--border-grey); transition: 0.2s;
+            flex: 1; 
+            padding: 14px; 
+            border-radius: 8px; 
+            font-size: 0.8rem; 
+            font-weight: 800; 
+            text-align: center; 
+            cursor: pointer; 
+            text-transform: uppercase;
+            border: 2px solid var(--border-grey); 
+            transition: all 0.2s;
+            text-decoration: none;
         }
         .btn-portal { background: #ffffff; color: var(--primary-dark); }
-        .btn-portal:hover { border-color: var(--primary-dark); }
+        .btn-portal:hover { border-color: var(--primary-dark); background: #f9f9f9; }
         
         .btn-video { background: var(--primary-dark); color: white; border: none; }
         .btn-video:hover { background: #333; }
 
-        .close-btn { background: var(--accent-orange); color: white; border: none; padding: 10px; cursor: pointer; font-weight: bold; width: 100%; }
+        /* Close Sidebar Button */
+        .close-pane-btn { 
+            background: var(--accent-orange); 
+            color: white; 
+            border: none; 
+            padding: 12px; 
+            cursor: pointer; 
+            font-weight: 800; 
+            width: 100%; 
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
 
+        /* Mobile View (Stacking) */
+        @media (max-width: 1000px) {
+            .workspace { flex-direction: column; height: auto; overflow: visible; }
+            #pane-tool, #pane-video { height: 500px; border: none; }
+            #pane-tool.active, #pane-video.active { flex: none; display: block; }
+            #pane-modules { height: auto; padding: 20px; }
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="header-title">EOCO COMPLIANCE COMMAND CENTER</div>
+    <div class="header-title">EOCO Compliance Command Center</div>
 </header>
 
 <div class="workspace">
     <section id="pane-tool">
-        <button class="close-btn" onclick="togglePortal(null)">✕ CLOSE TOOL</button>
+        <button class="close-pane-btn" onclick="togglePortal(null)">✕ CLOSE TOOL PORTAL</button>
         <iframe id="portal-frame"></iframe>
     </section>
 
     <section id="pane-modules">
-        <div id="module-list">Loading Your Roadmap...</div>
+        <div id="module-list">Loading Command Center...</div>
     </section>
 
     <section id="pane-video">
-        <button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button>
+        <button class="close-pane-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL VIDEO</button>
         <div class="video-wrapper" id="video-frame"></div>
     </section>
 </div>
 
 <script>
+    // Replace this with your exact CSV Published Link
     const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv';
 
     let modules = [];
-    const userState = JSON.parse(localStorage.getItem('eoco_roadmap_state')) || {};
+    const userState = JSON.parse(localStorage.getItem('eoco_command_state')) || {};
 
     async function init() {
         try {
             const response = await fetch(SHEET_CSV_URL);
             const text = await response.text();
-            const rows = text.split('\n').slice(1);
             
-            modules = rows.filter(r => r.trim()).map(r => {
-                const cols = r.split(',');
+            // Comprehensive CSV parsing (handling quotes)
+            const rows = parseCSV(text).slice(1);
+            
+            modules = rows.filter(r => r.length > 0).map(cols => {
+                // Steps are in Column Index 6 (the 7th column)
+                const rawSteps = cols[6] ? cols[6].split(';') : ["Complete all requirements"];
+                
                 return {
                     id: cols[0].trim(),
+                    phase: cols[1],
                     title: cols[2],
                     desc: cols[3],
                     videoUrl: cols[4],
                     portalUrl: cols[5],
-                    // We will update the sheet to handle dynamic steps next
-                    steps: ["Initial Setup", "Document Gathering", "Final Submission", "Confirmation Verification"]
+                    steps: rawSteps.map(s => s.trim())
                 };
             });
             render();
-        } catch (e) { console.error("Data Load Error", e); }
+        } catch (e) { 
+            console.error("Connection Error", e); 
+            document.getElementById('module-list').innerHTML = "Unable to connect to Google Sheet. Check your URL.";
+        }
+    }
+
+    // Helper: Standard CSV Parser
+    function parseCSV(text) {
+        const re = /(?!\s*$)\s*(?:"([^"]*(?:""[^"]*)*)"|([^",\r\n]*))\s*(?:,|$)/g;
+        const result = [];
+        text.split(/\r?\n/).forEach(line => {
+            if (line.trim() === "") return;
+            const row = [];
+            line.replace(re, (m, p1, p2) => {
+                if (p1 !== undefined) row.push(p1.replace(/""/g, '"'));
+                else if (p2 !== undefined) row.push(p2);
+                return '';
+            });
+            result.push(row);
+        });
+        return result;
     }
 
     function render() {
@@ -143,19 +235,17 @@
             return `
                 <div class="module-card">
                     <div class="module-title">${m.title}</div>
-                    <p style="font-size:0.9rem; color:#666; line-height:1.4;">${m.desc}</p>
+                    <p class="module-desc">${m.desc}</p>
                     
                     <div class="checklist-container">
-                        <strong style="font-size: 0.7rem; color: #999; text-transform: uppercase; letter-spacing: 1px;">Step Checklist</strong>
-                        <div style="margin-top:10px;">
-                            ${m.steps.map((step, i) => `
-                                <label class="check-item">
-                                    <input type="checkbox" ${state.checks.includes(i) ? 'checked' : ''} 
-                                           onchange="toggleStep('${m.id}', ${i})">
-                                    ${step}
-                                </label>
-                            `).join('')}
-                        </div>
+                        <span class="checklist-label">Action Items</span>
+                        ${m.steps.map((step, i) => `
+                            <label class="check-item">
+                                <input type="checkbox" ${state.checks.includes(i) ? 'checked' : ''} 
+                                       onchange="toggleStep('${m.id}', ${i})">
+                                ${step}
+                            </label>
+                        `).join('')}
                         <div class="mini-progress"><div class="mini-bar" style="width:${progress}%"></div></div>
                     </div>
 
@@ -174,13 +264,15 @@
         if (idx > -1) userState[modId].checks.splice(idx, 1);
         else userState[modId].checks.push(stepIdx);
         
-        localStorage.setItem('eoco_roadmap_state', JSON.stringify(userState));
+        localStorage.setItem('eoco_command_state', JSON.stringify(userState));
         render();
     }
 
     function togglePortal(url) {
         const pane = document.getElementById('pane-tool');
         const frame = document.getElementById('portal-frame');
+        
+        // If clicking close or the same tool is already open, hide it
         if (!url || (pane.classList.contains('active') && frame.src.includes(url))) {
             pane.classList.remove('active');
             frame.src = "";
@@ -193,6 +285,7 @@
     function toggleVideo(url) {
         const pane = document.getElementById('pane-video');
         const frame = document.getElementById('video-frame');
+        
         if (!url || pane.classList.contains('active')) {
             pane.classList.remove('active');
             frame.innerHTML = '';
