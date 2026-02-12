@@ -14,21 +14,53 @@
             --bg-main: #0a0a0a; --bg-panel: #141414; --border-grey: #2a2a2a;
             --white: #1a1a1a; --text-main: #f0f0f0; --text-muted: #999; --primary-dark: #000000;
         }
+
         * { box-sizing: border-box; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main); }
         header { background: var(--primary-dark); color: white; display: flex; justify-content: space-between; align-items: center; height: 60px; padding: 0 20px; z-index: 4000; position: relative; border-bottom: 1px solid var(--border-grey); }
         .header-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; }
         .theme-toggle { background: var(--evergreen); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
+
         .workspace { display: flex; height: calc(100vh - 60px); width: 100vw; position: relative; overflow: hidden; }
-        .side-pane { position: absolute; top: 0; width: 400px; height: 100%; background: var(--bg-panel); border-color: var(--border-grey); transition: transform 0.6s var(--ease); z-index: 3000; display: flex; flex-direction: column; padding: 25px; }
-        #pane-library { left: 0; border-right: 1px solid var(--border-grey); transform: translateX(-100%); }
+        
+        /* DYNAMIC PANEL WIDTH LOGIC */
+        .side-pane {
+            position: absolute; top: 0; height: 100%;
+            background: var(--bg-panel); border-color: var(--border-grey);
+            transition: transform 0.6s var(--ease), width 0.6s var(--ease); z-index: 3000;
+            display: flex; flex-direction: column; padding: 25px;
+        }
+
+        /* 50% width by default when active */
+        #pane-library { left: 0; border-right: 1px solid var(--border-grey); transform: translateX(-100%); width: 50%; }
         #pane-library.active { transform: translateX(0); }
-        #pane-video { right: 0; border-left: 1px solid var(--border-grey); transform: translateX(100%); }
+
+        #pane-video { right: 0; border-left: 1px solid var(--border-grey); transform: translateX(100%); width: 50%; }
         #pane-video.active { transform: translateX(0); }
-        #pane-modules { flex: 1; height: 100%; overflow-y: auto; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; transition: margin 0.6s var(--ease); }
-        .workspace.lib-active #pane-modules { margin-left: 400px; }
-        .workspace.vid-active #pane-modules { margin-right: 400px; }
-        @media (max-width: 768px) { .side-pane { width: 100% !important; } .workspace.lib-active #pane-modules, .workspace.vid-active #pane-modules { margin: 0 !important; } .close-btn { padding: 25px !important; font-size: 1rem !important; } }
+
+        /* 1/3rd width when BOTH are active */
+        .workspace.both-active #pane-library, 
+        .workspace.both-active #pane-video { width: 33.33%; }
+
+        /* MODULES AREA SCALING */
+        #pane-modules { 
+            flex: 1; height: 100%; overflow-y: auto; padding: 40px 20px;
+            display: flex; flex-direction: column; align-items: center;
+            transition: margin 0.6s var(--ease);
+        }
+
+        /* Margin adjustments to push the center content */
+        .workspace.lib-active #pane-modules { margin-left: 50%; }
+        .workspace.vid-active #pane-modules { margin-right: 50%; }
+        .workspace.both-active #pane-modules { margin-left: 33.33%; margin-right: 33.33%; }
+
+        @media (max-width: 768px) {
+            .side-pane { width: 100% !important; }
+            .workspace.lib-active #pane-modules, .workspace.vid-active #pane-modules, .workspace.both-active #pane-modules { margin: 0 !important; }
+            .close-btn { padding: 25px !important; font-size: 1rem !important; }
+        }
+
+        /* COMPONENT STYLES (Phase, Cards, Steps, Tiles) */
         .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 2px solid var(--border-grey); }
         .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; }
         .phase-title { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 2px; }
@@ -114,20 +146,34 @@
                 </div></div></div>`;
         }).join('');
     }
+
+    function updateLayoutClasses() {
+        const ws = document.getElementById('main-ws');
+        const libActive = document.getElementById('pane-library').classList.contains('active');
+        const vidActive = document.getElementById('pane-video').classList.contains('active');
+        
+        ws.classList.remove('lib-active', 'vid-active', 'both-active');
+        if (libActive && vidActive) ws.classList.add('both-active');
+        else if (libActive) ws.classList.add('lib-active');
+        else if (vidActive) ws.classList.add('vid-active');
+    }
+
     function toggleLibrary(mid) {
-        const ws = document.getElementById('main-ws'), p = document.getElementById('pane-library');
-        if (!mid || (p.classList.contains('active') && activeLibId === mid)) { p.classList.remove('active'); ws.classList.remove('lib-active'); activeLibId = null; return; }
+        const p = document.getElementById('pane-library');
+        if (!mid || (p.classList.contains('active') && activeLibId === mid)) { p.classList.remove('active'); activeLibId = null; updateLayoutClasses(); return; }
         const m = modules.find(mod => mod.id === mid);
         document.getElementById('resource-grid').innerHTML = m.library.map(l => `<a href="${l.url}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.url}')"></div><div class="tile-name">${l.name}</div></a>`).join('');
-        p.classList.add('active'); ws.classList.add('lib-active'); activeLibId = mid;
+        p.classList.add('active'); activeLibId = mid; updateLayoutClasses();
     }
+
     function toggleVideo(url) {
-        const ws = document.getElementById('main-ws'), p = document.getElementById('pane-video'), f = document.getElementById('video-frame');
-        if (!url || p.classList.contains('active')) { p.classList.remove('active'); ws.classList.remove('vid-active'); return; }
+        const p = document.getElementById('pane-video'), f = document.getElementById('video-frame');
+        if (!url || p.classList.contains('active')) { p.classList.remove('active'); updateLayoutClasses(); return; }
         let id = url.includes('v=') ? url.split('v=')[1]?.split('&')[0] : url.split('/').pop();
         if (currentVideoId !== id) { f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1" allow="autoplay; fullscreen"></iframe>`; currentVideoId = id; }
-        p.classList.add('active'); ws.classList.add('vid-active');
+        p.classList.add('active'); updateLayoutClasses();
     }
+
     function toggleCheck(mid, idx) { if(!state[mid]) state[mid] = []; const i = state[mid].indexOf(idx); i > -1 ? state[mid].splice(i, 1) : state[mid].push(idx); localStorage.setItem('eoco_state', JSON.stringify(state)); render(); }
     init();
 </script>
