@@ -55,6 +55,14 @@
             .close-btn { padding: 25px !important; font-size: 1rem !important; }
         }
 
+        #video-display-title { font-size: 1.2rem; font-weight: 900; text-transform: uppercase; margin-bottom: 20px; color: var(--evergreen); letter-spacing: 1px; }
+        
+        /* TRANSCRIPT HINT */
+        .transcript-hint {
+            margin-top: 20px; padding: 15px; background: var(--white); border-radius: 12px; 
+            border: 1px solid var(--border-grey); font-size: 0.8rem; line-height: 1.5; color: var(--text-muted);
+        }
+
         /* COMPONENT STYLES */
         .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 2px solid var(--border-grey); }
         .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; }
@@ -89,7 +97,14 @@
 <div class="workspace" id="main-ws">
     <section id="pane-library" class="side-pane"><button class="close-btn" style="margin-bottom:20px;" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button><div style="font-weight:900; font-size:1.1rem; text-transform:uppercase;">Module Library</div><div class="gallery-grid" id="resource-grid"></div></section>
     <section id="pane-modules"><div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">Syncing...</div></section>
-    <section id="pane-video" class="side-pane"><button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button><div style="margin: 20px 0; font-weight: 800; text-transform: uppercase; font-size: 0.9rem;">Tutorial Video</div><div class="video-wrapper" id="video-frame"></div></section>
+    <section id="pane-video" class="side-pane">
+        <button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button>
+        <div style="margin-top: 30px;" id="video-display-title">Tutorial</div>
+        <div class="video-wrapper" id="video-frame"></div>
+        <div class="transcript-hint">
+            <strong>Pro-Tip:</strong> To view the full auto-generated transcript, click the <strong>CC</strong> button in the video player or click the three dots (...) inside the player to open the sidebar transcript.
+        </div>
+    </section>
 </div>
 <script>
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv';
@@ -136,7 +151,7 @@
                 <div class="phase-content"><div class="phase-inner">
                     ${grouped[phaseName].map(m => `<div class="module-card"><div class="module-title">${m.title}</div>
                         ${m.steps.map((s, i) => `<div class="step-container"><div class="step-header" onclick="this.parentElement.classList.toggle('open')"><span class="step-name">${s.name}</span><input type="checkbox" ${(state[m.id]?.includes(i)) ? 'checked' : ''} onclick="event.stopPropagation(); toggleCheck('${m.id}', ${i})"></div><div class="step-content"><div class="content-inner">${s.tip}</div></div></div>`).join('')}
-                        <div class="btn-row"><button class="action-btn" onclick="toggleLibrary('${m.id}')">Links & Tools</button><button class="action-btn" onclick="toggleVideo('${m.video}')">Watch Video</button></div>
+                        <div class="btn-row"><button class="action-btn" onclick="toggleLibrary('${m.id}')">Links & Tools</button><button class="action-btn" onclick="toggleVideo('${m.id}')">Watch Video</button></div>
                     </div>`).join('')}
                 </div></div></div>`;
         }).join('');
@@ -160,29 +175,29 @@
         p.classList.add('active'); activeLibId = mid; updateLayoutClasses();
     }
 
-    function toggleVideo(url) {
+    function toggleVideo(mid) {
         const p = document.getElementById('pane-video'), f = document.getElementById('video-frame');
         const iframe = f.querySelector('iframe');
+        const m = modules.find(mod => mod.id === mid);
 
-        // IF CLOSING
-        if (!url || p.classList.contains('active')) {
-            p.classList.remove('active');
-            updateLayoutClasses();
+        if (!mid || p.classList.contains('active')) {
+            p.classList.remove('active'); updateLayoutClasses();
             if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
             return;
         }
 
-        // IF OPENING
-        let id = url.includes('v=') ? url.split('v=')[1]?.split('&')[0] : url.split('/').pop();
+        let id = m.video.includes('v=') ? m.video.split('v=')[1]?.split('&')[0] : m.video.split('/').pop();
+        document.getElementById('video-display-title').innerText = m.title;
+
         if (currentVideoId !== id) {
-            f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1" allow="autoplay; fullscreen"></iframe>`;
+            // cc_load_policy=1 FORCES CAPTIONS ON
+            f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&cc_load_policy=1&rel=0" allow="autoplay; fullscreen"></iframe>`;
             currentVideoId = id;
         } else if (iframe) {
             iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
         }
         
-        p.classList.add('active'); 
-        updateLayoutClasses();
+        p.classList.add('active'); updateLayoutClasses();
     }
 
     function toggleCheck(mid, idx) { if(!state[mid]) state[mid] = []; const i = state[mid].indexOf(idx); i > -1 ? state[mid].splice(i, 1) : state[mid].push(idx); localStorage.setItem('eoco_state', JSON.stringify(state)); render(); }
