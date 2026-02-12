@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EOCO | Command Center</title>
+    <title>EOCO | The Blueprint</title>
     <style>
         :root { 
             --primary-dark: #1a1a1a; --evergreen: #2d5a27; --bg-main: #f4f7f6; 
@@ -17,34 +17,36 @@
 
         * { box-sizing: border-box; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main); }
-        header { background: var(--primary-dark); color: white; display: flex; justify-content: space-between; align-items: center; height: 60px; padding: 0 20px; z-index: 4000; position: relative; border-bottom: 1px solid var(--border-grey); }
-        .header-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; }
-        .theme-toggle { background: var(--evergreen); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
-
-        .workspace { display: flex; height: calc(100vh - 60px); width: 100vw; position: relative; overflow: hidden; }
         
-        .side-pane {
-            position: absolute; top: 0; height: 100%;
-            background: var(--bg-panel); border-color: var(--border-grey);
-            transition: transform 0.6s var(--ease), width 0.6s var(--ease); z-index: 3000;
-            display: flex; flex-direction: column; padding: 25px;
+        /* UPDATED BRANDED HEADER */
+        header { 
+            background: var(--primary-dark); color: white; 
+            display: flex; flex-direction: column; align-items: center; 
+            padding: 15px 20px; z-index: 4000; position: relative; 
+            border-bottom: 1px solid var(--border-grey);
         }
+        .brand-container { text-align: center; margin-bottom: 10px; }
+        .brand-name { font-size: 1.2rem; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; margin: 0; }
+        .brand-slogan { font-size: 0.65rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #a5d6a7; margin-top: 4px; }
+        
+        .page-title-section { 
+            background: rgba(255,255,255,0.05); width: 100%; text-align: center; 
+            padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .page-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: white; margin: 0; }
 
+        .theme-toggle { position: absolute; right: 20px; top: 25px; background: var(--evergreen); color: white; border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
+
+        .workspace { display: flex; height: calc(100vh - 120px); width: 100vw; position: relative; overflow: hidden; }
+        
+        /* PANEL LOGIC */
+        .side-pane { position: absolute; top: 0; height: 100%; background: var(--bg-panel); border-color: var(--border-grey); transition: transform 0.6s var(--ease), width 0.6s var(--ease); z-index: 3000; display: flex; flex-direction: column; padding: 25px; }
         #pane-library { left: 0; border-right: 1px solid var(--border-grey); transform: translateX(-100%); width: 50%; }
         #pane-library.active { transform: translateX(0); }
-
         #pane-video { right: 0; border-left: 1px solid var(--border-grey); transform: translateX(100%); width: 50%; }
         #pane-video.active { transform: translateX(0); }
-
-        .workspace.both-active #pane-library, 
-        .workspace.both-active #pane-video { width: 33.33%; }
-
-        #pane-modules { 
-            flex: 1; height: 100%; overflow-y: auto; padding: 40px 20px;
-            display: flex; flex-direction: column; align-items: center;
-            transition: margin 0.6s var(--ease);
-        }
-
+        .workspace.both-active #pane-library, .workspace.both-active #pane-video { width: 33.33%; }
+        #pane-modules { flex: 1; height: 100%; overflow-y: auto; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; transition: margin 0.6s var(--ease); }
         .workspace.lib-active #pane-modules { margin-left: 50%; }
         .workspace.vid-active #pane-modules { margin-right: 50%; }
         .workspace.both-active #pane-modules { margin-left: 33.33%; margin-right: 33.33%; }
@@ -52,15 +54,8 @@
         @media (max-width: 768px) {
             .side-pane { width: 100% !important; }
             .workspace.lib-active #pane-modules, .workspace.vid-active #pane-modules, .workspace.both-active #pane-modules { margin: 0 !important; }
-            .close-btn { padding: 25px !important; font-size: 1rem !important; }
-        }
-
-        #video-display-title { font-size: 1.2rem; font-weight: 900; text-transform: uppercase; margin-bottom: 20px; color: var(--evergreen); letter-spacing: 1px; }
-        
-        /* TRANSCRIPT HINT */
-        .transcript-hint {
-            margin-top: 20px; padding: 15px; background: var(--white); border-radius: 12px; 
-            border: 1px solid var(--border-grey); font-size: 0.8rem; line-height: 1.5; color: var(--text-muted);
+            .theme-toggle { top: 15px; }
+            .brand-name { font-size: 1rem; }
         }
 
         /* COMPONENT STYLES */
@@ -93,18 +88,20 @@
     </style>
 </head>
 <body data-theme="light">
-<header><div style="width: 100px;"></div><div class="header-title">EOCO Command Center</div><button class="theme-toggle" onclick="toggleTheme()">Dark Mode</button></header>
+<header>
+    <div class="brand-container">
+        <div class="brand-name">EOCO</div>
+        <div class="brand-slogan">Simple Systems. Better Business.</div>
+    </div>
+    <div class="page-title-section">
+        <h1 class="page-title">The Foundational Roadmap</h1>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()">Dark Mode</button>
+</header>
 <div class="workspace" id="main-ws">
     <section id="pane-library" class="side-pane"><button class="close-btn" style="margin-bottom:20px;" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button><div style="font-weight:900; font-size:1.1rem; text-transform:uppercase;">Module Library</div><div class="gallery-grid" id="resource-grid"></div></section>
-    <section id="pane-modules"><div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">Syncing...</div></section>
-    <section id="pane-video" class="side-pane">
-        <button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button>
-        <div style="margin-top: 30px;" id="video-display-title">Tutorial</div>
-        <div class="video-wrapper" id="video-frame"></div>
-        <div class="transcript-hint">
-            <strong>Pro-Tip:</strong> To view the full auto-generated transcript, click the <strong>CC</strong> button in the video player or click the three dots (...) inside the player to open the sidebar transcript.
-        </div>
-    </section>
+    <section id="pane-modules"><div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">Syncing Roadmap...</div></section>
+    <section id="pane-video" class="side-pane"><button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button><div style="margin-top: 30px; font-weight: 900; text-transform: uppercase; font-size: 0.9rem; color: var(--evergreen);" id="video-display-title">Tutorial</div><div class="video-wrapper" id="video-frame"></div></section>
 </div>
 <script>
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv';
@@ -156,7 +153,6 @@
                 </div></div></div>`;
         }).join('');
     }
-
     function updateLayoutClasses() {
         const ws = document.getElementById('main-ws');
         const libActive = document.getElementById('pane-library').classList.contains('active');
@@ -166,7 +162,6 @@
         else if (libActive) ws.classList.add('lib-active');
         else if (vidActive) ws.classList.add('vid-active');
     }
-
     function toggleLibrary(mid) {
         const p = document.getElementById('pane-library');
         if (!mid || (p.classList.contains('active') && activeLibId === mid)) { p.classList.remove('active'); activeLibId = null; updateLayoutClasses(); return; }
@@ -174,32 +169,25 @@
         document.getElementById('resource-grid').innerHTML = m.library.map(l => `<a href="${l.url}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.url}')"></div><div class="tile-name">${l.name}</div></a>`).join('');
         p.classList.add('active'); activeLibId = mid; updateLayoutClasses();
     }
-
     function toggleVideo(mid) {
         const p = document.getElementById('pane-video'), f = document.getElementById('video-frame');
         const iframe = f.querySelector('iframe');
         const m = modules.find(mod => mod.id === mid);
-
         if (!mid || p.classList.contains('active')) {
             p.classList.remove('active'); updateLayoutClasses();
             if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
             return;
         }
-
         let id = m.video.includes('v=') ? m.video.split('v=')[1]?.split('&')[0] : m.video.split('/').pop();
         document.getElementById('video-display-title').innerText = m.title;
-
         if (currentVideoId !== id) {
-            // cc_load_policy=1 FORCES CAPTIONS ON
-            f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&cc_load_policy=1&rel=0" allow="autoplay; fullscreen"></iframe>`;
+            f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&cc_load_policy=1" allow="autoplay; fullscreen"></iframe>`;
             currentVideoId = id;
         } else if (iframe) {
             iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
         }
-        
         p.classList.add('active'); updateLayoutClasses();
     }
-
     function toggleCheck(mid, idx) { if(!state[mid]) state[mid] = []; const i = state[mid].indexOf(idx); i > -1 ? state[mid].splice(i, 1) : state[mid].push(idx); localStorage.setItem('eoco_state', JSON.stringify(state)); render(); }
     init();
 </script>
