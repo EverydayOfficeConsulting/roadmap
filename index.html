@@ -10,283 +10,209 @@
             --evergreen: #2d5a27; 
             --accent-orange: #e67e22; 
             --bg-main: #f4f7f6; 
-            --bg-panel: #eceff1; /* Soft grey for side panes */
+            --bg-panel: #eceff1; 
             --border-grey: #d1d8db;
             --white: #ffffff; 
             --text-main: #2c3e50;
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { box-sizing: border-box; }
         body { 
-            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: var(--bg-main); 
-            margin: 0; 
-            overflow: hidden; 
-            color: var(--text-main);
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main);
         }
 
         header { 
-            background: var(--primary-dark); 
-            color: white; 
-            padding: 0 25px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 60px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
+            background: var(--primary-dark); color: white; padding: 0 25px; 
+            display: flex; justify-content: center; align-items: center; height: 60px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; position: relative;
+        }
+        .header-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; }
+
+        .workspace { display: flex; height: calc(100vh - 60px); width: 100vw; overflow: hidden; }
+
+        /* PANES WITH ANIMATION */
+        .pane {
+            height: 100%;
+            transition: flex 0.5s var(--ease), opacity 0.4s var(--ease), transform 0.5s var(--ease);
+            overflow-y: auto;
             position: relative;
         }
-        .header-title { font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; }
 
-        .workspace { display: flex; height: calc(100vh - 60px); width: 100vw; }
-
-        /* PANE 1: TIPS (LEFT) */
         #pane-tips { 
-            flex: 0; 
-            display: none; 
-            border-right: 2px solid var(--border-grey); 
-            background: var(--bg-panel); 
-            position: relative; 
-            transition: all 0.3s ease;
-            padding: 40px 25px;
-            overflow-y: auto;
+            flex: 0; opacity: 0; transform: translateX(-100%);
+            background: var(--bg-panel); border-right: 1px solid var(--border-grey);
+            padding: 40px 30px;
         }
-        #pane-tips.active { flex: 1; display: block; }
+        #pane-tips.active { flex: 0.8; opacity: 1; transform: translateX(0); }
 
-        /* PANE 2: MODULES (CENTER) */
         #pane-modules { 
-            flex: 1.2; 
-            background: var(--bg-main); 
-            overflow-y: auto; 
-            padding: 40px 20px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
+            flex: 1.5; background: var(--bg-main); 
+            padding: 40px 20px; display: flex; flex-direction: column; align-items: center;
         }
-        #module-list { width: 100%; max-width: 550px; }
 
-        /* PANE 3: VIDEO (RIGHT) */
         #pane-video { 
-            flex: 0; 
-            display: flex; 
-            visibility: hidden;
-            width: 0;
-            background: var(--bg-panel); 
-            flex-direction: column; 
-            border-left: 0px solid var(--border-grey); 
-            transition: all 0.3s ease;
-            overflow: hidden;
+            flex: 0; opacity: 0; transform: translateX(100%);
+            background: var(--bg-panel); border-left: 1px solid var(--border-grey);
+            display: flex; flex-direction: column;
         }
-        #pane-video.active { 
-            flex: 1; 
-            visibility: visible;
-            width: auto;
-            border-left: 2px solid var(--border-grey); 
-        }
-        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; margin: auto 0; }
-        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        #pane-video.active { flex: 1; opacity: 1; transform: translateX(0); }
 
-        /* Module Card Styling */
+        #module-list { width: 100%; max-width: 500px; }
+
+        /* SLIMMED DOWN MODULE CARDS */
         .module-card { 
-            background: var(--white); 
-            border: 2px solid var(--border-grey); 
-            border-radius: 12px; 
-            padding: 25px; 
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            background: var(--white); border-radius: 16px; padding: 30px; margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.05);
         }
-        .module-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 12px; color: var(--primary-dark); }
+        .module-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.02em; }
 
-        .checklist-container { margin: 20px 0; }
         .step-wrapper { 
-            border-bottom: 1px solid #eee; 
-            padding: 12px 0; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 0; border-bottom: 1px solid #f0f0f0;
         }
-        .step-left { display: flex; align-items: center; flex: 1; cursor: pointer; }
-        .step-left input { margin-right: 12px; width: 18px; height: 18px; accent-color: var(--evergreen); cursor: pointer; }
-        .step-name { font-weight: 600; font-size: 0.95rem; }
+        .step-wrapper:last-of-type { border-bottom: none; }
         
-        /* Updated Tip Trigger with Correct Arrow */
-        .tip-trigger { 
-            font-size: 0.7rem; 
-            color: var(--evergreen); 
-            font-weight: 800; 
-            text-transform: uppercase; 
-            cursor: pointer;
-            padding-left: 10px;
-        }
-
-        .mini-progress { height: 8px; background: #e0e0e0; border-radius: 4px; margin-top: 20px; overflow: hidden; }
-        .mini-bar { height: 100%; background: var(--evergreen); width: 0%; transition: width 0.4s ease; }
+        .step-left { display: flex; align-items: center; flex: 1; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+        .step-left input { margin-left: 15px; width: 20px; height: 20px; accent-color: var(--evergreen); cursor: pointer; order: 2; }
+        
+        .tip-link { font-size: 0.7rem; font-weight: 800; color: var(--evergreen); text-transform: uppercase; cursor: pointer; transition: 0.2s; opacity: 0.6; }
+        .tip-link:hover { opacity: 1; transform: translateX(-3px); }
 
         .btn-video { 
-            width: 100%; background: var(--primary-dark); color: white; border: none; 
-            padding: 14px; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 20px;
+            width: 100%; background: #000; color: white; border: none; 
+            padding: 16px; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 25px;
+            text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px;
         }
 
-        /* Tips Pane Content Styling */
-        .tip-header { font-size: 0.7rem; color: #999; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
-        .tip-title { font-size: 1.5rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 15px; }
-        .tip-content { line-height: 1.6; color: #444; margin-bottom: 30px; font-size: 1rem; }
-        .btn-launch { 
+        /* TIP CONTENT */
+        .tip-header { font-size: 0.65rem; color: #999; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+        .tip-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 20px; }
+        .tip-text { line-height: 1.7; color: #444; font-size: 1rem; margin-bottom: 30px; }
+        .btn-action { 
             display: block; background: var(--evergreen); color: white; text-align: center; 
-            padding: 15px; border-radius: 8px; text-decoration: none; font-weight: 800; text-transform: uppercase;
+            padding: 18px; border-radius: 12px; text-decoration: none; font-weight: 700;
         }
 
-        .close-pane-btn { 
-            background: var(--accent-orange); 
-            color: white; 
-            border: none; 
-            padding: 12px; 
-            cursor: pointer; 
-            font-weight: 800; 
-            width: 100%; 
-            font-size: 0.75rem; 
-            margin-bottom: 20px;
-        }
+        .close-btn { background: var(--accent-orange); color: white; border: none; padding: 15px; cursor: pointer; font-weight: 800; width: 100%; margin-bottom: 30px; border-radius: 8px; }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; margin: auto 20px; border-radius: 12px; overflow: hidden; }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
     </style>
 </head>
 <body>
 
-<header><div class="header-title">EOCO Command Center</div></header>
+<header><div class="header-title">EOCO Hub</div></header>
 
 <div class="workspace">
-    <section id="pane-tips">
-        <button class="close-pane-btn" onclick="closeTips()">✕ CLOSE INSTRUCTIONS</button>
-        <div id="tip-display">
-            <p style="color:#888;">Select a step to the right to see specific instructions here.</p>
-        </div>
+    <section id="pane-tips" class="pane">
+        <button class="close-btn" onclick="closeTips()">✕ CLOSE TIPS</button>
+        <div id="tip-content"></div>
     </section>
 
-    <section id="pane-modules">
-        <div id="module-list">Initialising Command Center...</div>
+    <section id="pane-modules" class="pane">
+        <div id="module-list">Loading...</div>
     </section>
 
-    <section id="pane-video">
-        <button class="close-pane-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button>
+    <section id="pane-video" class="pane">
+        <button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE VIDEO</button>
         <div class="video-wrapper" id="video-frame"></div>
     </section>
 </div>
 
 <script>
-    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv';
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv';
     let modules = [];
-    const userState = JSON.parse(localStorage.getItem('eoco_command_state')) || {};
+    const state = JSON.parse(localStorage.getItem('eoco_state')) || {};
 
     async function init() {
-        try {
-            const response = await fetch(SHEET_CSV_URL);
-            const text = await response.text();
-            const rows = parseCSV(text).slice(1);
-            
-            modules = rows.filter(r => r.length > 0).map(cols => {
-                const rawSteps = cols[6] ? cols[6].split(';') : ["Complete requirements||"];
-                return {
-                    id: cols[0].trim(),
-                    title: cols[2],
-                    videoUrl: cols[4],
-                    steps: rawSteps.map(s => {
-                        const parts = s.split('|');
-                        return { name: parts[0]?.trim(), tips: parts[1]?.trim() || "No additional info.", url: parts[2]?.trim() || "" };
-                    })
-                };
-            });
-            render();
-        } catch (e) { console.error(e); }
+        const res = await fetch(SHEET_URL);
+        const text = await res.text();
+        const rows = parseCSV(text).slice(1);
+        
+        modules = rows.filter(r => r.length > 0).map(cols => {
+            const rawSteps = cols[6] ? cols[6].split(';') : ["Complete||"];
+            // FORCE 4 STEP LIMIT
+            return {
+                id: cols[0].trim(),
+                title: cols[2],
+                video: cols[4],
+                steps: rawSteps.slice(0, 4).map(s => {
+                    const p = s.split('|');
+                    return { name: p[0]?.trim(), tip: p[1]?.trim() || "No tips.", url: p[2]?.trim() || "" };
+                })
+            };
+        });
+        render();
     }
 
-    function parseCSV(text) {
+    function parseCSV(t) {
         const re = /(?!\s*$)\s*(?:"([^"]*(?:""[^"]*)*)"|([^",\r\n]*))\s*(?:,|$)/g;
-        const result = [];
-        text.split(/\r?\n/).forEach(line => {
-            if (line.trim() === "") return;
-            const row = [];
-            line.replace(re, (m, p1, p2) => {
-                if (p1 !== undefined) row.push(p1.replace(/""/g, '"'));
-                else if (p2 !== undefined) row.push(p2);
+        const res = [];
+        t.split(/\r?\n/).forEach(l => {
+            const r = [];
+            l.replace(re, (m, p1, p2) => {
+                r.push(p1 !== undefined ? p1.replace(/""/g, '"') : p2);
                 return '';
             });
-            result.push(row);
+            if(r.length) res.push(r);
         });
-        return result;
+        return res;
     }
 
     function render() {
         const list = document.getElementById('module-list');
-        list.innerHTML = modules.map(m => {
-            const state = userState[m.id] || { checks: [] };
-            const progress = (state.checks.length / m.steps.length) * 100;
-            return `
-                <div class="module-card">
-                    <div class="module-title">${m.title}</div>
-                    <div class="checklist-container">
-                        ${m.steps.map((step, i) => `
-                            <div class="step-wrapper">
-                                <span class="tip-trigger" onclick="showTips('${m.id}', ${i})">← Tips</span>
-                                <div class="step-left" onclick="toggleStep('${m.id}', ${i})">
-                                    <span class="step-name">${step.name}</span>
-                                    <input type="checkbox" ${state.checks.includes(i) ? 'checked' : ''} style="margin-left: 12px; margin-right: 0;">
-                                </div>
-                            </div>
-                        `).join('')}
-                        <div class="mini-progress"><div class="mini-bar" style="width:${progress}%"></div></div>
+        list.innerHTML = modules.map(m => `
+            <div class="module-card">
+                <div class="module-title">${m.title}</div>
+                ${m.steps.map((s, i) => `
+                    <div class="step-wrapper">
+                        <span class="tip-link" onclick="showTips('${m.id}', ${i})">← Instructions</span>
+                        <div class="step-left" onclick="toggleCheck('${m.id}', ${i})">
+                            ${s.name}
+                            <input type="checkbox" ${(state[m.id]?.includes(i)) ? 'checked' : ''}>
+                        </div>
                     </div>
-                    <button class="btn-video" onclick="toggleVideo('${m.videoUrl}')">Watch Module Tutorial</button>
-                </div>
-            `;
-        }).join('');
+                `).join('')}
+                <button class="btn-video" onclick="toggleVideo('${m.video}')">Watch Tutorial</button>
+            </div>
+        `).join('');
     }
 
-    function showTips(modId, stepIdx) {
-        const module = modules.find(m => m.id === modId);
-        const step = module.steps[stepIdx];
-        const display = document.getElementById('tip-display');
-        const pane = document.getElementById('pane-tips');
-        
-        display.innerHTML = `
-            <div class="tip-header">Instructions for Step ${stepIdx + 1}</div>
-            <div class="tip-title">${step.name}</div>
-            <div class="tip-content">${step.tips}</div>
-            ${step.url ? `<a href="${step.url}" target="_blank" class="btn-launch">Open Step Tool</a>` : ''}
+    function showTips(mid, idx) {
+        const s = modules.find(m => m.id === mid).steps[idx];
+        document.getElementById('tip-content').innerHTML = `
+            <div class="tip-header">Step ${idx + 1} Guidance</div>
+            <div class="tip-title">${s.name}</div>
+            <div class="tip-text">${s.tip}</div>
+            ${s.url ? `<a href="${s.url}" target="_blank" class="btn-action">Launch Step Tool</a>` : ''}
         `;
-        pane.classList.add('active');
+        document.getElementById('pane-tips').classList.add('active');
     }
 
     function closeTips() { document.getElementById('pane-tips').classList.remove('active'); }
 
-    function toggleStep(modId, stepIdx) {
-        if (!userState[modId]) userState[modId] = { checks: [] };
-        const idx = userState[modId].checks.indexOf(stepIdx);
-        if (idx > -1) userState[modId].checks.splice(idx, 1);
-        else userState[modId].checks.push(stepIdx);
-        localStorage.setItem('eoco_command_state', JSON.stringify(userState));
+    function toggleCheck(mid, idx) {
+        if(!state[mid]) state[mid] = [];
+        const i = state[mid].indexOf(idx);
+        i > -1 ? state[mid].splice(i, 1) : state[mid].push(idx);
+        localStorage.setItem('eoco_state', JSON.stringify(state));
         render();
     }
 
     function toggleVideo(url) {
-        const pane = document.getElementById('pane-video');
-        const frameContainer = document.getElementById('video-frame');
-        const iframe = frameContainer.querySelector('iframe');
-        if (!url || pane.classList.contains('active')) {
-            pane.classList.remove('active');
-            if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+        const p = document.getElementById('pane-video');
+        const f = document.getElementById('video-frame');
+        if(!url || p.classList.contains('active')) {
+            p.classList.remove('active');
+            if(f.querySelector('iframe')) f.querySelector('iframe').contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
             return;
         }
-        let vidId = url.split('v=')[1];
-        if (vidId) {
-            let amp = vidId.indexOf('&');
-            if (amp != -1) vidId = vidId.substring(0, amp);
-            if (frameContainer.innerHTML.indexOf(vidId) === -1) {
-                frameContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${vidId}?enablejsapi=1&autoplay=1" allow="autoplay; fullscreen"></iframe>`;
-            } else if (iframe) {
-                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-            }
-            pane.classList.add('active');
-        }
+        let id = url.split('v=')[1]?.split('&')[0];
+        if(f.innerHTML.indexOf(id) === -1) f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1" allow="autoplay; fullscreen"></iframe>`;
+        else f.querySelector('iframe').contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        p.classList.add('active');
     }
 
     init();
