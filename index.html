@@ -23,7 +23,6 @@
 
         .workspace { display: flex; height: calc(100vh - 60px); width: 100vw; position: relative; overflow: hidden; }
         
-        /* DYNAMIC PANEL WIDTH LOGIC */
         .side-pane {
             position: absolute; top: 0; height: 100%;
             background: var(--bg-panel); border-color: var(--border-grey);
@@ -31,25 +30,21 @@
             display: flex; flex-direction: column; padding: 25px;
         }
 
-        /* 50% width by default when active */
         #pane-library { left: 0; border-right: 1px solid var(--border-grey); transform: translateX(-100%); width: 50%; }
         #pane-library.active { transform: translateX(0); }
 
         #pane-video { right: 0; border-left: 1px solid var(--border-grey); transform: translateX(100%); width: 50%; }
         #pane-video.active { transform: translateX(0); }
 
-        /* 1/3rd width when BOTH are active */
         .workspace.both-active #pane-library, 
         .workspace.both-active #pane-video { width: 33.33%; }
 
-        /* MODULES AREA SCALING */
         #pane-modules { 
             flex: 1; height: 100%; overflow-y: auto; padding: 40px 20px;
             display: flex; flex-direction: column; align-items: center;
             transition: margin 0.6s var(--ease);
         }
 
-        /* Margin adjustments to push the center content */
         .workspace.lib-active #pane-modules { margin-left: 50%; }
         .workspace.vid-active #pane-modules { margin-right: 50%; }
         .workspace.both-active #pane-modules { margin-left: 33.33%; margin-right: 33.33%; }
@@ -60,7 +55,7 @@
             .close-btn { padding: 25px !important; font-size: 1rem !important; }
         }
 
-        /* COMPONENT STYLES (Phase, Cards, Steps, Tiles) */
+        /* COMPONENT STYLES */
         .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 2px solid var(--border-grey); }
         .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; }
         .phase-title { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 2px; }
@@ -151,7 +146,6 @@
         const ws = document.getElementById('main-ws');
         const libActive = document.getElementById('pane-library').classList.contains('active');
         const vidActive = document.getElementById('pane-video').classList.contains('active');
-        
         ws.classList.remove('lib-active', 'vid-active', 'both-active');
         if (libActive && vidActive) ws.classList.add('both-active');
         else if (libActive) ws.classList.add('lib-active');
@@ -168,10 +162,27 @@
 
     function toggleVideo(url) {
         const p = document.getElementById('pane-video'), f = document.getElementById('video-frame');
-        if (!url || p.classList.contains('active')) { p.classList.remove('active'); updateLayoutClasses(); return; }
+        const iframe = f.querySelector('iframe');
+
+        // IF CLOSING
+        if (!url || p.classList.contains('active')) {
+            p.classList.remove('active');
+            updateLayoutClasses();
+            if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            return;
+        }
+
+        // IF OPENING
         let id = url.includes('v=') ? url.split('v=')[1]?.split('&')[0] : url.split('/').pop();
-        if (currentVideoId !== id) { f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1" allow="autoplay; fullscreen"></iframe>`; currentVideoId = id; }
-        p.classList.add('active'); updateLayoutClasses();
+        if (currentVideoId !== id) {
+            f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1" allow="autoplay; fullscreen"></iframe>`;
+            currentVideoId = id;
+        } else if (iframe) {
+            iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        }
+        
+        p.classList.add('active'); 
+        updateLayoutClasses();
     }
 
     function toggleCheck(mid, idx) { if(!state[mid]) state[mid] = []; const i = state[mid].indexOf(idx); i > -1 ? state[mid].splice(i, 1) : state[mid].push(idx); localStorage.setItem('eoco_state', JSON.stringify(state)); render(); }
