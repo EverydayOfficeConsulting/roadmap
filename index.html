@@ -8,12 +8,28 @@
         :root { 
             --primary-dark: #1a1a1a; --evergreen: #2d5a27; --bg-main: #f4f7f6; 
             --bg-panel: #eceff1; --border-grey: #e2e8f0; --white: #ffffff; 
-            --text-main: #2c3e50; --ease: cubic-bezier(0.25, 1, 0.5, 1);
+            --text-main: #2c3e50; --text-muted: #64748b; --ease: cubic-bezier(0.25, 1, 0.5, 1);
         }
+
+        /* DARK MODE VARIABLES */
+        [data-theme="dark"] {
+            --bg-main: #121212; --bg-panel: #1e1e1e; --border-grey: #333;
+            --white: #1e1e1e; --text-main: #e0e0e0; --text-muted: #a0a0a0;
+        }
+
         * { box-sizing: border-box; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-main); margin: 0; overflow: hidden; }
-        header { background: var(--primary-dark); color: white; display: flex; justify-content: center; align-items: center; height: 60px; z-index: 2000; position: relative; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main); transition: background 0.3s ease; }
+        
+        header { 
+            background: var(--primary-dark); color: white; display: flex; 
+            justify-content: space-between; align-items: center; height: 60px; 
+            padding: 0 20px; z-index: 2000; position: relative; 
+        }
         .header-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; }
+        
+        /* THEME TOGGLE */
+        .theme-toggle { background: #333; color: white; border: none; padding: 8px 12px; border-radius: 20px; cursor: pointer; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+
         .workspace { display: flex; height: calc(100vh - 60px); width: 100vw; transition: all 0.5s var(--ease); position: relative; }
         
         /* PANES */
@@ -25,33 +41,29 @@
 
         /* MOBILE OVERRIDES */
         @media (max-width: 768px) {
-            #pane-library.active, #pane-video.active {
-                position: absolute;
-                top: 0; left: 0;
-                width: 100%; height: 100%;
-                z-index: 3000;
-            }
+            #pane-library.active, #pane-video.active { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3000; }
+            .close-btn { padding: 25px !important; font-size: 1rem !important; } /* BIGGER TOUCH TARGET */
             .gallery-grid { grid-template-columns: 1fr 1fr; }
             .module-card { padding: 20px; }
         }
 
         /* TILES & CARDS */
         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; margin-top: 20px; }
-        .tool-tile { background: white; border-radius: 14px; overflow: hidden; border: 1px solid var(--border-grey); transition: all 0.3s var(--ease); cursor: pointer; text-decoration: none; color: inherit; }
-        .tool-tile:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); border-color: var(--evergreen); }
+        .tool-tile { background: var(--white); border-radius: 14px; overflow: hidden; border: 1px solid var(--border-grey); transition: all 0.3s var(--ease); cursor: pointer; text-decoration: none; color: inherit; }
+        .tool-tile:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); border-color: var(--evergreen); }
         .tile-img { height: 110px; background-size: cover; background-position: top center; background-color: #2c3e50; }
-        .tile-name { padding: 14px; font-size: 0.75rem; font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 1px;}
+        .tile-name { padding: 14px; font-size: 0.75rem; font-weight: 800; text-align: center; text-transform: uppercase; color: var(--text-main); }
 
         #module-list { width: 100%; max-width: 550px; }
-        .module-card { background: var(--white); border-radius: 16px; padding: 32px; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.05); }
-        .module-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 24px; }
-        .step-container { border: 1px solid var(--border-grey); border-radius: 12px; margin-bottom: 12px; background: #fff; overflow: hidden; }
+        .module-card { background: var(--white); border-radius: 16px; padding: 32px; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid var(--border-grey); }
+        .module-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 24px; color: var(--text-main); }
+        .step-container { border: 1px solid var(--border-grey); border-radius: 12px; margin-bottom: 12px; background: var(--white); overflow: hidden; }
         .step-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; cursor: pointer; }
-        .step-name { font-weight: 700; font-size: 0.9rem; }
+        .step-name { font-weight: 700; font-size: 0.9rem; color: var(--text-main); }
         .step-header input { width: 22px; height: 22px; accent-color: var(--evergreen); cursor: pointer; }
         .step-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s var(--ease); padding: 0 20px; }
         .step-container.open .step-content { grid-template-rows: 1fr; padding-bottom: 15px; }
-        .content-inner { overflow: hidden; font-size: 0.85rem; color: #64748b; padding-top: 10px; border-top: 1px solid #f1f5f9; line-height: 1.6; }
+        .content-inner { overflow: hidden; font-size: 0.85rem; color: var(--text-muted); padding-top: 10px; border-top: 1px solid var(--border-grey); line-height: 1.6; }
 
         /* BUTTONS */
         .action-btn, .close-btn { background: var(--evergreen); color: white; border: none; padding: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1.5px; transition: 0.2s; }
@@ -62,12 +74,15 @@
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
     </style>
 </head>
-<body>
-<header><div class="header-title">EOCO Command Center</div></header>
+<body data-theme="light">
+<header>
+    <div style="width: 80px;"></div> <div class="header-title">EOCO Command Center</div>
+    <button class="theme-toggle" onclick="toggleTheme()">Dark Mode</button>
+</header>
 <div class="workspace">
     <section id="pane-library">
         <button class="close-btn" style="margin-bottom:20px;" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button>
-        <div style="font-weight:900; font-size:1.1rem; color:var(--primary-dark); text-transform:uppercase;">Module Library</div>
+        <div style="font-weight:900; font-size:1.1rem; text-transform:uppercase;">Module Library</div>
         <div class="gallery-grid" id="resource-grid"></div>
     </section>
     <section id="pane-modules"><div id="module-list">Synchronizing...</div></section>
@@ -83,7 +98,21 @@
     const state = JSON.parse(localStorage.getItem('eoco_state')) || {};
     let activeLibId = null;
 
+    // THEME LOGIC
+    function toggleTheme() {
+        const body = document.body;
+        const current = body.getAttribute('data-theme');
+        const next = current === 'light' ? 'dark' : 'light';
+        body.setAttribute('data-theme', next);
+        document.querySelector('.theme-toggle').innerText = next === 'light' ? 'Dark Mode' : 'Light Mode';
+        localStorage.setItem('eoco_theme', next);
+    }
+
     async function init() {
+        const savedTheme = localStorage.getItem('eoco_theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        document.querySelector('.theme-toggle').innerText = savedTheme === 'light' ? 'Dark Mode' : 'Light Mode';
+
         try {
             const res = await fetch(SHEET_URL);
             const text = await res.text();
