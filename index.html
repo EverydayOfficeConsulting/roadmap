@@ -23,7 +23,6 @@
             background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main);
         }
 
-        /* Top Navigation */
         header { 
             background: var(--primary-dark); color: white; display: flex; 
             justify-content: center; align-items: center; height: 60px; 
@@ -31,10 +30,9 @@
         }
         .header-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; }
 
-        /* THE DYNAMIC 3-PANE WORKSPACE */
         .workspace { display: flex; height: calc(100vh - 60px); width: 100vw; transition: all 0.5s var(--ease); }
 
-        /* PANE 1: LIBRARY (LEFT) */
+        /* PANES */
         #pane-library { 
             flex: 0; opacity: 0; overflow: hidden;
             background: var(--bg-panel); border-right: 1px solid var(--border-grey);
@@ -43,14 +41,12 @@
         }
         #pane-library.active { flex: 1; opacity: 1; padding: 30px; }
 
-        /* PANE 2: MODULES (CENTER) */
         #pane-modules { 
             flex: 1; background: var(--bg-main); overflow-y: auto;
             padding: 40px 20px; display: flex; flex-direction: column; align-items: center;
             transition: all 0.5s var(--ease);
         }
 
-        /* PANE 3: VIDEO (RIGHT) */
         #pane-video { 
             flex: 0; opacity: 0; overflow: hidden;
             background: var(--bg-panel); border-left: 1px solid var(--border-grey);
@@ -58,46 +54,38 @@
         }
         #pane-video.active { flex: 1; opacity: 1; }
 
-        /* RESOURCE TILES (Steam Style) */
-        .gallery-grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
-            gap: 15px; margin-top: 20px; 
-        }
+        /* TILES */
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-top: 20px; }
         .tool-tile { 
             background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-grey); 
             transition: all 0.3s var(--ease); cursor: pointer; text-decoration: none; color: inherit;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
         }
-        .tool-tile:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 12px 20px rgba(0,0,0,0.08); border-color: var(--evergreen); }
-        .tile-img { height: 90px; background-size: cover; background-position: top center; background-color: #2c3e50; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .tile-name { padding: 10px; font-size: 0.65rem; font-weight: 800; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+        .tool-tile:hover { transform: translateY(-5px); box-shadow: 0 12px 20px rgba(0,0,0,0.08); border-color: var(--evergreen); }
+        .tile-img { height: 90px; background-size: cover; background-position: top center; background-color: #2c3e50; }
+        .tile-name { padding: 10px; font-size: 0.65rem; font-weight: 800; text-align: center; text-transform: uppercase; }
 
-        /* MODULE CARDS & ACCORDION */
+        /* MODULE CARDS */
         #module-list { width: 100%; max-width: 550px; }
-        .module-card { 
-            background: var(--white); border-radius: 16px; padding: 32px; margin-bottom: 30px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.05); 
-        }
+        .module-card { background: var(--white); border-radius: 16px; padding: 32px; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.05); }
         .module-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 24px; }
 
+        /* ACCORDION */
         .step-container { border: 1px solid var(--border-grey); border-radius: 12px; margin-bottom: 12px; background: #fff; overflow: hidden; }
         .step-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; cursor: pointer; }
         .step-name { font-weight: 700; font-size: 0.9rem; }
         .step-header input { width: 20px; height: 20px; accent-color: var(--evergreen); cursor: pointer; }
 
         .step-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s var(--ease); padding: 0 20px; }
-        .step-container.open { border-color: var(--evergreen); }
         .step-container.open .step-content { grid-template-rows: 1fr; padding-bottom: 15px; }
         .content-inner { overflow: hidden; font-size: 0.85rem; color: #64748b; padding-top: 10px; border-top: 1px solid #f1f5f9; line-height: 1.6; }
 
-        /* ACTION BUTTONS */
+        /* UNIFIED BUTTONS */
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
         .action-btn { 
-            padding: 16px; border-radius: 12px; font-weight: 800; cursor: pointer; 
-            text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; border: none; transition: 0.2s; 
+            background: var(--evergreen); color: white; padding: 16px; border-radius: 12px; 
+            font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; 
+            letter-spacing: 1px; border: none; transition: 0.2s; 
         }
-        .btn-lib { background: var(--evergreen); color: white; }
-        .btn-vid { background: #000; color: white; }
         .action-btn:hover { filter: brightness(1.2); }
 
         .close-btn { background: var(--accent-orange); color: white; border: none; padding: 15px; cursor: pointer; font-weight: 800; border-radius: 8px; }
@@ -111,8 +99,8 @@
 
 <div class="workspace">
     <section id="pane-library">
-        <button class="close-btn" style="width:100%; margin-bottom:20px;" onclick="closeLibrary()">✕ CLOSE TOOLS</button>
-        <div style="font-weight:900; font-size:1.1rem; color:var(--primary-dark); text-transform:uppercase; letter-spacing:1px;">Module Library</div>
+        <button class="close-btn" style="width:100%; margin-bottom:20px;" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button>
+        <div style="font-weight:900; font-size:1.1rem; color:var(--primary-dark); text-transform:uppercase;">Module Library</div>
         <div class="gallery-grid" id="resource-grid"></div>
     </section>
 
@@ -130,6 +118,7 @@
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv';
     let modules = [];
     const state = JSON.parse(localStorage.getItem('eoco_state')) || {};
+    let activeLibId = null;
 
     async function init() {
         try {
@@ -138,10 +127,8 @@
             const rows = parseCSV(text).slice(1);
             
             modules = rows.filter(r => r.length > 0).map(cols => {
-                // Mapping: Library = Col 7 (Index 6), Steps = Col 8 (Index 7)
                 const rawLib = cols[6] ? cols[6].split(';') : []; 
                 const rawSteps = cols[7] ? cols[7].split(';') : ["Complete||"];
-                
                 return {
                     id: cols[0].trim(),
                     title: cols[2],
@@ -157,7 +144,7 @@
                 };
             });
             render();
-        } catch (e) { console.error("Data Sync Failed", e); }
+        } catch (e) { console.error(e); }
     }
 
     function parseCSV(t) {
@@ -189,26 +176,52 @@
                     </div>
                 `).join('')}
                 <div class="btn-row">
-                    <button class="action-btn btn-lib" onclick="openLibrary('${m.id}')">Links & Tools</button>
-                    <button class="action-btn btn-vid" onclick="toggleVideo('${m.video}')">Watch Video</button>
+                    <button class="action-btn" onclick="toggleLibrary('${m.id}')">Links & Tools</button>
+                    <button class="action-btn" onclick="toggleVideo('${m.video}')">Watch Video</button>
                 </div>
             </div>
         `).join('');
     }
 
-    function openLibrary(mid) {
-        const m = modules.find(mod => mod.id === mid);
+    function toggleLibrary(mid) {
+        const p = document.getElementById('pane-library');
         const grid = document.getElementById('resource-grid');
+        
+        if (!mid || (p.classList.contains('active') && activeLibId === mid)) {
+            p.classList.remove('active');
+            activeLibId = null;
+            return;
+        }
+
+        const m = modules.find(mod => mod.id === mid);
         grid.innerHTML = m.library.map(l => `
             <a href="${l.url}" target="_blank" class="tool-tile">
                 <div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.url}')"></div>
                 <div class="tile-name">${l.name}</div>
             </a>
         `).join('');
-        document.getElementById('pane-library').classList.add('active');
+        p.classList.add('active');
+        activeLibId = mid;
     }
 
-    function closeLibrary() { document.getElementById('pane-library').classList.remove('active'); }
+    function toggleVideo(url) {
+        const p = document.getElementById('pane-video');
+        const f = document.getElementById('video-frame');
+        
+        if (!url || p.classList.contains('active')) {
+            p.classList.remove('active');
+            if (f.querySelector('iframe')) f.querySelector('iframe').contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            return;
+        }
+        
+        let id = url.split('v=')[1]?.split('&')[0];
+        if (f.innerHTML.indexOf(id) === -1) {
+            f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1" allow="autoplay; fullscreen"></iframe>`;
+        } else {
+            f.querySelector('iframe').contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        }
+        p.classList.add('active');
+    }
 
     function toggleAccordion(mid, idx) {
         const el = document.getElementById(`step-${mid}-${idx}`);
@@ -223,23 +236,6 @@
         i > -1 ? state[mid].splice(i, 1) : state[mid].push(idx);
         localStorage.setItem('eoco_state', JSON.stringify(state));
         render();
-    }
-
-    function toggleVideo(url) {
-        const p = document.getElementById('pane-video');
-        const f = document.getElementById('video-frame');
-        if(!url || p.classList.contains('active')) {
-            p.classList.remove('active');
-            if(f.querySelector('iframe')) f.querySelector('iframe').contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-            return;
-        }
-        let id = url.split('v=')[1]?.split('&')[0];
-        if (f.innerHTML.indexOf(id) === -1) {
-            f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1" allow="autoplay; fullscreen"></iframe>`;
-        } else {
-            f.querySelector('iframe').contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-        }
-        p.classList.add('active');
     }
 
     init();
