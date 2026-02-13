@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EOCO | Simple Systems. Better Business.</title>
+    <title>EOCO | Foundational Roadmap</title>
     <style>
         :root { 
             --primary-dark: #1a1a1a; --evergreen: #2d5a27; --bg-main: #f4f7f6; 
@@ -18,25 +18,34 @@
         * { box-sizing: border-box; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main); }
         
+        /* REFINED HEADER FLOW */
         header { 
             background: var(--primary-dark); color: white; 
             display: flex; flex-direction: column; align-items: center; 
-            padding: 15px 20px; z-index: 4000; position: relative; 
+            padding: 15px 20px 0 20px; z-index: 4000; position: relative; 
             border-bottom: 1px solid var(--border-grey);
         }
-        .brand-container { text-align: center; margin-bottom: 10px; }
+        .header-top { 
+            display: flex; justify-content: center; align-items: center; 
+            width: 100%; position: relative; padding-bottom: 15px; 
+        }
+        .brand-container { text-align: center; }
         .brand-name { font-size: 1.2rem; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; margin: 0; }
         .brand-slogan { font-size: 0.65rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #a5d6a7; margin-top: 4px; }
         
         .page-title-section { 
-            background: rgba(255,255,255,0.05); width: 100%; text-align: center; 
-            padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05); width: 100vw; text-align: center; 
+            padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1);
         }
         .page-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: white; margin: 0; }
 
-        .theme-toggle { position: absolute; right: 20px; top: 25px; background: var(--evergreen); color: white; border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
+        .theme-toggle { 
+            position: absolute; right: 0; background: var(--evergreen); 
+            color: white; border: none; padding: 6px 14px; border-radius: 20px; 
+            cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; 
+        }
 
-        .workspace { display: flex; height: calc(100vh - 120px); width: 100vw; position: relative; overflow: hidden; }
+        .workspace { display: flex; height: calc(100vh - 125px); width: 100vw; position: relative; overflow: hidden; }
         
         .side-pane { position: absolute; top: 0; height: 100%; background: var(--bg-panel); border-color: var(--border-grey); transition: transform 0.6s var(--ease), width 0.6s var(--ease); z-index: 3000; display: flex; flex-direction: column; padding: 25px; }
         #pane-library { left: 0; border-right: 1px solid var(--border-grey); transform: translateX(-100%); width: 50%; }
@@ -50,11 +59,13 @@
         .workspace.both-active #pane-modules { margin-left: 33.33%; margin-right: 33.33%; }
 
         @media (max-width: 768px) {
+            header { padding: 15px 10px 0 10px; }
+            .header-top { flex-direction: column; padding-bottom: 10px; }
+            .theme-toggle { position: static; margin-top: 12px; }
+            .brand-name { font-size: 1rem; letter-spacing: 4px; }
             .side-pane { width: 100% !important; }
             .workspace.lib-active #pane-modules, .workspace.vid-active #pane-modules, .workspace.both-active #pane-modules { margin: 0 !important; }
-            .theme-toggle { top: 15px; }
-            .brand-name { font-size: 1rem; }
-            .pop-out-btn { display: none; } /* Hide pop-out on mobile */
+            .transcript-hint { display: none !important; } /* REMOVED FOR MOBILE */
         }
 
         /* VIDEO PANEL CONTROLS */
@@ -96,12 +107,14 @@
 </head>
 <body data-theme="light">
 <header>
-    <div class="brand-container">
-        <div class="brand-name">EOCO</div>
-        <div class="brand-slogan">Simple Systems. Better Business.</div>
+    <div class="header-top">
+        <div class="brand-container">
+            <div class="brand-name">EOCO</div>
+            <div class="brand-slogan">Simple Systems. Better Business.</div>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()">Dark Mode</button>
     </div>
     <div class="page-title-section"><h1 class="page-title">The Foundational Roadmap</h1></div>
-    <button class="theme-toggle" onclick="toggleTheme()">Dark Mode</button>
 </header>
 <div class="workspace" id="main-ws">
     <section id="pane-library" class="side-pane"><button class="close-btn" style="margin-bottom:20px;" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button><div style="font-weight:900; font-size:1.1rem; text-transform:uppercase;">Module Library</div><div class="gallery-grid" id="resource-grid"></div></section>
@@ -182,16 +195,13 @@
         document.getElementById('resource-grid').innerHTML = m.library.map(l => `<a href="${l.url}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.url}')"></div><div class="tile-name">${l.name}</div></a>`).join('');
         p.classList.add('active'); activeLibId = mid; updateLayoutClasses();
     }
-
     function popOutVideo() {
         if (!currentVideoId) return;
         const width = 640; const height = 360;
-        const left = (window.innerWidth / 2) - (width / 2);
-        const top = (window.innerHeight / 2) - (height / 2);
+        const left = (window.innerWidth / 2) - (width / 2); const top = (window.innerHeight / 2) - (height / 2);
         window.open(`https://www.youtube.com/embed/${currentVideoId}?autoplay=1&cc_load_policy=1`, 'YouTubePopOut', `width=${width},height=${height},top=${top},left=${left},menubar=no,status=no,titlebar=no`);
-        toggleVideo(null); // Close the sidebar when popping out
+        toggleVideo(null);
     }
-
     async function toggleVideo(mid) {
         const p = document.getElementById('pane-video'), f = document.getElementById('video-frame');
         const iframe = f.querySelector('iframe');
@@ -207,7 +217,6 @@
             const data = await response.json();
             document.getElementById('video-display-title').innerText = data.title || m.title;
         } catch (e) { document.getElementById('video-display-title').innerText = m.title; }
-
         if (currentVideoId !== id) {
             f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&cc_load_policy=1" allow="autoplay; fullscreen"></iframe>`;
             currentVideoId = id;
