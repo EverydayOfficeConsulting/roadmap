@@ -78,14 +78,8 @@
         .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 2px solid var(--border-grey); }
         .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; user-select: none; }
         
-        /* NEW: TITLE CONTAINER WITH ICON */
         .phase-title-group { display: flex; align-items: center; gap: 10px; }
-        .phase-icon { 
-            width: 14px; height: 14px; 
-            transition: transform 0.3s var(--ease); 
-            fill: var(--evergreen);
-        }
-        /* Rotate the icon when NOT open (closed state) */
+        .phase-icon { width: 14px; height: 14px; transition: transform 0.3s var(--ease); fill: var(--evergreen); }
         .phase-section:not(.open) .phase-icon { transform: rotate(-90deg); }
         
         .phase-title { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 2px; }
@@ -93,11 +87,12 @@
         .phase-badge.complete { background: var(--evergreen); color: white; }
         
         .phase-content { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 0.4s var(--ease); }
-        .phase-section:not(.open) .phase-content { grid-template-rows: 0fr; } /* COLLAPSED STATE */
+        .phase-section:not(.open) .phase-content { grid-template-rows: 0fr; }
         
         .phase-inner { overflow: hidden; }
         .module-card { background: var(--white); border-radius: 20px; padding: 32px; margin: 20px 0; border: 1px solid var(--border-grey); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .module-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 20px; }
+        .module-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 5px; /* Reduced bottom margin */ }
+        .module-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; font-weight: 400; } /* NEW DESCRIPTION STYLE */
         
         .step-container { border: 1px solid var(--border-grey); border-radius: 14px; margin-bottom: 12px; background: var(--white); overflow: hidden; }
         .step-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; }
@@ -143,7 +138,6 @@
     </section>
 </div>
 <script>
-    // ADDED CACHE BUSTER TO URL
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv' + '&t=' + Date.now();
     let modules = [];
     const state = JSON.parse(localStorage.getItem('eoco_state')) || {};
@@ -172,12 +166,14 @@
                 
                 if (key === 'ID') { 
                     if (currentMod) modules.push(currentMod); 
-                    currentMod = { id: b, phase: 'PHASE 1', title: '', video: '', library: [], steps: [] }; 
+                    // ADDED DESCRIPTION TO OBJECT MODEL
+                    currentMod = { id: b, phase: 'PHASE 1', title: '', description: '', video: '', library: [], steps: [] }; 
                 }
                 if (!currentMod) return;
                 
                 if (key === 'PHASE') currentMod.phase = b || 'PHASE 1';
                 if (key === 'TITLE') currentMod.title = b;
+                if (key === 'DESCRIPTION') currentMod.description = b; // ADDED PARSER FOR DESCRIPTION
                 if (key === 'VIDEO') currentMod.video = c;
                 if (key === 'TOOL') currentMod.library.push({ name: b, url: c });
                 if (key === 'STEP') currentMod.steps.push({ name: b, tip: c });
@@ -218,7 +214,6 @@
             });
             const phaseId = `phase-${phaseName.replace(/[^a-zA-Z0-9]/g, '-')}`;
 
-            // ADDED ICON SVG HERE
             return `
             <div class="phase-section open" id="${phaseId}">
                 <div class="phase-header" onclick="this.parentElement.classList.toggle('open')" title="Click to collapse/expand">
@@ -235,6 +230,7 @@
                         ${grouped[phaseName].map(m => `
                             <div class="module-card" id="mod-${m.id}">
                                 <div class="module-title">${m.title}</div>
+                                <div class="module-desc">${m.description || ''}</div>
                                 ${m.steps.map((s, i) => `
                                     <div class="step-container">
                                         <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
