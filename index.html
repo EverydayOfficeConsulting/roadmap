@@ -18,7 +18,7 @@
         * { box-sizing: border-box; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main); }
         
-        /* REFINED HEADER FLOW */
+        /* HEADER */
         header { 
             background: var(--primary-dark); color: white; 
             display: flex; flex-direction: column; align-items: center; 
@@ -65,28 +65,40 @@
             .brand-name { font-size: 1rem; letter-spacing: 4px; }
             .side-pane { width: 100% !important; }
             .workspace.lib-active #pane-modules, .workspace.vid-active #pane-modules, .workspace.both-active #pane-modules { margin: 0 !important; }
-            .transcript-hint { display: none !important; } /* REMOVED FOR MOBILE */
+            .transcript-hint { display: none !important; } 
         }
 
-        /* VIDEO PANEL CONTROLS */
         .video-header { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 10px; }
         #video-display-title { font-size: 1rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 1px; flex: 1; margin-right: 10px; }
         .pop-out-btn { background: var(--border-grey); color: var(--text-main); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; transition: 0.2s; }
         .pop-out-btn:hover { background: var(--evergreen); color: white; }
-
         .transcript-hint { margin-top: 20px; padding: 15px; background: var(--white); border-radius: 12px; border: 1px solid var(--border-grey); font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); }
 
-        /* COMPONENT STYLES */
+        /* PHASE & MODULE STYLES */
         .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 2px solid var(--border-grey); }
-        .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; }
+        .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; user-select: none; }
+        
+        /* NEW: TITLE CONTAINER WITH ICON */
+        .phase-title-group { display: flex; align-items: center; gap: 10px; }
+        .phase-icon { 
+            width: 14px; height: 14px; 
+            transition: transform 0.3s var(--ease); 
+            fill: var(--evergreen);
+        }
+        /* Rotate the icon when NOT open (closed state) */
+        .phase-section:not(.open) .phase-icon { transform: rotate(-90deg); }
+        
         .phase-title { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 2px; }
         .phase-badge { font-size: 0.6rem; padding: 4px 10px; border-radius: 12px; background: var(--border-grey); color: var(--text-muted); }
         .phase-badge.complete { background: var(--evergreen); color: white; }
-        .phase-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s var(--ease); }
-        .phase-section.open .phase-content { grid-template-rows: 1fr; }
+        
+        .phase-content { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 0.4s var(--ease); }
+        .phase-section:not(.open) .phase-content { grid-template-rows: 0fr; } /* COLLAPSED STATE */
+        
         .phase-inner { overflow: hidden; }
         .module-card { background: var(--white); border-radius: 20px; padding: 32px; margin: 20px 0; border: 1px solid var(--border-grey); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .module-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 20px; }
+        
         .step-container { border: 1px solid var(--border-grey); border-radius: 14px; margin-bottom: 12px; background: var(--white); overflow: hidden; }
         .step-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; }
         .step-name { font-weight: 700; font-size: 0.9rem; }
@@ -94,6 +106,7 @@
         .step-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s var(--ease); padding: 0 20px; }
         .step-container.open .step-content { grid-template-rows: 1fr; padding-bottom: 20px; }
         .content-inner { overflow: hidden; font-size: 0.85rem; color: var(--text-muted); padding-top: 15px; border-top: 1px solid var(--border-grey); line-height: 1.5; }
+        
         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-top: 20px; }
         .tool-tile { background: var(--white); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-grey); text-decoration: none; color: inherit; transition: 0.3s; display: block; }
         .tool-tile:hover { transform: translateY(-5px); border-color: var(--evergreen); }
@@ -130,7 +143,8 @@
     </section>
 </div>
 <script>
-    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv';
+    // ADDED CACHE BUSTER TO URL
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv' + '&t=' + Date.now();
     let modules = [];
     const state = JSON.parse(localStorage.getItem('eoco_state')) || {};
     let activeLibId = null, currentVideoId = null;
@@ -190,7 +204,6 @@
 
     function render() {
         const list = document.getElementById('module-list');
-        // Group modules by phase
         const grouped = modules.reduce((acc, m) => { 
             if (!acc[m.phase]) acc[m.phase] = []; 
             acc[m.phase].push(m); 
@@ -199,19 +212,20 @@
 
         list.innerHTML = Object.keys(grouped).map(phaseName => {
             let totalSteps = 0, completedSteps = 0;
-            
             grouped[phaseName].forEach(m => { 
                 totalSteps += m.steps.length; 
                 completedSteps += (state[m.id] ? state[m.id].length : 0); 
             });
-
-            // Create unique ID for the phase section to target it later
             const phaseId = `phase-${phaseName.replace(/[^a-zA-Z0-9]/g, '-')}`;
 
+            // ADDED ICON SVG HERE
             return `
             <div class="phase-section open" id="${phaseId}">
-                <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
-                    <span class="phase-title">${phaseName}</span>
+                <div class="phase-header" onclick="this.parentElement.classList.toggle('open')" title="Click to collapse/expand">
+                    <div class="phase-title-group">
+                        <svg class="phase-icon" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                        <span class="phase-title">${phaseName}</span>
+                    </div>
                     <span class="phase-badge ${completedSteps === totalSteps && totalSteps > 0 ? 'complete' : ''}">
                         ${completedSteps}/${totalSteps}
                     </span>
@@ -230,9 +244,7 @@
                                                 ${(state[m.id]?.includes(i)) ? 'checked' : ''} 
                                                 onclick="event.stopPropagation(); toggleCheck('${m.id}', ${i}, '${phaseId}')">
                                         </div>
-                                        <div class="step-content">
-                                            <div class="content-inner">${s.tip}</div>
-                                        </div>
+                                        <div class="step-content"><div class="content-inner">${s.tip}</div></div>
                                     </div>
                                 `).join('')}
                                 <div class="btn-row">
@@ -247,27 +259,17 @@
         }).join('');
     }
 
-    // SURGICAL UPDATE: Does NOT rebuild the DOM
     function toggleCheck(mid, idx, phaseId) {
-        // 1. Update State
         if (!state[mid]) state[mid] = [];
         const i = state[mid].indexOf(idx);
-        
-        if (i > -1) {
-            state[mid].splice(i, 1); // Uncheck
-        } else {
-            state[mid].push(idx); // Check
-        }
-        
+        if (i > -1) state[mid].splice(i, 1); 
+        else state[mid].push(idx);
         localStorage.setItem('eoco_state', JSON.stringify(state));
 
-        // 2. Update UI (Progress Badge Only)
         const phaseSection = document.getElementById(phaseId);
         if (phaseSection) {
-            const allChecks = phaseSection.querySelectorAll('input[type="checkbox"]');
-            const total = allChecks.length;
+            const total = phaseSection.querySelectorAll('input[type="checkbox"]').length;
             const checked = phaseSection.querySelectorAll('input[type="checkbox"]:checked').length;
-            
             const badge = phaseSection.querySelector('.phase-badge');
             if (badge) {
                 badge.innerText = `${checked}/${total}`;
@@ -290,10 +292,7 @@
     function toggleLibrary(mid) {
         const p = document.getElementById('pane-library');
         if (!mid || (p.classList.contains('active') && activeLibId === mid)) { 
-            p.classList.remove('active'); 
-            activeLibId = null; 
-            updateLayoutClasses(); 
-            return; 
+            p.classList.remove('active'); activeLibId = null; updateLayoutClasses(); return; 
         }
         const m = modules.find(mod => mod.id === mid);
         document.getElementById('resource-grid').innerHTML = m.library.map(l => `
@@ -301,9 +300,7 @@
                 <div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.url}')"></div>
                 <div class="tile-name">${l.name}</div>
             </a>`).join('');
-        p.classList.add('active'); 
-        activeLibId = mid; 
-        updateLayoutClasses();
+        p.classList.add('active'); activeLibId = mid; updateLayoutClasses();
     }
 
     function popOutVideo() {
@@ -321,14 +318,12 @@
         const m = modules.find(mod => mod.id === mid);
         
         if (!mid || p.classList.contains('active')) {
-            p.classList.remove('active'); 
-            updateLayoutClasses();
+            p.classList.remove('active'); updateLayoutClasses();
             if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
             return;
         }
         
         let id = m.video.includes('v=') ? m.video.split('v=')[1]?.split('&')[0] : m.video.split('/').pop();
-        
         try {
             const response = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`);
             const data = await response.json();
@@ -338,11 +333,9 @@
         if (currentVideoId !== id) {
             f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&cc_load_policy=1" allow="autoplay; fullscreen"></iframe>`;
             currentVideoId = id;
-        } else if (iframe) {
-            iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-        }
-        p.classList.add('active'); 
-        updateLayoutClasses();
+        } else if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        
+        p.classList.add('active'); updateLayoutClasses();
     }
 
     init();
