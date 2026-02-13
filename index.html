@@ -14,17 +14,40 @@
             --bg-main: #0a0a0a; --bg-panel: #141414; --border-grey: #2a2a2a;
             --white: #1a1a1a; --text-main: #f0f0f0; --text-muted: #999; --primary-dark: #000000;
         }
+
         * { box-sizing: border-box; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main); }
-        header { background: var(--primary-dark); color: white; display: flex; flex-direction: column; align-items: center; padding: 15px 20px 0 20px; z-index: 4000; position: relative; border-bottom: 1px solid var(--border-grey); }
-        .header-top { display: flex; justify-content: center; align-items: center; width: 100%; position: relative; padding-bottom: 15px; }
+        
+        /* REFINED HEADER FLOW */
+        header { 
+            background: var(--primary-dark); color: white; 
+            display: flex; flex-direction: column; align-items: center; 
+            padding: 15px 20px 0 20px; z-index: 4000; position: relative; 
+            border-bottom: 1px solid var(--border-grey);
+        }
+        .header-top { 
+            display: flex; justify-content: center; align-items: center; 
+            width: 100%; position: relative; padding-bottom: 15px; 
+        }
+        .brand-container { text-align: center; }
         .brand-name { font-size: 1.2rem; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; margin: 0; }
         .brand-slogan { font-size: 0.65rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #a5d6a7; margin-top: 4px; }
-        .page-title-section { background: rgba(255,255,255,0.05); width: 100vw; text-align: center; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1); }
+        
+        .page-title-section { 
+            background: rgba(255,255,255,0.05); width: 100vw; text-align: center; 
+            padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1);
+        }
         .page-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: white; margin: 0; }
-        .theme-toggle { position: absolute; right: 0; background: var(--evergreen); color: white; border: none; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
+
+        .theme-toggle { 
+            position: absolute; right: 0; background: var(--evergreen); 
+            color: white; border: none; padding: 6px 14px; border-radius: 20px; 
+            cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; 
+        }
+
         .workspace { display: flex; height: calc(100vh - 125px); width: 100vw; position: relative; overflow: hidden; }
-        .side-pane { position: absolute; top: 0; height: 100%; background: var(--bg-panel); border-color: var(--border-grey); transition: transform 0.6s var(--ease), width 0.6s var(--ease); z-index: 3000; display: flex; flex-direction: column; padding: 30px; overflow-y: auto; text-align: center; }
+        
+        .side-pane { position: absolute; top: 0; height: 100%; background: var(--bg-panel); border-color: var(--border-grey); transition: transform 0.6s var(--ease), width 0.6s var(--ease); z-index: 3000; display: flex; flex-direction: column; padding: 25px; }
         #pane-library { left: 0; border-right: 1px solid var(--border-grey); transform: translateX(-100%); width: 50%; }
         #pane-library.active { transform: translateX(0); }
         #pane-video { right: 0; border-left: 1px solid var(--border-grey); transform: translateX(100%); width: 50%; }
@@ -34,16 +57,26 @@
         .workspace.lib-active #pane-modules { margin-left: 50%; }
         .workspace.vid-active #pane-modules { margin-right: 50%; }
         .workspace.both-active #pane-modules { margin-left: 33.33%; margin-right: 33.33%; }
-        #lib-main-title { font-size: 1.4rem; font-weight: 900; text-transform: uppercase; color: var(--text-main); letter-spacing: 4px; margin-bottom: 40px; }
-        .lib-drawer-section { margin-bottom: 50px; }
-        .lib-drawer-title { font-size: 1rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 2px; margin-bottom: 25px; }
-        .lib-divider { width: 40%; margin: 30px auto; border-bottom: 2px solid var(--border-grey); opacity: 0.3; }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; justify-content: center; max-width: 900px; margin: 0 auto; }
-        .tool-tile { background: var(--white); border-radius: 14px; overflow: hidden; border: 1px solid var(--border-grey); text-decoration: none; color: inherit; transition: 0.3s; display: block; width: 100%; }
-        .tool-tile:hover { transform: translateY(-5px); border-color: var(--evergreen); }
-        .tile-img { height: 110px; background-size: cover; background-position: top; background-color: #000; }
-        .tile-name { padding: 12px; font-size: 0.75rem; font-weight: 800; text-align: center; text-transform: uppercase; }
-        @media (max-width: 768px) { header { padding: 15px 10px 0 10px; } .header-top { flex-direction: column; padding-bottom: 10px; } .theme-toggle { position: static; margin-top: 12px; } .side-pane { width: 100% !important; text-align: center; } .workspace.lib-active #pane-modules, .workspace.vid-active #pane-modules { margin: 0 !important; } }
+
+        @media (max-width: 768px) {
+            header { padding: 15px 10px 0 10px; }
+            .header-top { flex-direction: column; padding-bottom: 10px; }
+            .theme-toggle { position: static; margin-top: 12px; }
+            .brand-name { font-size: 1rem; letter-spacing: 4px; }
+            .side-pane { width: 100% !important; }
+            .workspace.lib-active #pane-modules, .workspace.vid-active #pane-modules, .workspace.both-active #pane-modules { margin: 0 !important; }
+            .transcript-hint { display: none !important; } /* REMOVED FOR MOBILE */
+        }
+
+        /* VIDEO PANEL CONTROLS */
+        .video-header { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 10px; }
+        #video-display-title { font-size: 1rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 1px; flex: 1; margin-right: 10px; }
+        .pop-out-btn { background: var(--border-grey); color: var(--text-main); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; transition: 0.2s; }
+        .pop-out-btn:hover { background: var(--evergreen); color: white; }
+
+        .transcript-hint { margin-top: 20px; padding: 15px; background: var(--white); border-radius: 12px; border: 1px solid var(--border-grey); font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); }
+
+        /* COMPONENT STYLES */
         .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 2px solid var(--border-grey); }
         .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; }
         .phase-title { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 2px; }
@@ -51,7 +84,8 @@
         .phase-badge.complete { background: var(--evergreen); color: white; }
         .phase-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s var(--ease); }
         .phase-section.open .phase-content { grid-template-rows: 1fr; }
-        .module-card { background: var(--white); border-radius: 20px; padding: 32px; margin: 20px 0; border: 1px solid var(--border-grey); box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: left; }
+        .phase-inner { overflow: hidden; }
+        .module-card { background: var(--white); border-radius: 20px; padding: 32px; margin: 20px 0; border: 1px solid var(--border-grey); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .module-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 20px; }
         .step-container { border: 1px solid var(--border-grey); border-radius: 14px; margin-bottom: 12px; background: var(--white); overflow: hidden; }
         .step-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; }
@@ -60,27 +94,43 @@
         .step-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s var(--ease); padding: 0 20px; }
         .step-container.open .step-content { grid-template-rows: 1fr; padding-bottom: 20px; }
         .content-inner { overflow: hidden; font-size: 0.85rem; color: var(--text-muted); padding-top: 15px; border-top: 1px solid var(--border-grey); line-height: 1.5; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-top: 20px; }
+        .tool-tile { background: var(--white); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-grey); text-decoration: none; color: inherit; transition: 0.3s; display: block; }
+        .tool-tile:hover { transform: translateY(-5px); border-color: var(--evergreen); }
+        .tile-img { height: 100px; background-size: cover; background-position: top; background-color: #000; }
+        .tile-name { padding: 10px; font-size: 0.7rem; font-weight: 800; text-align: center; text-transform: uppercase; }
         .action-btn, .close-btn { background: var(--evergreen); color: white; border: none; padding: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; border-radius: 8px; }
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-grey); }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        .video-header { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 10px; }
-        #video-display-title { font-size: 1rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 1px; flex: 1; margin-right: 10px; text-align: left; }
-        .pop-out-btn { background: var(--border-grey); color: var(--text-main); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
     </style>
 </head>
 <body data-theme="light">
 <header>
-    <div class="header-top"><div class="brand-container"><div class="brand-name">EOCO</div><div class="brand-slogan">Simple Systems. Better Business.</div></div><button class="theme-toggle" onclick="toggleTheme()">Dark Mode</button></div>
+    <div class="header-top">
+        <div class="brand-container">
+            <div class="brand-name">EOCO</div>
+            <div class="brand-slogan">Simple Systems. Better Business.</div>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()">Dark Mode</button>
+    </div>
     <div class="page-title-section"><h1 class="page-title">The Foundational Roadmap</h1></div>
 </header>
 <div class="workspace" id="main-ws">
-    <section id="pane-library" class="side-pane"><button class="close-btn" style="margin-bottom:40px;" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button><div id="lib-main-title">Module Library</div><div id="lib-content-area"></div></section>
-    <section id="pane-modules"><div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">Syncing...</div></section>
-    <section id="pane-video" class="side-pane"><button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button><div class="video-header"><div id="video-display-title">Tutorial</div><button class="pop-out-btn" onclick="popOutVideo()">Pop Out</button></div><div class="video-wrapper" id="video-frame"></div></section>
+    <section id="pane-library" class="side-pane"><button class="close-btn" style="margin-bottom:20px;" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button><div style="font-weight:900; font-size:1.1rem; text-transform:uppercase;">Module Library</div><div class="gallery-grid" id="resource-grid"></div></section>
+    <section id="pane-modules"><div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">Syncing Roadmap...</div></section>
+    <section id="pane-video" class="side-pane">
+        <button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button>
+        <div class="video-header">
+            <div id="video-display-title">Tutorial</div>
+            <button class="pop-out-btn" onclick="popOutVideo()">Pop Out</button>
+        </div>
+        <div class="video-wrapper" id="video-frame"></div>
+        <div class="transcript-hint"><strong>Pro-Tip:</strong> Enable <strong>CC</strong> for auto-captions or pop out this window to watch while you work.</div>
+    </section>
 </div>
 <script>
-    const SHEET_URL = 'YOUR_PUBLISHED_CSV_URL_HERE';
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv';
     let modules = [];
     const state = JSON.parse(localStorage.getItem('eoco_state')) || {};
     let activeLibId = null, currentVideoId = null;
@@ -96,17 +146,12 @@
             let currentMod = null;
             rows.forEach(row => {
                 const key = row[0]?.toString().trim().toUpperCase(); const b = row[1]; const c = row[2];
-                if (key === 'ID') { if (currentMod) modules.push(currentMod); currentMod = { id: b, phase: 'PHASE 1', title: '', libTitle: 'Library', video: '', library: [], steps: [] }; }
+                if (key === 'ID') { if (currentMod) modules.push(currentMod); currentMod = { id: b, phase: 'PHASE 1', title: '', video: '', library: [], steps: [] }; }
                 if (!currentMod) return;
                 if (key === 'PHASE') currentMod.phase = b || 'PHASE 1';
                 if (key === 'TITLE') currentMod.title = b;
-                if (key === 'LIB_TITLE') currentMod.libTitle = b || 'Library';
                 if (key === 'VIDEO') currentMod.video = c;
-                if (key === 'LIB_SECTION') currentMod.library.push({ section: b, tools: [] });
-                if (key === 'TOOL') {
-                    if (currentMod.library.length === 0) currentMod.library.push({ section: "Links & Tools", tools: [] });
-                    currentMod.library[currentMod.library.length - 1].tools.push({ name: b, url: c });
-                }
+                if (key === 'TOOL') currentMod.library.push({ name: b, url: c });
                 if (key === 'STEP') currentMod.steps.push({ name: b, tip: c });
             });
             if (currentMod) modules.push(currentMod); render();
@@ -122,42 +167,62 @@
         list.innerHTML = Object.keys(grouped).map(phaseName => {
             let totalSteps = 0, completedSteps = 0;
             grouped[phaseName].forEach(m => { totalSteps += m.steps.length; completedSteps += (state[m.id] ? state[m.id].length : 0); });
-            return `<div class="phase-section open"><div class="phase-header" onclick="this.parentElement.classList.toggle('open')"><span class="phase-title">${phaseName}</span><span class="phase-badge ${completedSteps === totalSteps ? 'complete' : ''}">${completedSteps}/${totalSteps}</span></div><div class="phase-content"><div class="phase-inner">
-                ${grouped[phaseName].map(m => `<div class="module-card"><div class="module-title">${m.title}</div>
-                    ${m.steps.map((s, i) => `<div class="step-container"><div class="step-header" onclick="this.parentElement.classList.toggle('open')"><span class="step-name">${s.name}</span><input type="checkbox" ${(state[m.id]?.includes(i)) ? 'checked' : ''} onclick="event.stopPropagation(); toggleCheck('${m.id}', ${i})"></div><div class="step-content"><div class="content-inner">${s.tip}</div></div></div>`).join('')}
-                    <div class="btn-row"><button class="action-btn" onclick="toggleLibrary('${m.id}')">Links & Tools</button><button class="action-btn" onclick="toggleVideo('${m.id}')">Watch Video</button></div>
-                </div>`).join('')}
-            </div></div></div>`;
+            return `<div class="phase-section open" id="phase-${phaseName.replace(/\s+/g, '-')}">
+                <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
+                    <span class="phase-title">${phaseName}</span><span class="phase-badge ${completedSteps === totalSteps ? 'complete' : ''}">${completedSteps}/${totalSteps}</span>
+                </div>
+                <div class="phase-content"><div class="phase-inner">
+                    ${grouped[phaseName].map(m => `<div class="module-card"><div class="module-title">${m.title}</div>
+                        ${m.steps.map((s, i) => `<div class="step-container"><div class="step-header" onclick="this.parentElement.classList.toggle('open')"><span class="step-name">${s.name}</span><input type="checkbox" ${(state[m.id]?.includes(i)) ? 'checked' : ''} onclick="event.stopPropagation(); toggleCheck('${m.id}', ${i})"></div><div class="step-content"><div class="content-inner">${s.tip}</div></div></div>`).join('')}
+                        <div class="btn-row"><button class="action-btn" onclick="toggleLibrary('${m.id}')">Links & Tools</button><button class="action-btn" onclick="toggleVideo('${m.id}')">Watch Video</button></div>
+                    </div>`).join('')}
+                </div></div></div>`;
         }).join('');
     }
     function updateLayoutClasses() {
-        const ws = document.getElementById('main-ws'), libActive = document.getElementById('pane-library').classList.contains('active'), vidActive = document.getElementById('pane-video').classList.contains('active');
+        const ws = document.getElementById('main-ws');
+        const libActive = document.getElementById('pane-library').classList.contains('active');
+        const vidActive = document.getElementById('pane-video').classList.contains('active');
         ws.classList.remove('lib-active', 'vid-active', 'both-active');
-        if (libActive && vidActive) ws.classList.add('both-active'); else if (libActive) ws.classList.add('lib-active'); else if (vidActive) ws.classList.add('vid-active');
+        if (libActive && vidActive) ws.classList.add('both-active');
+        else if (libActive) ws.classList.add('lib-active');
+        else if (vidActive) ws.classList.add('vid-active');
     }
     function toggleLibrary(mid) {
-        const p = document.getElementById('pane-library'), area = document.getElementById('lib-content-area'), mainTitle = document.getElementById('lib-main-title');
+        const p = document.getElementById('pane-library');
         if (!mid || (p.classList.contains('active') && activeLibId === mid)) { p.classList.remove('active'); activeLibId = null; updateLayoutClasses(); return; }
         const m = modules.find(mod => mod.id === mid);
-        mainTitle.innerText = m.libTitle;
-        area.innerHTML = m.library.map((lib, index) => `
-            <div class="lib-drawer-section">
-                <div class="lib-drawer-title">${lib.section}</div>
-                <div class="gallery-grid">
-                    ${lib.tools.map(l => `<a href="${l.url}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.url}')"></div><div class="tile-name">${l.name}</div></a>`).join('')}
-                </div>
-                ${index < m.library.length - 1 ? '<div class="lib-divider"></div>' : ''}
-            </div>
-        `).join('');
+        document.getElementById('resource-grid').innerHTML = m.library.map(l => `<a href="${l.url}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.url}')"></div><div class="tile-name">${l.name}</div></a>`).join('');
         p.classList.add('active'); activeLibId = mid; updateLayoutClasses();
     }
-    function popOutVideo() { if (!currentVideoId) return; window.open(`https://www.youtube.com/embed/${currentVideoId}?autoplay=1&cc_load_policy=1`, 'YouTubePopOut', `width=640,height=360,menubar=no`); toggleVideo(null); }
+    function popOutVideo() {
+        if (!currentVideoId) return;
+        const width = 640; const height = 360;
+        const left = (window.innerWidth / 2) - (width / 2); const top = (window.innerHeight / 2) - (height / 2);
+        window.open(`https://www.youtube.com/embed/${currentVideoId}?autoplay=1&cc_load_policy=1`, 'YouTubePopOut', `width=${width},height=${height},top=${top},left=${left},menubar=no,status=no,titlebar=no`);
+        toggleVideo(null);
+    }
     async function toggleVideo(mid) {
-        const p = document.getElementById('pane-video'), f = document.getElementById('video-frame'), iframe = f.querySelector('iframe'), m = modules.find(mod => mod.id === mid);
-        if (!mid || p.classList.contains('active')) { p.classList.remove('active'); updateLayoutClasses(); if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*'); return; }
+        const p = document.getElementById('pane-video'), f = document.getElementById('video-frame');
+        const iframe = f.querySelector('iframe');
+        const m = modules.find(mod => mod.id === mid);
+        if (!mid || p.classList.contains('active')) {
+            p.classList.remove('active'); updateLayoutClasses();
+            if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            return;
+        }
         let id = m.video.includes('v=') ? m.video.split('v=')[1]?.split('&')[0] : m.video.split('/').pop();
-        try { const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`); const data = await res.json(); document.getElementById('video-display-title').innerText = data.title || m.title; } catch (e) { document.getElementById('video-display-title').innerText = m.title; }
-        if (currentVideoId !== id) { f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&cc_load_policy=1" allow="autoplay; fullscreen"></iframe>`; currentVideoId = id; } else if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        try {
+            const response = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`);
+            const data = await response.json();
+            document.getElementById('video-display-title').innerText = data.title || m.title;
+        } catch (e) { document.getElementById('video-display-title').innerText = m.title; }
+        if (currentVideoId !== id) {
+            f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&cc_load_policy=1" allow="autoplay; fullscreen"></iframe>`;
+            currentVideoId = id;
+        } else if (iframe) {
+            iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        }
         p.classList.add('active'); updateLayoutClasses();
     }
     function toggleCheck(mid, idx) { if(!state[mid]) state[mid] = []; const i = state[mid].indexOf(idx); i > -1 ? state[mid].splice(i, 1) : state[mid].push(idx); localStorage.setItem('eoco_state', JSON.stringify(state)); render(); }
