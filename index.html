@@ -57,4 +57,387 @@
         .brand-slogan { 
             font-size: 0.6rem; font-weight: 400; letter-spacing: 1px; 
             text-transform: uppercase; color: var(--accent); margin-top: 4px; 
-            background: rgba(255,2
+            background: rgba(255,255,255,0.1); padding: 2px 6px;
+        }
+        
+        .page-title-section { 
+            background: rgba(0,0,0,0.2); width: 100vw; text-align: center; 
+            padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .page-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: white; margin: 0; }
+
+        .theme-toggle { 
+            position: absolute; right: 0; background: transparent; 
+            color: var(--accent); border: 1px solid var(--accent); padding: 6px 14px; 
+            cursor: pointer; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; 
+            transition: 0.2s;
+        }
+        .theme-toggle:hover { background: var(--accent); color: white; }
+
+        .workspace { display: flex; height: calc(100vh - 125px); width: 100vw; position: relative; overflow: hidden; }
+        
+        .side-pane { 
+            position: absolute; top: 0; height: 100%; background: var(--bg-panel); 
+            border-color: var(--border-grey); transition: transform 0.4s var(--ease); 
+            z-index: 3000; display: flex; flex-direction: column; padding: 25px; 
+            border-right: 2px solid var(--border-grey); /* Thicker borders */
+        }
+        #pane-library { left: 0; transform: translateX(-100%); width: 50%; overflow-y: auto; }
+        #pane-library.active { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
+        #pane-video { right: 0; border-left: 2px solid var(--border-grey); transform: translateX(100%); width: 50%; border-right: none; }
+        #pane-video.active { transform: translateX(0); box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
+        .workspace.both-active #pane-library, .workspace.both-active #pane-video { width: 33.33%; }
+        
+        #pane-modules { flex: 1; height: 100%; overflow-y: auto; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; transition: margin 0.4s var(--ease); }
+        .workspace.lib-active #pane-modules { margin-left: 50%; }
+        .workspace.vid-active #pane-modules { margin-right: 50%; }
+        .workspace.both-active #pane-modules { margin-left: 33.33%; margin-right: 33.33%; }
+
+        @media (max-width: 768px) {
+            header { padding: 15px 10px 0 10px; }
+            .header-top { flex-direction: column; padding-bottom: 10px; }
+            .theme-toggle { position: static; margin-top: 12px; }
+            .side-pane { width: 100% !important; }
+            .workspace.lib-active #pane-modules, .workspace.vid-active #pane-modules, .workspace.both-active #pane-modules { margin: 0 !important; }
+        }
+
+        .video-header { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 10px; }
+        #video-display-title { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; color: var(--accent); letter-spacing: 1px; flex: 1; margin-right: 10px; border-left: 3px solid var(--accent); padding-left: 10px; }
+        .pop-out-btn { background: transparent; color: var(--text-main); border: 1px solid var(--border-grey); padding: 8px 12px; cursor: pointer; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; transition: 0.2s; font-family: inherit; }
+        .pop-out-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .transcript-hint { margin-top: 20px; padding: 15px; background: var(--bg-main); border: 1px solid var(--border-grey); font-size: 0.75rem; line-height: 1.5; color: var(--text-muted); border-left: 3px solid var(--accent); }
+
+        /* SQUARED OFF MODULES */
+        .phase-section { width: 100%; max-width: 650px; margin-bottom: 30px; border-bottom: 4px solid var(--border-grey); }
+        .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; user-select: none; }
+        
+        .phase-title-group { display: flex; align-items: center; gap: 10px; }
+        .phase-icon { width: 14px; height: 14px; transition: transform 0.2s linear; fill: var(--text-main); }
+        .phase-section:not(.open) .phase-icon { transform: rotate(-90deg); }
+        .phase-title { font-size: 0.9rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .phase-badge { 
+            font-size: 0.6rem; padding: 4px 8px; background: var(--text-main); color: var(--bg-main); 
+            font-weight: bold; border-radius: 0; /* Squared badge */
+        }
+        .phase-badge.complete { background: var(--accent); color: white; }
+        
+        .phase-content { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 0.3s var(--ease); }
+        .phase-section:not(.open) .phase-content { grid-template-rows: 0fr; }
+        .phase-inner { overflow: hidden; padding-top: 10px; }
+
+        .module-card { 
+            background: var(--bg-panel); border: 1px solid var(--border-grey); 
+            padding: 30px; margin: 15px 0; box-shadow: 4px 4px 0px rgba(0,0,0,0.05); /* Hard shadow */
+            border-radius: 0; /* No rounded corners */
+        }
+        .module-title { font-size: 1.1rem; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; border-bottom: 1px solid var(--border-grey); padding-bottom: 10px; }
+        .module-desc { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 25px; margin-top: 10px; line-height: 1.4; }
+        
+        .step-container { border: 1px solid var(--border-grey); margin-bottom: -1px; background: var(--bg-panel); overflow: hidden; }
+        .step-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s; }
+        .step-header:hover { background: var(--bg-main); }
+        .step-name { font-weight: 700; font-size: 0.8rem; text-transform: uppercase; }
+        
+        /* Custom Checkbox */
+        .step-header input { 
+            appearance: none; width: 18px; height: 18px; border: 2px solid var(--text-main); 
+            cursor: pointer; display: grid; place-content: center;
+        }
+        .step-header input::before {
+            content: ""; width: 10px; height: 10px; transform: scale(0); 
+            background-color: var(--accent); transition: 120ms transform ease-in-out;
+        }
+        .step-header input:checked::before { transform: scale(1); }
+
+        .step-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s var(--ease); padding: 0 15px; background: var(--bg-main); }
+        .step-container.open .step-content { grid-template-rows: 1fr; padding-bottom: 15px; border-top: 1px solid var(--border-grey); }
+        .content-inner { overflow: hidden; font-size: 0.8rem; color: var(--text-main); padding-top: 15px; line-height: 1.6; font-family: -apple-system, sans-serif; /* Readable body font */ }
+        
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 20px; }
+        .tool-tile { 
+            background: var(--bg-panel); border: 1px solid var(--border-grey); 
+            text-decoration: none; color: inherit; transition: 0.2s; display: block;
+        }
+        .tool-tile:hover { border-color: var(--accent); transform: scale(0.98); }
+        .tile-img { height: 80px; background-size: cover; background-position: top; background-color: #000; filter: grayscale(100%); transition: 0.3s; }
+        .tool-tile:hover .tile-img { filter: grayscale(0%); }
+        .tile-name { padding: 8px; font-size: 0.65rem; font-weight: 900; text-align: center; text-transform: uppercase; border-top: 1px solid var(--border-grey); }
+        
+        .action-btn, .close-btn { 
+            background: var(--text-main); color: var(--bg-panel); border: none; padding: 14px; 
+            font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; 
+            letter-spacing: 1px; font-family: inherit; transition: 0.2s;
+        }
+        .action-btn:hover, .close-btn:hover { background: var(--accent); color: white; }
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; overflow: hidden; border: 1px solid var(--border-grey); }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+        .lib-drawer { margin-bottom: 20px; }
+        .lib-section-title { 
+            text-align: left; font-weight: 900; font-size: 0.8rem; 
+            text-transform: uppercase; margin-bottom: 10px; margin-top: 10px;
+            color: var(--accent); border-bottom: 2px solid var(--border-grey); padding-bottom: 5px;
+        }
+        .section-divider { display: none; } /* Hide the old divider */
+    </style>
+</head>
+<body data-theme="light">
+<header>
+    <div class="header-top">
+        <div class="brand-container">
+            <div class="brand-name">EOCO</div>
+            <div class="brand-slogan">Build System v1.0</div>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()">Dark / Light</button>
+    </div>
+    <div class="page-title-section"><h1 class="page-title">Project Roadmap</h1></div>
+</header>
+<div class="workspace" id="main-ws">
+    <section id="pane-library" class="side-pane">
+        <button class="close-btn" style="margin-bottom:10px;" onclick="toggleLibrary(null)">✕ Close Locker</button>
+        <div id="library-content"></div> 
+    </section>
+    
+    <section id="pane-modules"><div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">INITIALIZING...</div></section>
+    
+    <section id="pane-video" class="side-pane">
+        <button class="close-btn" onclick="toggleVideo(null)">✕ Close Monitor</button>
+        <div class="video-header">
+            <div id="video-display-title">Tutorial</div>
+            <button class="pop-out-btn" onclick="popOutVideo()">Pop Out</button>
+        </div>
+        <div class="video-wrapper" id="video-frame"></div>
+        <div class="transcript-hint"><strong>NOTE:</strong> Enable CC for captions. Keep window open for reference.</div>
+    </section>
+</div>
+<script>
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv' + '&t=' + Date.now();
+    let modules = [];
+    const state = JSON.parse(localStorage.getItem('eoco_state')) || {};
+    let activeLibId = null, currentVideoId = null;
+
+    function toggleTheme() {
+        const next = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        document.body.setAttribute('data-theme', next); 
+        localStorage.setItem('eoco_theme', next);
+    }
+
+    async function init() {
+        const savedTheme = localStorage.getItem('eoco_theme') || 'light'; 
+        document.body.setAttribute('data-theme', savedTheme);
+        try {
+            const res = await fetch(SHEET_URL); 
+            const text = await res.text(); 
+            const rows = parseCSV(text);
+            let currentMod = null;
+            
+            rows.forEach(row => {
+                const key = row[0]?.toString().trim().toUpperCase(); 
+                const b = row[1]; 
+                const c = row[2];
+                
+                if (key === 'ID') { 
+                    if (currentMod) modules.push(currentMod); 
+                    currentMod = { id: b, phase: 'PHASE 1', title: '', description: '', video: '', library: [], steps: [] }; 
+                }
+                if (!currentMod) return;
+                
+                if (key === 'PHASE') currentMod.phase = b || 'PHASE 1';
+                if (key === 'TITLE') currentMod.title = b;
+                if (key === 'DESCRIPTION') currentMod.description = b;
+                if (key === 'VIDEO') currentMod.video = c;
+                
+                if (key === 'SECTION') {
+                    currentMod.library.push({ title: b, items: [] });
+                }
+                if (key === 'TOOL') {
+                    let lastSection = currentMod.library[currentMod.library.length - 1];
+                    if (!lastSection) {
+                        lastSection = { title: "General Tools", items: [] };
+                        currentMod.library.push(lastSection);
+                    }
+                    lastSection.items.push({ name: b, url: c });
+                }
+                if (key === 'STEP') currentMod.steps.push({ name: b, tip: c });
+            });
+            
+            if (currentMod) modules.push(currentMod); 
+            render();
+        } catch (e) { console.error(e); }
+    }
+
+    function parseCSV(t) {
+        const re = /(?!\s*$)\s*(?:"([^"]*(?:""[^"]*)*)"|([^",\r\n]*))\s*(?:,|$)/g; 
+        const res = [];
+        t.split(/\r?\n/).forEach(l => { 
+            const r = []; 
+            l.replace(re, (m, p1, p2) => { 
+                r.push(p1 !== undefined ? p1.replace(/""/g, '"') : p2); 
+                return ''; 
+            }); 
+            if(r.length) res.push(r); 
+        }); 
+        return res;
+    }
+
+    function render() {
+        const list = document.getElementById('module-list');
+        const grouped = modules.reduce((acc, m) => { 
+            if (!acc[m.phase]) acc[m.phase] = []; 
+            acc[m.phase].push(m); 
+            return acc; 
+        }, {});
+
+        list.innerHTML = Object.keys(grouped).map(phaseName => {
+            let totalSteps = 0, completedSteps = 0;
+            grouped[phaseName].forEach(m => { 
+                totalSteps += m.steps.length; 
+                completedSteps += (state[m.id] ? state[m.id].length : 0); 
+            });
+            const phaseId = `phase-${phaseName.replace(/[^a-zA-Z0-9]/g, '-')}`;
+
+            return `
+            <div class="phase-section open" id="${phaseId}">
+                <div class="phase-header" onclick="this.parentElement.classList.toggle('open')" title="Toggle Phase">
+                    <div class="phase-title-group">
+                        <svg class="phase-icon" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                        <span class="phase-title">${phaseName}</span>
+                    </div>
+                    <span class="phase-badge ${completedSteps === totalSteps && totalSteps > 0 ? 'complete' : ''}">
+                        ${completedSteps}/${totalSteps}
+                    </span>
+                </div>
+                <div class="phase-content">
+                    <div class="phase-inner">
+                        ${grouped[phaseName].map(m => `
+                            <div class="module-card" id="mod-${m.id}">
+                                <div class="module-title">${m.title}</div>
+                                <div class="module-desc">${m.description || ''}</div>
+                                ${m.steps.map((s, i) => `
+                                    <div class="step-container">
+                                        <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
+                                            <span class="step-name">${s.name}</span>
+                                            <input type="checkbox" 
+                                                id="chk-${m.id}-${i}"
+                                                ${(state[m.id]?.includes(i)) ? 'checked' : ''} 
+                                                onclick="event.stopPropagation(); toggleCheck('${m.id}', ${i}, '${phaseId}')">
+                                        </div>
+                                        <div class="step-content"><div class="content-inner">${s.tip}</div></div>
+                                    </div>
+                                `).join('')}
+                                <div class="btn-row">
+                                    <button class="action-btn" onclick="toggleLibrary('${m.id}')">Tools & Parts</button>
+                                    <button class="action-btn" onclick="toggleVideo('${m.id}')">Briefing</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function toggleCheck(mid, idx, phaseId) {
+        if (!state[mid]) state[mid] = [];
+        const i = state[mid].indexOf(idx);
+        if (i > -1) state[mid].splice(i, 1); 
+        else state[mid].push(idx);
+        localStorage.setItem('eoco_state', JSON.stringify(state));
+
+        const phaseSection = document.getElementById(phaseId);
+        if (phaseSection) {
+            const total = phaseSection.querySelectorAll('input[type="checkbox"]').length;
+            const checked = phaseSection.querySelectorAll('input[type="checkbox"]:checked').length;
+            const badge = phaseSection.querySelector('.phase-badge');
+            if (badge) {
+                badge.innerText = `${checked}/${total}`;
+                if (checked === total && total > 0) badge.classList.add('complete');
+                else badge.classList.remove('complete');
+            }
+        }
+    }
+
+    function updateLayoutClasses() {
+        const ws = document.getElementById('main-ws');
+        const libActive = document.getElementById('pane-library').classList.contains('active');
+        const vidActive = document.getElementById('pane-video').classList.contains('active');
+        ws.classList.remove('lib-active', 'vid-active', 'both-active');
+        if (libActive && vidActive) ws.classList.add('both-active');
+        else if (libActive) ws.classList.add('lib-active');
+        else if (vidActive) ws.classList.add('vid-active');
+    }
+
+    function toggleLibrary(mid) {
+        const p = document.getElementById('pane-library');
+        const content = document.getElementById('library-content');
+        
+        if (!mid || (p.classList.contains('active') && activeLibId === mid)) { 
+            p.classList.remove('active'); activeLibId = null; updateLayoutClasses(); return; 
+        }
+        
+        const m = modules.find(mod => mod.id === mid);
+        
+        if (m.library && m.library.length > 0) {
+            content.innerHTML = m.library.map((section) => {
+                const grid = section.items.map(l => `
+                    <a href="${l.url}" target="_blank" class="tool-tile">
+                        <div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.url}')"></div>
+                        <div class="tile-name">${l.name}</div>
+                    </a>`).join('');
+                
+                return `
+                    <div class="lib-drawer">
+                        <div class="lib-section-title">${section.title}</div>
+                        <div class="gallery-grid">${grid}</div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            content.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">EMPTY DRAWER</div>';
+        }
+        
+        p.classList.add('active'); activeLibId = mid; updateLayoutClasses();
+    }
+
+    function popOutVideo() {
+        if (!currentVideoId) return;
+        const width = 640; const height = 360;
+        const left = (window.innerWidth / 2) - (width / 2); 
+        const top = (window.innerHeight / 2) - (height / 2);
+        window.open(`https://www.youtube.com/embed/${currentVideoId}?autoplay=1&cc_load_policy=1`, 'YouTubePopOut', `width=${width},height=${height},top=${top},left=${left},menubar=no,status=no,titlebar=no`);
+        toggleVideo(null);
+    }
+
+    async function toggleVideo(mid) {
+        const p = document.getElementById('pane-video'), f = document.getElementById('video-frame');
+        const iframe = f.querySelector('iframe');
+        const m = modules.find(mod => mod.id === mid);
+        
+        if (!mid || p.classList.contains('active')) {
+            p.classList.remove('active'); updateLayoutClasses();
+            if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            return;
+        }
+        
+        let id = m.video.includes('v=') ? m.video.split('v=')[1]?.split('&')[0] : m.video.split('/').pop();
+        try {
+            const response = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`);
+            const data = await response.json();
+            document.getElementById('video-display-title').innerText = data.title || m.title;
+        } catch (e) { document.getElementById('video-display-title').innerText = m.title; }
+        
+        if (currentVideoId !== id) {
+            f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&cc_load_policy=1" allow="autoplay; fullscreen"></iframe>`;
+            currentVideoId = id;
+        } else if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        
+        p.classList.add('active'); updateLayoutClasses();
+    }
+
+    init();
+</script>
+</body>
+</html>
