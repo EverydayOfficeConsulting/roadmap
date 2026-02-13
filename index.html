@@ -3,235 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EOCO | Business Roadmap</title>
+    <title>EOCO | The Blueprint</title>
     <style>
-        /* FONTS: Montserrat (Clean Modern) + Playfair Display (Professional Headings) */
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap');
-
         :root { 
-            /* PALETTE: "Executive Calm" - Warm Greys, Creams, and Slate */
-            --primary-brand: #7D8491;   /* Slate Grey (Professional) */
-            --primary-dark: #2F3033;    /* Soft Black */
-            --accent-soft: #F2F0EB;     /* Warm Beige/Cream */
-            --bg-body: #FAFAF8;         /* Off-White Background */
-            --bg-card: #FFFFFF;         /* Pure White Cards */
-            --text-main: #333333;       /* Dark Grey Text */
-            --text-muted: #666666;      /* Medium Grey */
-            --border-subtle: #E5E5E5;   /* Very light dividers */
-            
-            --radius-card: 8px;         /* subtle rounding */
-            --radius-pill: 50px;        /* fully rounded buttons */
-            --shadow-card: 0 4px 20px rgba(0,0,0,0.04);
-            --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+            --primary-dark: #1a1a1a; --evergreen: #2d5a27; --bg-main: #f4f7f6; 
+            --bg-panel: #eceff1; --border-grey: #e2e8f0; --white: #ffffff; 
+            --text-main: #2c3e50; --text-muted: #64748b; --ease: cubic-bezier(0.16, 1, 0.3, 1);
         }
-
         [data-theme="dark"] {
-            --primary-brand: #A0AAB5;
-            --primary-dark: #FFFFFF;
-            --accent-soft: #2C2C2E;
-            --bg-body: #121212; 
-            --bg-card: #1E1E1E; 
-            --text-main: #E0E0E0; 
-            --text-muted: #A0A0A0; 
-            --border-subtle: #333333;
-            --shadow-card: 0 4px 20px rgba(0,0,0,0.3);
+            --bg-main: #0a0a0a; --bg-panel: #141414; --border-grey: #2a2a2a;
+            --white: #1a1a1a; --text-main: #f0f0f0; --text-muted: #999; --primary-dark: #000000;
         }
 
         * { box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--bg-body); 
-            margin: 0; 
-            overflow: hidden; 
-            color: var(--text-main); 
-            line-height: 1.6;
-        }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main); }
         
         /* HEADER */
         header { 
-            background: var(--bg-body); 
+            background: var(--primary-dark); color: white; 
             display: flex; flex-direction: column; align-items: center; 
-            padding: 25px 20px 15px 20px; z-index: 4000; position: relative; 
+            padding: 15px 20px 0 20px; z-index: 4000; position: relative; 
+            border-bottom: 1px solid var(--border-grey);
         }
         .header-top { 
-            display: flex; justify-content: space-between; align-items: center; 
-            width: 100%; max-width: 900px; padding-bottom: 20px; 
-            border-bottom: 1px solid rgba(0,0,0,0.06);
+            display: flex; justify-content: center; align-items: center; 
+            width: 100%; position: relative; padding-bottom: 15px; 
         }
-        .brand-container { text-align: left; }
-        .brand-name { 
-            font-family: 'Playfair Display', serif; 
-            font-size: 1.6rem; font-weight: 600; letter-spacing: 0.5px;
-            color: var(--primary-dark); 
-        }
-        .brand-slogan { 
-            font-size: 0.7rem; font-weight: 500; text-transform: uppercase; 
-            letter-spacing: 2px; color: var(--primary-brand); margin-top: 4px;
-        }
+        .brand-container { text-align: center; }
+        .brand-name { font-size: 1.2rem; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; margin: 0; }
+        .brand-slogan { font-size: 0.65rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #a5d6a7; margin-top: 4px; }
         
-        /* Toggle Button */
+        .page-title-section { 
+            background: rgba(255,255,255,0.05); width: 100vw; text-align: center; 
+            padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .page-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: white; margin: 0; }
+
         .theme-toggle { 
-            background: transparent; color: var(--text-muted); border: 1px solid var(--border-subtle); 
-            padding: 8px 18px; border-radius: var(--radius-pill); cursor: pointer; 
-            font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
-            transition: 0.3s;
+            position: absolute; right: 0; background: var(--evergreen); 
+            color: white; border: none; padding: 6px 14px; border-radius: 20px; 
+            cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; 
         }
-        .theme-toggle:hover { border-color: var(--primary-brand); color: var(--primary-brand); }
 
-        .workspace { display: flex; height: calc(100vh - 110px); width: 100vw; position: relative; overflow: hidden; }
+        .workspace { display: flex; height: calc(100vh - 125px); width: 100vw; position: relative; overflow: hidden; }
         
-        /* SIDE PANELS */
-        .side-pane { 
-            position: absolute; top: 0; bottom: 0; 
-            background: var(--bg-card); 
-            box-shadow: var(--shadow-card);
-            transition: transform 0.5s var(--ease-smooth); 
-            z-index: 3000; display: flex; flex-direction: column; padding: 40px; 
-            border-right: 1px solid var(--border-subtle);
-        }
-        
-        #pane-library { left: 0; transform: translateX(-100%); width: 40%; overflow-y: auto; }
+        .side-pane { position: absolute; top: 0; height: 100%; background: var(--bg-panel); border-color: var(--border-grey); transition: transform 0.6s var(--ease), width 0.6s var(--ease); z-index: 3000; display: flex; flex-direction: column; padding: 25px; }
+        #pane-library { left: 0; border-right: 1px solid var(--border-grey); transform: translateX(-100%); width: 50%; overflow-y: auto; } /* Added overflow-y */
         #pane-library.active { transform: translateX(0); }
-        
-        #pane-video { right: 0; transform: translateX(100%); width: 40%; border-left: 1px solid var(--border-subtle); border-right: none; }
+        #pane-video { right: 0; border-left: 1px solid var(--border-grey); transform: translateX(100%); width: 50%; }
         #pane-video.active { transform: translateX(0); }
-        
-        /* CENTER FEED */
-        #pane-modules { 
-            flex: 1; height: 100%; overflow-y: auto; padding: 40px 20px; 
-            display: flex; flex-direction: column; align-items: center; 
-            transition: margin 0.5s var(--ease-smooth); 
-        }
-        /* Push content when panels open */
-        .workspace.lib-active #pane-modules { margin-left: 40%; }
-        .workspace.vid-active #pane-modules { margin-right: 40%; }
-        .workspace.both-active #pane-modules { margin-left: 30%; margin-right: 30%; }
-
-        /* PHASE HEADERS (The Sections) */
-        .phase-section { width: 100%; max-width: 700px; margin-bottom: 50px; }
-        
-        .phase-header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            cursor: pointer; padding: 15px 20px; 
-            background: transparent;
-            border-left: 4px solid var(--border-subtle); /* The Section Marker */
-            transition: 0.3s;
-        }
-        .phase-header:hover { border-left-color: var(--primary-brand); background: rgba(0,0,0,0.01); }
-        .phase-section.open .phase-header { border-left-color: var(--primary-brand); }
-        
-        .phase-title-group { display: flex; align-items: center; gap: 15px; }
-        .phase-icon { width: 10px; height: 10px; fill: var(--text-muted); transition: 0.3s; }
-        .phase-section.open .phase-icon { transform: rotate(90deg); fill: var(--primary-brand); }
-        
-        .phase-title { 
-            font-family: 'Playfair Display', serif; 
-            font-size: 1.3rem; font-weight: 600; color: var(--primary-dark);
-            letter-spacing: 0.5px;
-        }
-        
-        .phase-badge { 
-            font-size: 0.65rem; padding: 5px 12px; border-radius: var(--radius-pill); 
-            background: var(--accent-soft); color: var(--text-muted); font-weight: 600; 
-            letter-spacing: 1px;
-        }
-        .phase-badge.complete { background: var(--primary-brand); color: white; }
-        
-        .phase-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.5s var(--ease-smooth); }
-        .phase-section.open .phase-content { grid-template-rows: 1fr; }
-        .phase-inner { overflow: hidden; padding-top: 20px; }
-
-        /* MODULE CARDS */
-        .module-card { 
-            background: var(--bg-card); 
-            border-radius: var(--radius-card);
-            padding: 40px; margin-bottom: 25px; 
-            box-shadow: var(--shadow-card);
-            border: 1px solid var(--border-subtle);
-        }
-        
-        .module-title { 
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.1rem; font-weight: 600; text-transform: uppercase; 
-            margin-bottom: 12px; color: var(--primary-dark); letter-spacing: 1px;
-        }
-        .module-desc { 
-            font-size: 0.95rem; color: var(--text-muted); margin-bottom: 35px; 
-            line-height: 1.6; font-weight: 400; max-width: 90%;
-        }
-        
-        /* CHECKLIST STEPS */
-        .step-container { 
-            border-bottom: 1px solid var(--border-subtle); 
-            background: transparent; margin-bottom: 0; padding: 5px 0;
-        }
-        .step-container:last-of-type { border-bottom: none; }
-        
-        .step-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; cursor: pointer; }
-        .step-name { font-weight: 500; font-size: 0.9rem; color: var(--text-main); }
-        
-        /* Clean Square Checkbox */
-        .step-header input { 
-            appearance: none; width: 20px; height: 20px; 
-            border: 1px solid var(--text-muted); border-radius: 4px; 
-            cursor: pointer; transition: 0.2s; position: relative;
-        }
-        .step-header input:checked { background: var(--primary-brand); border-color: var(--primary-brand); }
-        .step-header input:checked::after {
-            content: '✓'; color: white; position: absolute; 
-            top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 12px;
-        }
-
-        .step-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease; }
-        .step-container.open .step-content { grid-template-rows: 1fr; padding-bottom: 20px; }
-        .content-inner { overflow: hidden; font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; padding-left: 5px; }
-        
-        /* BUTTONS */
-        .btn-row { display: flex; gap: 15px; margin-top: 40px; }
-        .action-btn, .close-btn { 
-            flex: 1;
-            background: var(--accent-soft); color: var(--text-main); 
-            border: none; padding: 15px; 
-            font-weight: 600; cursor: pointer; font-size: 0.75rem; 
-            text-transform: uppercase; letter-spacing: 1px; border-radius: var(--radius-card);
-            transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-        .action-btn:hover { background: var(--primary-brand); color: white; transform: translateY(-2px); }
-        
-        /* LIBRARY GRID */
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px; margin-top: 20px; }
-        .tool-tile { 
-            background: var(--bg-body); border-radius: var(--radius-card); 
-            overflow: hidden; text-decoration: none; color: inherit; 
-            transition: 0.3s; display: block; border: 1px solid transparent;
-        }
-        .tool-tile:hover { border-color: var(--primary-brand); transform: translateY(-3px); }
-        .tile-img { height: 100px; background-size: cover; background-position: center; opacity: 0.9; transition: 0.3s; filter: grayscale(100%); }
-        .tool-tile:hover .tile-img { opacity: 1; filter: grayscale(0%); }
-        .tile-name { padding: 12px; font-size: 0.7rem; font-weight: 600; text-align: center; color: var(--text-main); letter-spacing: 0.5px; text-transform: uppercase; }
-        
-        /* DRAWER HEADERS (Clearly Marked Sections) */
-        .lib-drawer { margin-bottom: 40px; }
-        .lib-section-title { 
-            font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 700; 
-            color: var(--primary-brand); margin-bottom: 15px; 
-            text-transform: uppercase; letter-spacing: 1.5px;
-            border-bottom: 2px solid var(--accent-soft); padding-bottom: 8px;
-        }
-
-        /* VIDEO */
-        .video-wrapper { 
-            position: relative; padding-bottom: 56.25%; height: 0; 
-            background: #F0F0F0; border-radius: var(--radius-card); 
-            overflow: hidden; margin-top: 20px; box-shadow: var(--shadow-card);
-        }
-        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .workspace.both-active #pane-library, .workspace.both-active #pane-video { width: 33.33%; }
+        #pane-modules { flex: 1; height: 100%; overflow-y: auto; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; transition: margin 0.6s var(--ease); }
+        .workspace.lib-active #pane-modules { margin-left: 50%; }
+        .workspace.vid-active #pane-modules { margin-right: 50%; }
+        .workspace.both-active #pane-modules { margin-left: 33.33%; margin-right: 33.33%; }
 
         @media (max-width: 768px) {
-            .side-pane { width: 100% !important; left: 0 !important; right: 0 !important; bottom: 0 !important; top: 60px !important; transform: translateY(100%) !important; padding: 25px; }
-            #pane-library.active, #pane-video.active { transform: translateY(0) !important; }
-            .workspace.lib-active #pane-modules, .workspace.vid-active #pane-modules { margin: 0 !important; opacity: 0.2; pointer-events: none; }
+            header { padding: 15px 10px 0 10px; }
+            .header-top { flex-direction: column; padding-bottom: 10px; }
+            .theme-toggle { position: static; margin-top: 12px; }
+            .brand-name { font-size: 1rem; letter-spacing: 4px; }
+            .side-pane { width: 100% !important; }
+            .workspace.lib-active #pane-modules, .workspace.vid-active #pane-modules, .workspace.both-active #pane-modules { margin: 0 !important; }
+            .transcript-hint { display: none !important; } 
+        }
+
+        .video-header { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 10px; }
+        #video-display-title { font-size: 1rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 1px; flex: 1; margin-right: 10px; }
+        .pop-out-btn { background: var(--border-grey); color: var(--text-main); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; transition: 0.2s; }
+        .pop-out-btn:hover { background: var(--evergreen); color: white; }
+        .transcript-hint { margin-top: 20px; padding: 15px; background: var(--white); border-radius: 12px; border: 1px solid var(--border-grey); font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); }
+
+        /* PHASE & MODULE STYLES */
+        .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 2px solid var(--border-grey); }
+        .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; user-select: none; }
+        .phase-title-group { display: flex; align-items: center; gap: 10px; }
+        .phase-icon { width: 14px; height: 14px; transition: transform 0.3s var(--ease); fill: var(--evergreen); }
+        .phase-section:not(.open) .phase-icon { transform: rotate(-90deg); }
+        .phase-title { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 2px; }
+        .phase-badge { font-size: 0.6rem; padding: 4px 10px; border-radius: 12px; background: var(--border-grey); color: var(--text-muted); }
+        .phase-badge.complete { background: var(--evergreen); color: white; }
+        .phase-content { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 0.4s var(--ease); }
+        .phase-section:not(.open) .phase-content { grid-template-rows: 0fr; }
+        .phase-inner { overflow: hidden; }
+        .module-card { background: var(--white); border-radius: 20px; padding: 32px; margin: 20px 0; border: 1px solid var(--border-grey); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .module-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 5px; }
+        .module-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; font-weight: 400; }
+        
+        .step-container { border: 1px solid var(--border-grey); border-radius: 14px; margin-bottom: 12px; background: var(--white); overflow: hidden; }
+        .step-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; }
+        .step-name { font-weight: 700; font-size: 0.9rem; }
+        .step-header input { width: 22px; height: 22px; accent-color: var(--evergreen); cursor: pointer; }
+        .step-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s var(--ease); padding: 0 20px; }
+        .step-container.open .step-content { grid-template-rows: 1fr; padding-bottom: 20px; }
+        .content-inner { overflow: hidden; font-size: 0.85rem; color: var(--text-muted); padding-top: 15px; border-top: 1px solid var(--border-grey); line-height: 1.5; }
+        
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-top: 20px; }
+        .tool-tile { background: var(--white); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-grey); text-decoration: none; color: inherit; transition: 0.3s; display: block; }
+        .tool-tile:hover { transform: translateY(-5px); border-color: var(--evergreen); }
+        .tile-img { height: 100px; background-size: cover; background-position: top; background-color: #000; }
+        .tile-name { padding: 10px; font-size: 0.7rem; font-weight: 800; text-align: center; text-transform: uppercase; }
+        .action-btn, .close-btn { background: var(--evergreen); color: white; border: none; padding: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; border-radius: 8px; }
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-grey); }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+        /* NEW LIBRARY DRAWER STYLES */
+        .lib-drawer { margin-bottom: 10px; }
+        .lib-section-title { 
+            text-align: center; font-weight: 900; font-size: 1.1rem; 
+            text-transform: uppercase; margin-bottom: 20px; margin-top: 10px;
+        }
+        .section-divider {
+            height: 1px; background: var(--border-grey); width: 80%; margin: 30px auto; border: none;
         }
     </style>
 </head>
@@ -240,30 +124,29 @@
     <div class="header-top">
         <div class="brand-container">
             <div class="brand-name">EOCO</div>
-            <div class="brand-slogan">Business Roadmap</div>
+            <div class="brand-slogan">Simple Systems. Better Business.</div>
         </div>
-        <button class="theme-toggle" onclick="toggleTheme()">Day / Night</button>
+        <button class="theme-toggle" onclick="toggleTheme()">Dark Mode</button>
     </div>
+    <div class="page-title-section"><h1 class="page-title">The Foundational Roadmap</h1></div>
 </header>
 <div class="workspace" id="main-ws">
     <section id="pane-library" class="side-pane">
-        <button class="close-btn" style="margin-bottom:30px; background: transparent; border: 1px solid var(--text-muted);" onclick="toggleLibrary(null)">✕ Close Resources</button>
-        <div id="library-content"></div> 
-    </section>
+        <button class="close-btn" style="margin-bottom:10px;" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button>
+        <div id="library-content"></div> </section>
     
-    <section id="pane-modules"><div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center; margin-top:20px;">Loading Roadmap...</div></section>
-    
+    <section id="pane-modules"><div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">Syncing Roadmap...</div></section>
     <section id="pane-video" class="side-pane">
-        <button class="close-btn" style="margin-bottom:20px; background: transparent; border: 1px solid var(--text-muted);" onclick="toggleVideo(null)">✕ Close Video</button>
+        <button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button>
         <div class="video-header">
-            <div id="video-display-title" style="font-family:'Playfair Display', serif; font-size:1.5rem; color:var(--primary-dark); margin-bottom:10px;">Tutorial</div>
+            <div id="video-display-title">Tutorial</div>
+            <button class="pop-out-btn" onclick="popOutVideo()">Pop Out</button>
         </div>
         <div class="video-wrapper" id="video-frame"></div>
-        <button class="action-btn" style="margin-top:20px;" onclick="popOutVideo()">Open in New Window</button>
+        <div class="transcript-hint"><strong>Pro-Tip:</strong> Enable <strong>CC</strong> for auto-captions or pop out this window to watch while you work.</div>
     </section>
 </div>
 <script>
-    // CACHE BUSTER ADDED
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv' + '&t=' + Date.now();
     let modules = [];
     const state = JSON.parse(localStorage.getItem('eoco_state')) || {};
@@ -272,6 +155,7 @@
     function toggleTheme() {
         const next = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
         document.body.setAttribute('data-theme', next); 
+        document.querySelector('.theme-toggle').innerText = next === 'light' ? 'Dark Mode' : 'Light Mode'; 
         localStorage.setItem('eoco_theme', next);
     }
 
@@ -291,6 +175,7 @@
                 
                 if (key === 'ID') { 
                     if (currentMod) modules.push(currentMod); 
+                    // Library is now an ARRAY OF OBJECTS: { title: "Name", items: [] }
                     currentMod = { id: b, phase: 'PHASE 1', title: '', description: '', video: '', library: [], steps: [] }; 
                 }
                 if (!currentMod) return;
@@ -300,17 +185,22 @@
                 if (key === 'DESCRIPTION') currentMod.description = b;
                 if (key === 'VIDEO') currentMod.video = c;
                 
+                // --- NEW LIBRARY LOGIC ---
                 if (key === 'SECTION') {
+                    // Start a new section in the library
                     currentMod.library.push({ title: b, items: [] });
                 }
                 if (key === 'TOOL') {
+                    // If no section exists yet, create a default one
                     let lastSection = currentMod.library[currentMod.library.length - 1];
                     if (!lastSection) {
-                        lastSection = { title: "Essentials", items: [] };
+                        lastSection = { title: "Module Library", items: [] };
                         currentMod.library.push(lastSection);
                     }
                     lastSection.items.push({ name: b, url: c });
                 }
+                // -------------------------
+
                 if (key === 'STEP') currentMod.steps.push({ name: b, tip: c });
             });
             
@@ -351,13 +241,13 @@
 
             return `
             <div class="phase-section open" id="${phaseId}">
-                <div class="phase-header" onclick="this.parentElement.classList.toggle('open')" title="Toggle Phase">
+                <div class="phase-header" onclick="this.parentElement.classList.toggle('open')" title="Click to collapse/expand">
                     <div class="phase-title-group">
-                        <svg class="phase-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        <svg class="phase-icon" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
                         <span class="phase-title">${phaseName}</span>
                     </div>
                     <span class="phase-badge ${completedSteps === totalSteps && totalSteps > 0 ? 'complete' : ''}">
-                        ${completedSteps} / ${totalSteps}
+                        ${completedSteps}/${totalSteps}
                     </span>
                 </div>
                 <div class="phase-content">
@@ -379,12 +269,8 @@
                                     </div>
                                 `).join('')}
                                 <div class="btn-row">
-                                    <button class="action-btn" onclick="toggleLibrary('${m.id}')">
-                                        Resources
-                                    </button>
-                                    <button class="action-btn" onclick="toggleVideo('${m.id}')">
-                                        Watch Video
-                                    </button>
+                                    <button class="action-btn" onclick="toggleLibrary('${m.id}')">Links & Tools</button>
+                                    <button class="action-btn" onclick="toggleVideo('${m.id}')">Watch Video</button>
                                 </div>
                             </div>
                         `).join('')}
@@ -407,7 +293,7 @@
             const checked = phaseSection.querySelectorAll('input[type="checkbox"]:checked').length;
             const badge = phaseSection.querySelector('.phase-badge');
             if (badge) {
-                badge.innerText = `${checked} / ${total}`;
+                badge.innerText = `${checked}/${total}`;
                 if (checked === total && total > 0) badge.classList.add('complete');
                 else badge.classList.remove('complete');
             }
@@ -434,8 +320,10 @@
         
         const m = modules.find(mod => mod.id === mid);
         
+        // --- RENDER DYNAMIC SECTIONS ---
         if (m.library && m.library.length > 0) {
-            content.innerHTML = m.library.map((section) => {
+            content.innerHTML = m.library.map((section, index) => {
+                const divider = index > 0 ? '<hr class="section-divider">' : '';
                 const grid = section.items.map(l => `
                     <a href="${l.url}" target="_blank" class="tool-tile">
                         <div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.url}')"></div>
@@ -444,13 +332,14 @@
                 
                 return `
                     <div class="lib-drawer">
+                        ${divider}
                         <div class="lib-section-title">${section.title}</div>
                         <div class="gallery-grid">${grid}</div>
                     </div>
                 `;
             }).join('');
         } else {
-            content.innerHTML = '<div style="padding:40px; text-align:center; color:var(--text-muted); font-size:0.9rem;">No resources required.</div>';
+            content.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">No tools available for this module.</div>';
         }
         
         p.classList.add('active'); activeLibId = mid; updateLayoutClasses();
