@@ -48,7 +48,7 @@
         .workspace { display: flex; height: calc(100vh - 125px); width: 100vw; position: relative; overflow: hidden; }
         
         .side-pane { position: absolute; top: 0; height: 100%; background: var(--bg-panel); border-color: var(--border-grey); transition: transform 0.6s var(--ease), width 0.6s var(--ease); z-index: 3000; display: flex; flex-direction: column; padding: 25px; }
-        #pane-library { left: 0; border-right: 1px solid var(--border-grey); transform: translateX(-100%); width: 50%; }
+        #pane-library { left: 0; border-right: 1px solid var(--border-grey); transform: translateX(-100%); width: 50%; overflow-y: auto; } /* Added overflow-y */
         #pane-library.active { transform: translateX(0); }
         #pane-video { right: 0; border-left: 1px solid var(--border-grey); transform: translateX(100%); width: 50%; }
         #pane-video.active { transform: translateX(0); }
@@ -77,22 +77,18 @@
         /* PHASE & MODULE STYLES */
         .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 2px solid var(--border-grey); }
         .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; user-select: none; }
-        
         .phase-title-group { display: flex; align-items: center; gap: 10px; }
         .phase-icon { width: 14px; height: 14px; transition: transform 0.3s var(--ease); fill: var(--evergreen); }
         .phase-section:not(.open) .phase-icon { transform: rotate(-90deg); }
-        
         .phase-title { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 2px; }
         .phase-badge { font-size: 0.6rem; padding: 4px 10px; border-radius: 12px; background: var(--border-grey); color: var(--text-muted); }
         .phase-badge.complete { background: var(--evergreen); color: white; }
-        
         .phase-content { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 0.4s var(--ease); }
         .phase-section:not(.open) .phase-content { grid-template-rows: 0fr; }
-        
         .phase-inner { overflow: hidden; }
         .module-card { background: var(--white); border-radius: 20px; padding: 32px; margin: 20px 0; border: 1px solid var(--border-grey); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .module-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 5px; /* Reduced bottom margin */ }
-        .module-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; font-weight: 400; } /* NEW DESCRIPTION STYLE */
+        .module-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 5px; }
+        .module-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; font-weight: 400; }
         
         .step-container { border: 1px solid var(--border-grey); border-radius: 14px; margin-bottom: 12px; background: var(--white); overflow: hidden; }
         .step-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; }
@@ -111,6 +107,16 @@
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-grey); }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+        /* NEW LIBRARY DRAWER STYLES */
+        .lib-drawer { margin-bottom: 10px; }
+        .lib-section-title { 
+            text-align: center; font-weight: 900; font-size: 1.1rem; 
+            text-transform: uppercase; margin-bottom: 20px; margin-top: 10px;
+        }
+        .section-divider {
+            height: 1px; background: var(--border-grey); width: 80%; margin: 30px auto; border: none;
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -125,7 +131,10 @@
     <div class="page-title-section"><h1 class="page-title">The Foundational Roadmap</h1></div>
 </header>
 <div class="workspace" id="main-ws">
-    <section id="pane-library" class="side-pane"><button class="close-btn" style="margin-bottom:20px;" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button><div style="font-weight:900; font-size:1.1rem; text-transform:uppercase;">Module Library</div><div class="gallery-grid" id="resource-grid"></div></section>
+    <section id="pane-library" class="side-pane">
+        <button class="close-btn" style="margin-bottom:10px;" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button>
+        <div id="library-content"></div> </section>
+    
     <section id="pane-modules"><div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">Syncing Roadmap...</div></section>
     <section id="pane-video" class="side-pane">
         <button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button>
@@ -166,16 +175,32 @@
                 
                 if (key === 'ID') { 
                     if (currentMod) modules.push(currentMod); 
-                    // ADDED DESCRIPTION TO OBJECT MODEL
+                    // Library is now an ARRAY OF OBJECTS: { title: "Name", items: [] }
                     currentMod = { id: b, phase: 'PHASE 1', title: '', description: '', video: '', library: [], steps: [] }; 
                 }
                 if (!currentMod) return;
                 
                 if (key === 'PHASE') currentMod.phase = b || 'PHASE 1';
                 if (key === 'TITLE') currentMod.title = b;
-                if (key === 'DESCRIPTION') currentMod.description = b; // ADDED PARSER FOR DESCRIPTION
+                if (key === 'DESCRIPTION') currentMod.description = b;
                 if (key === 'VIDEO') currentMod.video = c;
-                if (key === 'TOOL') currentMod.library.push({ name: b, url: c });
+                
+                // --- NEW LIBRARY LOGIC ---
+                if (key === 'SECTION') {
+                    // Start a new section in the library
+                    currentMod.library.push({ title: b, items: [] });
+                }
+                if (key === 'TOOL') {
+                    // If no section exists yet, create a default one
+                    let lastSection = currentMod.library[currentMod.library.length - 1];
+                    if (!lastSection) {
+                        lastSection = { title: "Module Library", items: [] };
+                        currentMod.library.push(lastSection);
+                    }
+                    lastSection.items.push({ name: b, url: c });
+                }
+                // -------------------------
+
                 if (key === 'STEP') currentMod.steps.push({ name: b, tip: c });
             });
             
@@ -287,15 +312,36 @@
 
     function toggleLibrary(mid) {
         const p = document.getElementById('pane-library');
+        const content = document.getElementById('library-content');
+        
         if (!mid || (p.classList.contains('active') && activeLibId === mid)) { 
             p.classList.remove('active'); activeLibId = null; updateLayoutClasses(); return; 
         }
+        
         const m = modules.find(mod => mod.id === mid);
-        document.getElementById('resource-grid').innerHTML = m.library.map(l => `
-            <a href="${l.url}" target="_blank" class="tool-tile">
-                <div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.url}')"></div>
-                <div class="tile-name">${l.name}</div>
-            </a>`).join('');
+        
+        // --- RENDER DYNAMIC SECTIONS ---
+        if (m.library && m.library.length > 0) {
+            content.innerHTML = m.library.map((section, index) => {
+                const divider = index > 0 ? '<hr class="section-divider">' : '';
+                const grid = section.items.map(l => `
+                    <a href="${l.url}" target="_blank" class="tool-tile">
+                        <div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.url}')"></div>
+                        <div class="tile-name">${l.name}</div>
+                    </a>`).join('');
+                
+                return `
+                    <div class="lib-drawer">
+                        ${divider}
+                        <div class="lib-section-title">${section.title}</div>
+                        <div class="gallery-grid">${grid}</div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            content.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">No tools available for this module.</div>';
+        }
+        
         p.classList.add('active'); activeLibId = mid; updateLayoutClasses();
     }
 
