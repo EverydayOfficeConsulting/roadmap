@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EOCO | Foundational Roadmap</title>
+    <title>EOCO | The Blueprint</title>
     <style>
         :root { 
             --primary-dark: #1a1a1a; --evergreen: #2d5a27; --bg-main: #f4f7f6; 
@@ -18,36 +18,22 @@
         * { box-sizing: border-box; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main); }
         
-        /* REFINED HEADER FLOW */
         header { 
-            background: var(--primary-dark); color: white; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 15px 20px 0 20px; z-index: 4000; position: relative; 
-            border-bottom: 1px solid var(--border-grey);
+            background: var(--primary-dark); color: white; display: flex; flex-direction: column; align-items: center; 
+            padding: 15px 20px 0 20px; z-index: 4000; position: relative; border-bottom: 1px solid var(--border-grey);
         }
-        .header-top { 
-            display: flex; justify-content: center; align-items: center; 
-            width: 100%; position: relative; padding-bottom: 15px; 
-        }
+        .header-top { display: flex; justify-content: center; align-items: center; width: 100%; position: relative; padding-bottom: 15px; }
         .brand-container { text-align: center; }
         .brand-name { font-size: 1.2rem; font-weight: 900; letter-spacing: 6px; text-transform: uppercase; margin: 0; }
         .brand-slogan { font-size: 0.65rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #a5d6a7; margin-top: 4px; }
-        
-        .page-title-section { 
-            background: rgba(255,255,255,0.05); width: 100vw; text-align: center; 
-            padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1);
-        }
+        .page-title-section { background: rgba(255,255,255,0.05); width: 100vw; text-align: center; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1); }
         .page-title { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; color: white; margin: 0; }
-
-        .theme-toggle { 
-            position: absolute; right: 0; background: var(--evergreen); 
-            color: white; border: none; padding: 6px 14px; border-radius: 20px; 
-            cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; 
-        }
+        .theme-toggle { position: absolute; right: 0; background: var(--evergreen); color: white; border: none; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
 
         .workspace { display: flex; height: calc(100vh - 125px); width: 100vw; position: relative; overflow: hidden; }
         
-        .side-pane { position: absolute; top: 0; height: 100%; background: var(--bg-panel); border-color: var(--border-grey); transition: transform 0.6s var(--ease), width 0.6s var(--ease); z-index: 3000; display: flex; flex-direction: column; padding: 25px; }
+        /* CENTERED LIBRARY PANE */
+        .side-pane { position: absolute; top: 0; height: 100%; background: var(--bg-panel); border-color: var(--border-grey); transition: transform 0.6s var(--ease), width 0.6s var(--ease); z-index: 3000; display: flex; flex-direction: column; padding: 25px; overflow-y: auto; text-align: center; }
         #pane-library { left: 0; border-right: 1px solid var(--border-grey); transform: translateX(-100%); width: 50%; }
         #pane-library.active { transform: translateX(0); }
         #pane-video { right: 0; border-left: 1px solid var(--border-grey); transform: translateX(100%); width: 50%; }
@@ -58,25 +44,24 @@
         .workspace.vid-active #pane-modules { margin-right: 50%; }
         .workspace.both-active #pane-modules { margin-left: 33.33%; margin-right: 33.33%; }
 
+        /* LIBRARY DRAWER STYLES */
+        .lib-drawer-title { font-size: 1rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 2px; margin: 30px 0 15px 0; }
+        .lib-divider { width: 60%; margin: 20px auto; border-bottom: 1px solid var(--border-grey); opacity: 0.5; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; justify-content: center; }
+        .tool-tile { background: var(--white); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-grey); text-decoration: none; color: inherit; transition: 0.3s; display: block; width: 100%; }
+        .tool-tile:hover { transform: translateY(-5px); border-color: var(--evergreen); }
+        .tile-img { height: 100px; background-size: cover; background-position: top; background-color: #000; }
+        .tile-name { padding: 10px; font-size: 0.7rem; font-weight: 800; text-align: center; text-transform: uppercase; }
+
         @media (max-width: 768px) {
             header { padding: 15px 10px 0 10px; }
             .header-top { flex-direction: column; padding-bottom: 10px; }
             .theme-toggle { position: static; margin-top: 12px; }
-            .brand-name { font-size: 1rem; letter-spacing: 4px; }
-            .side-pane { width: 100% !important; }
+            .side-pane { width: 100% !important; text-align: center; }
             .workspace.lib-active #pane-modules, .workspace.vid-active #pane-modules, .workspace.both-active #pane-modules { margin: 0 !important; }
-            .transcript-hint { display: none !important; } /* REMOVED FOR MOBILE */
         }
 
-        /* VIDEO PANEL CONTROLS */
-        .video-header { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 10px; }
-        #video-display-title { font-size: 1rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 1px; flex: 1; margin-right: 10px; }
-        .pop-out-btn { background: var(--border-grey); color: var(--text-main); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; transition: 0.2s; }
-        .pop-out-btn:hover { background: var(--evergreen); color: white; }
-
-        .transcript-hint { margin-top: 20px; padding: 15px; background: var(--white); border-radius: 12px; border: 1px solid var(--border-grey); font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); }
-
-        /* COMPONENT STYLES */
+        /* PHASE & CARD STYLES */
         .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 2px solid var(--border-grey); }
         .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; }
         .phase-title { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 2px; }
@@ -85,7 +70,7 @@
         .phase-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s var(--ease); }
         .phase-section.open .phase-content { grid-template-rows: 1fr; }
         .phase-inner { overflow: hidden; }
-        .module-card { background: var(--white); border-radius: 20px; padding: 32px; margin: 20px 0; border: 1px solid var(--border-grey); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .module-card { background: var(--white); border-radius: 20px; padding: 32px; margin: 20px 0; border: 1px solid var(--border-grey); box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: left; }
         .module-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 20px; }
         .step-container { border: 1px solid var(--border-grey); border-radius: 14px; margin-bottom: 12px; background: var(--white); overflow: hidden; }
         .step-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; }
@@ -94,15 +79,13 @@
         .step-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s var(--ease); padding: 0 20px; }
         .step-container.open .step-content { grid-template-rows: 1fr; padding-bottom: 20px; }
         .content-inner { overflow: hidden; font-size: 0.85rem; color: var(--text-muted); padding-top: 15px; border-top: 1px solid var(--border-grey); line-height: 1.5; }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-top: 20px; }
-        .tool-tile { background: var(--white); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-grey); text-decoration: none; color: inherit; transition: 0.3s; display: block; }
-        .tool-tile:hover { transform: translateY(-5px); border-color: var(--evergreen); }
-        .tile-img { height: 100px; background-size: cover; background-position: top; background-color: #000; }
-        .tile-name { padding: 10px; font-size: 0.7rem; font-weight: 800; text-align: center; text-transform: uppercase; }
         .action-btn, .close-btn { background: var(--evergreen); color: white; border: none; padding: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; border-radius: 8px; }
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-grey); }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .video-header { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 10px; }
+        #video-display-title { font-size: 1rem; font-weight: 900; text-transform: uppercase; color: var(--evergreen); letter-spacing: 1px; flex: 1; margin-right: 10px; text-align: left; }
+        .pop-out-btn { background: var(--border-grey); color: var(--text-main); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
     </style>
 </head>
 <body data-theme="light">
@@ -117,16 +100,12 @@
     <div class="page-title-section"><h1 class="page-title">The Foundational Roadmap</h1></div>
 </header>
 <div class="workspace" id="main-ws">
-    <section id="pane-library" class="side-pane"><button class="close-btn" style="margin-bottom:20px;" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button><div style="font-weight:900; font-size:1.1rem; text-transform:uppercase;">Module Library</div><div class="gallery-grid" id="resource-grid"></div></section>
-    <section id="pane-modules"><div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">Syncing Roadmap...</div></section>
+    <section id="pane-library" class="side-pane"><button class="close-btn" style="margin-bottom:20px;" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button><div id="lib-content-area"></div></section>
+    <section id="pane-modules"><div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">Syncing...</div></section>
     <section id="pane-video" class="side-pane">
         <button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button>
-        <div class="video-header">
-            <div id="video-display-title">Tutorial</div>
-            <button class="pop-out-btn" onclick="popOutVideo()">Pop Out</button>
-        </div>
+        <div class="video-header"><div id="video-display-title">Tutorial</div><button class="pop-out-btn" onclick="popOutVideo()">Pop Out</button></div>
         <div class="video-wrapper" id="video-frame"></div>
-        <div class="transcript-hint"><strong>Pro-Tip:</strong> Enable <strong>CC</strong> for auto-captions or pop out this window to watch while you work.</div>
     </section>
 </div>
 <script>
@@ -151,7 +130,11 @@
                 if (key === 'PHASE') currentMod.phase = b || 'PHASE 1';
                 if (key === 'TITLE') currentMod.title = b;
                 if (key === 'VIDEO') currentMod.video = c;
-                if (key === 'TOOL') currentMod.library.push({ name: b, url: c });
+                if (key === 'LIB_SECTION') currentMod.library.push({ section: b, tools: [] });
+                if (key === 'TOOL') {
+                    if (currentMod.library.length === 0) currentMod.library.push({ section: "Links & Tools", tools: [] });
+                    currentMod.library[currentMod.library.length - 1].tools.push({ name: b, url: c });
+                }
                 if (key === 'STEP') currentMod.steps.push({ name: b, tip: c });
             });
             if (currentMod) modules.push(currentMod); render();
@@ -189,17 +172,28 @@
         else if (vidActive) ws.classList.add('vid-active');
     }
     function toggleLibrary(mid) {
-        const p = document.getElementById('pane-library');
+        const p = document.getElementById('pane-library'), area = document.getElementById('lib-content-area');
         if (!mid || (p.classList.contains('active') && activeLibId === mid)) { p.classList.remove('active'); activeLibId = null; updateLayoutClasses(); return; }
         const m = modules.find(mod => mod.id === mid);
-        document.getElementById('resource-grid').innerHTML = m.library.map(l => `<a href="${l.url}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.url}')"></div><div class="tile-name">${l.name}</div></a>`).join('');
+        
+        area.innerHTML = m.library.map((lib, index) => `
+            <div class="lib-drawer-title">${lib.section}</div>
+            <div class="gallery-grid">
+                ${lib.tools.map(l => `
+                    <a href="${l.url}" target="_blank" class="tool-tile">
+                        <div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.url}')"></div>
+                        <div class="tile-name">${l.name}</div>
+                    </a>
+                `).join('')}
+            </div>
+            ${index < m.library.length - 1 ? '<div class="lib-divider"></div>' : ''}
+        `).join('');
+
         p.classList.add('active'); activeLibId = mid; updateLayoutClasses();
     }
     function popOutVideo() {
         if (!currentVideoId) return;
-        const width = 640; const height = 360;
-        const left = (window.innerWidth / 2) - (width / 2); const top = (window.innerHeight / 2) - (height / 2);
-        window.open(`https://www.youtube.com/embed/${currentVideoId}?autoplay=1&cc_load_policy=1`, 'YouTubePopOut', `width=${width},height=${height},top=${top},left=${left},menubar=no,status=no,titlebar=no`);
+        window.open(`https://www.youtube.com/embed/${currentVideoId}?autoplay=1&cc_load_policy=1`, 'YouTubePopOut', `width=640,height=360,menubar=no,status=no`);
         toggleVideo(null);
     }
     async function toggleVideo(mid) {
