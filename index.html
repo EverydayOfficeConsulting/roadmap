@@ -7,15 +7,15 @@
     <style>
         :root { 
             /* THEME: STEEL & SLATE */
-            --primary-brand: #3A506B;   /* Steel Blue */
-            --primary-dark: #1C2541;    /* Dark Navy */
-            --bg-main: #F0F4F8;         /* Cool Grey BG */
-            --bg-panel: #FFFFFF;        /* White */
-            --text-main: #334155;       /* Slate Text */
-            --text-muted: #64748B;      /* Muted Blue-Grey */
+            --primary-brand: #3A506B;   
+            --primary-dark: #1C2541;    
+            --bg-main: #F0F4F8;         
+            --bg-panel: #FFFFFF;        
+            --text-main: #334155;       
+            --text-muted: #64748B;      
             --border-grey: #D1D9E6;     
             
-            --radius: 3px;              /* Squared Edges */
+            --radius: 3px;              
             --shadow: 0 4px 12px rgba(58, 80, 107, 0.08); 
             --ease: cubic-bezier(0.2, 1, 0.3, 1);
         }
@@ -34,7 +34,7 @@
         * { box-sizing: border-box; }
         body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main); }
         
-        /* HEADER - CENTERED LOGO FIX */
+        /* HEADER */
         header { 
             background: var(--primary-dark); color: white; 
             display: flex; flex-direction: column; align-items: center; 
@@ -42,9 +42,7 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         .header-top { 
-            display: flex; 
-            justify-content: center; /* FORCE CENTER */
-            align-items: center; 
+            display: flex; justify-content: center; align-items: center; 
             width: 100%; position: relative; padding-bottom: 15px; 
         }
         .brand-container { text-align: center; }
@@ -57,12 +55,11 @@
         }
         .page-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: white; margin: 0; }
 
-        /* HEADER CONTROLS - PINNED RIGHT */
+        /* HEADER CONTROLS */
         .header-controls { 
             display: flex; gap: 10px; align-items: center; 
-            position: absolute; right: 0; top: 0; /* Pinned to corner */
+            position: absolute; right: 0; top: 0;
         }
-        
         .theme-toggle, .profile-btn { 
             background: var(--primary-brand); color: white; 
             border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: var(--radius); 
@@ -94,8 +91,8 @@
 
         @media (max-width: 768px) {
             header { padding: 15px 10px 0 10px; }
-            .header-top { justify-content: center; padding-bottom: 40px; } /* More space for stacked layout */
-            .header-controls { position: absolute; top: 40px; right: 50%; transform: translateX(50%); width: auto; } /* Center buttons on mobile */
+            .header-top { justify-content: center; padding-bottom: 40px; }
+            .header-controls { position: absolute; top: 40px; right: 50%; transform: translateX(50%); width: auto; }
             .side-pane { width: 100% !important; }
             .workspace.lib-active #pane-modules, .workspace.vid-active #pane-modules, .workspace.both-active #pane-modules { margin: 0 !important; }
             .transcript-hint { display: none !important; } 
@@ -110,105 +107,67 @@
         /* PHASE & MODULE STYLES */
         .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 1px solid var(--border-grey); }
         .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; user-select: none; }
-        
         .phase-title-group { display: flex; align-items: center; gap: 10px; }
         .phase-icon { width: 14px; height: 14px; transition: transform 0.3s var(--ease); fill: var(--primary-brand); }
         .phase-section:not(.open) .phase-icon { transform: rotate(-90deg); }
         .phase-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--primary-brand); letter-spacing: 1.5px; }
-        
         .phase-badge { font-size: 0.6rem; padding: 4px 10px; border-radius: var(--radius); background: var(--border-grey); color: var(--text-muted); font-weight: 600; }
         .phase-badge.complete { background: var(--primary-brand); color: white; }
-        
         .phase-content { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 0.4s var(--ease); }
         .phase-section:not(.open) .phase-content { grid-template-rows: 0fr; }
         .phase-inner { overflow: hidden; }
 
         /* CARDS */
-        .module-card { 
-            background: var(--bg-panel); 
-            border-radius: var(--radius); 
-            padding: 35px; margin: 20px 0; 
-            border: 1px solid var(--border-grey); 
-            box-shadow: var(--shadow);
-        }
+        .module-card { background: var(--bg-panel); border-radius: var(--radius); padding: 35px; margin: 20px 0; border: 1px solid var(--border-grey); box-shadow: var(--shadow); }
         .module-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; color: var(--text-main); }
         .module-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; font-weight: 400; }
         
         .step-container { border: 1px solid var(--border-grey); border-radius: var(--radius); margin-bottom: 10px; background: var(--bg-panel); overflow: hidden; }
         .step-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; }
         .step-name { font-weight: 600; font-size: 0.9rem; }
-        
-        .step-header input { 
-            width: 20px; height: 20px; cursor: pointer; 
-            accent-color: var(--primary-brand); 
-            border-radius: 2px;
-        }
-        
+        .step-header input { width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary-brand); border-radius: 2px; }
         .step-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s var(--ease); padding: 0 20px; }
         .step-container.open .step-content { grid-template-rows: 1fr; padding-bottom: 20px; }
         .content-inner { overflow: hidden; font-size: 0.85rem; color: var(--text-muted); padding-top: 15px; border-top: 1px solid var(--border-grey); line-height: 1.6; }
         
         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
-        .tool-tile { 
-            background: var(--bg-panel); border-radius: var(--radius); 
-            overflow: hidden; border: 1px solid var(--border-grey); 
-            text-decoration: none; color: inherit; transition: 0.2s; display: block; 
-        }
+        .tool-tile { background: var(--bg-panel); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-grey); text-decoration: none; color: inherit; transition: 0.2s; display: block; }
         .tool-tile:hover { transform: translateY(-2px); border-color: var(--primary-brand); box-shadow: var(--shadow); }
         .tile-img { height: 90px; background-size: cover; background-position: top; background-color: #000; opacity: 0.9; }
         .tile-name { padding: 10px; font-size: 0.7rem; font-weight: 700; text-align: center; text-transform: uppercase; color: var(--text-muted); }
-        
-        .action-btn, .close-btn { 
-            background: var(--primary-brand); color: white; border: none; 
-            padding: 15px; font-weight: 700; cursor: pointer; 
-            text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; 
-            border-radius: var(--radius); transition: background 0.2s;
-        }
+        .action-btn, .close-btn { background: var(--primary-brand); color: white; border: none; padding: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; border-radius: var(--radius); transition: background 0.2s; }
         .action-btn:hover { background: #2A4058; }
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
-        
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-grey); }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
         /* LIBRARY DRAWER STYLES */
         .lib-drawer { margin-bottom: 10px; }
-        .lib-section-title { 
-            text-align: center; font-weight: 800; font-size: 0.9rem; 
-            text-transform: uppercase; margin-bottom: 20px; margin-top: 10px;
-            color: var(--primary-brand); letter-spacing: 1px;
-        }
-        .section-divider {
-            height: 1px; background: var(--border-grey); width: 100%; margin: 30px 0; border: none;
-        }
+        .lib-section-title { text-align: center; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 20px; margin-top: 10px; color: var(--primary-brand); letter-spacing: 1px; }
+        .section-divider { height: 1px; background: var(--border-grey); width: 100%; margin: 30px 0; border: none; }
 
-        /* ONBOARDING MODAL (STEEL THEME) */
-        #modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(28, 37, 65, 0.9); z-index: 5000; /* Dark Navy BG */
-            display: none; justify-content: center; align-items: center;
+        /* CLUSTER / ACCORDION STYLES FOR "ALL CANADA" MODE */
+        details.cluster-group { margin-top: 15px; border: 1px solid var(--border-grey); border-radius: var(--radius); overflow: hidden; }
+        details.cluster-group summary { 
+            background: var(--bg-main); padding: 12px; cursor: pointer; 
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-main);
+            list-style: none; display: flex; justify-content: space-between; align-items: center;
         }
+        details.cluster-group summary::-webkit-details-marker { display: none; }
+        details.cluster-group summary::after { content: '+'; font-size: 1.2em; color: var(--primary-brand); }
+        details.cluster-group[open] summary::after { content: '-'; }
+        details.cluster-group .cluster-content { padding: 15px; background: var(--bg-panel); border-top: 1px solid var(--border-grey); }
+
+        /* ONBOARDING MODAL */
+        #modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(28, 37, 65, 0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
         #modal-overlay.active { display: flex; }
-        .modal-card {
-            background: var(--bg-panel); padding: 40px; border-radius: var(--radius);
-            width: 90%; max-width: 500px; text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            border: 1px solid var(--border-grey);
-        }
+        .modal-card { background: var(--bg-panel); padding: 40px; border-radius: var(--radius); width: 90%; max-width: 500px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid var(--border-grey); }
         .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; color: var(--primary-brand); letter-spacing: 1px; text-transform: uppercase; }
         .modal-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 30px; }
-        
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-label { display: block; font-size: 0.7rem; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; color: var(--text-main); letter-spacing: 1px; }
-        .form-select {
-            width: 100%; padding: 12px; border: 1px solid var(--border-grey);
-            border-radius: var(--radius); font-size: 1rem; background: var(--bg-main); color: var(--text-main);
-            border-left: 4px solid var(--primary-brand);
-        }
-        .start-btn {
-            background: var(--primary-brand); color: white; border: none; padding: 16px;
-            width: 100%; border-radius: var(--radius); font-weight: 800; text-transform: uppercase;
-            letter-spacing: 2px; cursor: pointer; margin-top: 10px;
-        }
+        .form-select { width: 100%; padding: 12px; border: 1px solid var(--border-grey); border-radius: var(--radius); font-size: 1rem; background: var(--bg-main); color: var(--text-main); border-left: 4px solid var(--primary-brand); }
+        .start-btn { background: var(--primary-brand); color: white; border: none; padding: 16px; width: 100%; border-radius: var(--radius); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; margin-top: 10px; }
         .start-btn:hover { background: #2A4058; }
 
     </style>
@@ -245,6 +204,8 @@
         <div class="form-group">
             <label class="form-label">Trade / Industry</label>
             <select class="form-select" id="user-industry">
+                <option value="ALL">All Trades (Show Everything)</option>
+                <option disabled>--- Trades ---</option>
                 <option value="General">General Contractor</option>
                 <option value="Electrician">Electrician</option>
                 <option value="Plumber">Plumber</option>
@@ -394,13 +355,30 @@
         return { name: cleanName, val: value, tags: tags };
     }
 
+    // RETURNS TRUE IF ITEM SHOULD BE VISIBLE TO CURRENT USER
     function isVisible(item) {
+        // 1. If item has no tags, show it to everyone
         if (!item.tags || item.tags.length === 0) return true; 
         if (!userProfile) return true; 
 
-        const userTags = [userProfile.province.toUpperCase(), userProfile.industry.toUpperCase()];
-        const hasMatch = item.tags.some(tag => userTags.includes(tag));
-        return hasMatch;
+        // 2. If User is "CAN" (All Canada), show ALL Region tags (AB, NS, etc.)
+        //    AND if User is "ALL" (All Trades), show ALL Trade tags.
+        
+        const userProv = userProfile.province.toUpperCase();
+        const userInd = userProfile.industry.toUpperCase();
+
+        // Check if the item matches the specific user profile
+        const directMatch = item.tags.some(tag => tag === userProv || tag === userInd);
+        
+        // Check for "Show All" overrides
+        const showBecauseAllCan = (userProv === 'CAN'); // Logic: We want to show it, but we might cluster it later
+        const showBecauseAllTrade = (userInd === 'ALL');
+
+        // Note: We return TRUE here for everything if mode is ALL, 
+        // because we will handle the "clustering" in the render function.
+        if (showBecauseAllCan || showBecauseAllTrade) return true;
+
+        return directMatch;
     }
 
     function parseCSV(t) {
@@ -432,7 +410,9 @@
                 const visibleSteps = m.steps.filter(isVisible);
                 totalSteps += visibleSteps.length; 
                 const checkedIndices = state[m.id] || [];
+                // Count visible checks
                 const visibleCheckCount = visibleSteps.filter((s, originalIndex) => {
+                     // Find the step in the master list to match the index state
                      const realIndex = m.steps.indexOf(s);
                      return checkedIndices.includes(realIndex);
                 }).length;
@@ -461,10 +441,17 @@
                                 <div class="module-desc">${m.description || ''}</div>
                                 ${m.steps.map((s, i) => {
                                     if (!isVisible(s)) return ''; 
+                                    
+                                    // Visual Tag for "All" Mode in Steps
+                                    let tagLabel = '';
+                                    if ((userProfile.province === 'CAN' || userProfile.industry === 'ALL') && s.tags.length > 0) {
+                                        tagLabel = `<span style="font-size:0.6rem; background:#eee; padding:2px 6px; border-radius:4px; margin-left:8px; color:#666;">${s.tags.join(', ')}</span>`;
+                                    }
+
                                     return `
                                     <div class="step-container">
                                         <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
-                                            <span class="step-name">${s.name}</span>
+                                            <span class="step-name">${s.name} ${tagLabel}</span>
                                             <input type="checkbox" 
                                                 id="chk-${m.id}-${i}"
                                                 ${(state[m.id]?.includes(i)) ? 'checked' : ''} 
@@ -491,7 +478,7 @@
         if (i > -1) state[mid].splice(i, 1); 
         else state[mid].push(idx);
         localStorage.setItem('eoco_state', JSON.stringify(state));
-        init(); 
+        init(); // Re-render to update badges
     }
 
     function updateLayoutClasses() {
@@ -516,29 +503,90 @@
         
         if (m.library && m.library.length > 0) {
             content.innerHTML = m.library.map((section, index) => {
+                
+                // --- SMART CLUSTERING LOGIC ---
+                // 1. Get all items that are technically visible
                 const visibleItems = section.items.filter(isVisible);
                 if (visibleItems.length === 0) return ''; 
 
-                const divider = index > 0 ? '<hr class="section-divider">' : '';
-                const grid = visibleItems.map(l => `
-                    <a href="${l.val}" target="_blank" class="tool-tile">
-                        <div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.val}')"></div>
-                        <div class="tile-name">${l.name}</div>
-                    </a>`).join('');
+                // 2. If User is NOT "All Canada" and NOT "All Trades", render normally
+                const isAllCan = (userProfile.province === 'CAN');
+                const isAllTrades = (userProfile.industry === 'ALL');
+
+                if (!isAllCan && !isAllTrades) {
+                    // STANDARD RENDER (No Clustering)
+                    const grid = visibleItems.map(l => renderTile(l)).join('');
+                    const divider = index > 0 ? '<hr class="section-divider">' : '';
+                    return `<div class="lib-drawer">${divider}<div class="lib-section-title">${section.title}</div><div class="gallery-grid">${grid}</div></div>`;
+                }
+
+                // 3. CLUSTERING MODE
+                // Separate Generic Items vs Tagged Items
+                const genericItems = [];
+                const clusters = {}; // Key = Tag, Value = [Items]
+
+                visibleItems.forEach(item => {
+                    if (!item.tags || item.tags.length === 0) {
+                        genericItems.push(item);
+                    } else {
+                        // Group by FIRST tag found (Simplification for UI)
+                        const tag = item.tags[0]; 
+                        if (!clusters[tag]) clusters[tag] = [];
+                        clusters[tag].push(item);
+                    }
+                });
+
+                // Render Generic Items First
+                let html = '';
+                if (index > 0) html += '<hr class="section-divider">';
+                html += `<div class="lib-section-title">${section.title}</div>`;
                 
-                return `
-                    <div class="lib-drawer">
-                        ${divider}
-                        <div class="lib-section-title">${section.title}</div>
-                        <div class="gallery-grid">${grid}</div>
-                    </div>
-                `;
+                if (genericItems.length > 0) {
+                    html += `<div class="gallery-grid">${genericItems.map(renderTile).join('')}</div>`;
+                }
+
+                // Render Clusters (Accordions)
+                const sortedKeys = Object.keys(clusters).sort();
+                sortedKeys.forEach(tag => {
+                    // Map Tags to Friendly Names if possible
+                    const friendlyName = getFriendlyName(tag);
+                    const itemsHtml = clusters[tag].map(renderTile).join('');
+                    html += `
+                    <details class="cluster-group">
+                        <summary>${friendlyName}</summary>
+                        <div class="cluster-content">
+                            <div class="gallery-grid">${itemsHtml}</div>
+                        </div>
+                    </details>`;
+                });
+
+                return `<div class="lib-drawer">${html}</div>`;
+
             }).join('');
         } else {
             content.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">No tools available for this module.</div>';
         }
         
         p.classList.add('active'); activeLibId = mid; updateLayoutClasses();
+    }
+
+    function renderTile(l) {
+        return `
+        <a href="${l.val}" target="_blank" class="tool-tile">
+            <div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.val}')"></div>
+            <div class="tile-name">${l.name}</div>
+        </a>`;
+    }
+
+    function getFriendlyName(tag) {
+        const map = {
+            'NS': 'Nova Scotia', 'AB': 'Alberta', 'BC': 'British Columbia', 'ON': 'Ontario',
+            'NB': 'New Brunswick', 'NL': 'Newfoundland', 'PE': 'PEI', 'MB': 'Manitoba',
+            'SK': 'Saskatchewan', 'QC': 'Quebec', 'YT': 'Yukon', 'NT': 'NWT', 'NU': 'Nunavut',
+            'ELECTRICIAN': 'Electrician', 'PLUMBER': 'Plumber', 'HVAC': 'HVAC', 
+            'CARPENTER': 'Carpenter', 'ROOFER': 'Roofer', 'GENERAL': 'General Contractor'
+        };
+        return map[tag] || tag; // Fallback to tag code if name not found
     }
 
     function popOutVideo() {
