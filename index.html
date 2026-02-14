@@ -47,10 +47,13 @@
         }
         .brand-container { text-align: center; }
         .brand-name { font-size: 1.2rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin: 0; }
+        
+        /* FULL SLOGAN */
         .brand-slogan { 
             font-size: 0.65rem; font-weight: 500; letter-spacing: 1px; 
             text-transform: uppercase; color: #8DA9C4; margin-top: 4px; 
         }
+        
         .page-title-section { 
             background: rgba(255,255,255,0.05); width: 100vw; text-align: center; 
             padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1);
@@ -69,6 +72,7 @@
             transition: background 0.2s;
         }
         .profile-btn { background: transparent; border: 1px solid rgba(255,255,255,0.4); }
+        .theme-toggle:hover, .profile-btn:hover { background: #4B6685; }
 
         .workspace { display: flex; height: calc(100vh - 125px); width: 100vw; position: relative; overflow: hidden; }
         
@@ -90,11 +94,36 @@
         .workspace.vid-active #pane-modules { margin-right: 50%; }
         .workspace.both-active #pane-modules { margin-left: 33.33%; margin-right: 33.33%; }
 
+        @media (max-width: 768px) {
+            header { padding: 15px 10px 0 10px; }
+            .header-top { justify-content: center; padding-bottom: 40px; }
+            .header-controls { position: absolute; top: 40px; right: 50%; transform: translateX(50%); width: auto; }
+            .side-pane { width: 100% !important; }
+            .workspace.lib-active #pane-modules, .workspace.vid-active #pane-modules, .workspace.both-active #pane-modules { margin: 0 !important; }
+            .transcript-hint { display: none !important; } 
+        }
+
+        .video-header { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 10px; }
+        #video-display-title { font-size: 1rem; font-weight: 800; text-transform: uppercase; color: var(--primary-brand); letter-spacing: 1px; flex: 1; margin-right: 10px; }
+        .pop-out-btn { background: var(--bg-main); color: var(--text-main); border: 1px solid var(--border-grey); padding: 8px 12px; border-radius: var(--radius); cursor: pointer; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; transition: 0.2s; }
+        .pop-out-btn:hover { border-color: var(--primary-brand); color: var(--primary-brand); }
+        .transcript-hint { margin-top: 20px; padding: 15px; background: var(--bg-main); border-radius: var(--radius); border: 1px solid var(--border-grey); font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); }
+
         /* PHASE & MODULE STYLES */
         .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 1px solid var(--border-grey); }
         .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; user-select: none; }
-        .phase-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--primary-brand); letter-spacing: 1.5px; }
         
+        .phase-title-group { display: flex; align-items: center; gap: 10px; }
+        .phase-icon { width: 14px; height: 14px; transition: transform 0.3s var(--ease); fill: var(--primary-brand); }
+        .phase-section:not(.open) .phase-icon { transform: rotate(-90deg); }
+        .phase-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--primary-brand); letter-spacing: 1.5px; }
+        .phase-badge { font-size: 0.6rem; padding: 4px 10px; border-radius: var(--radius); background: var(--border-grey); color: var(--text-muted); font-weight: 600; }
+        .phase-badge.complete { background: var(--primary-brand); color: white; }
+        .phase-content { display: grid; grid-template-rows: 1fr; transition: grid-template-rows 0.4s var(--ease); }
+        .phase-section:not(.open) .phase-content { grid-template-rows: 0fr; }
+        .phase-inner { overflow: hidden; }
+
+        /* CARDS */
         .module-card { background: var(--bg-panel); border-radius: var(--radius); padding: 35px; margin: 20px 0; border: 1px solid var(--border-grey); box-shadow: var(--shadow); }
         .module-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; color: var(--text-main); }
         .module-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; font-weight: 400; }
@@ -109,47 +138,110 @@
         
         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
         .tool-tile { background: var(--bg-panel); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-grey); text-decoration: none; color: inherit; transition: 0.2s; display: block; }
+        .tool-tile:hover { transform: translateY(-2px); border-color: var(--primary-brand); box-shadow: var(--shadow); }
         .tile-img { height: 90px; background-size: cover; background-position: top; background-color: #000; opacity: 0.9; }
         .tile-name { padding: 10px; font-size: 0.7rem; font-weight: 700; text-align: center; text-transform: uppercase; color: var(--text-muted); }
         .action-btn, .close-btn { background: var(--primary-brand); color: white; border: none; padding: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; border-radius: var(--radius); transition: background 0.2s; }
+        .action-btn:hover { background: #2A4058; }
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-grey); }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
+        .lib-drawer { margin-bottom: 10px; }
+        .lib-section-title { text-align: center; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 20px; margin-top: 10px; color: var(--primary-brand); letter-spacing: 1px; }
+        .section-divider { height: 1px; background: var(--border-grey); width: 100%; margin: 30px 0; border: none; }
+
+        /* CLUSTER STYLES */
+        details.cluster-group { margin-top: 15px; border: 1px solid var(--border-grey); border-radius: var(--radius); overflow: hidden; }
+        details.cluster-group summary { 
+            background: var(--bg-main); padding: 12px; cursor: pointer; 
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-main);
+            list-style: none; display: flex; justify-content: space-between; align-items: center;
+        }
+        details.cluster-group summary::-webkit-details-marker { display: none; }
+        details.cluster-group summary::after { content: '+'; font-size: 1.2em; color: var(--primary-brand); }
+        details.cluster-group[open] summary::after { content: '-'; }
+        details.cluster-group .cluster-content { padding: 15px; background: var(--bg-panel); border-top: 1px solid var(--border-grey); }
+
         /* ONBOARDING MODAL */
         #modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(28, 37, 65, 0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
         #modal-overlay.active { display: flex; }
-        .modal-card { background: var(--bg-panel); padding: 40px; border-radius: var(--radius); width: 90%; max-width: 500px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid var(--border-grey); position: relative; }
+        .modal-card { background: var(--bg-panel); padding: 40px; border-radius: var(--radius); width: 90%; max-width: 500px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid var(--border-grey); }
         .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; color: var(--primary-brand); letter-spacing: 1px; text-transform: uppercase; }
-        .close-modal-x { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; cursor: pointer; color: var(--text-muted); font-weight: bold; }
+        .modal-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 30px; }
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-label { display: block; font-size: 0.7rem; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; color: var(--text-main); letter-spacing: 1px; }
         .form-select { width: 100%; padding: 12px; border: 1px solid var(--border-grey); border-radius: var(--radius); font-size: 1rem; background: var(--bg-main); color: var(--text-main); border-left: 4px solid var(--primary-brand); }
+        .start-btn { background: var(--primary-brand); color: white; border: none; padding: 16px; width: 100%; border-radius: var(--radius); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; margin-top: 10px; }
+        .start-btn:hover { background: #2A4058; }
+
     </style>
 </head>
 <body data-theme="light">
 
 <div id="modal-overlay">
     <div class="modal-card">
-        <span class="close-modal-x" onclick="closeProfile()">×</span>
-        <div class="modal-title">Profile Settings</div>
+        <div class="modal-title">Welcome to EOCO</div>
+        <div class="modal-subtitle">Customize your roadmap to your business.</div>
         
         <div class="form-group">
-            <label class="form-label">Location</label>
-            <select class="form-select" id="user-province"></select>
+            <label class="form-label">Region</label>
+            <select class="form-select" id="user-province">
+                <option value="CAN">All of Canada (National)</option>
+                <option disabled>--- Provinces ---</option>
+                <option value="AB">Alberta (AB)</option>
+                <option value="BC">British Columbia (BC)</option>
+                <option value="MB">Manitoba (MB)</option>
+                <option value="NB">New Brunswick (NB)</option>
+                <option value="NL">Newfoundland & Labrador (NL)</option>
+                <option value="NS">Nova Scotia (NS)</option>
+                <option value="ON">Ontario (ON)</option>
+                <option value="PE">Prince Edward Island (PE)</option>
+                <option value="QC">Quebec (QC)</option>
+                <option value="SK">Saskatchewan (SK)</option>
+                <option disabled>--- Territories ---</option>
+                <option value="NT">Northwest Territories (NT)</option>
+                <option value="NU">Nunavut (NU)</option>
+                <option value="YT">Yukon (YT)</option>
+            </select>
         </div>
         
         <div class="form-group">
-            <label class="form-label">Industry</label>
-            <select class="form-select" id="user-industry"></select>
+            <label class="form-label">Industry / Business Type</label>
+            <select class="form-select" id="user-industry">
+                <option value="ALL">Show Everything</option>
+                <option disabled>--- Construction & Trades ---</option>
+                <option value="General">General Contractor</option>
+                <option value="Electrician">Electrician</option>
+                <option value="Plumber">Plumber</option>
+                <option value="HVAC">HVAC Technician</option>
+                <option value="Carpenter">Carpenter / Framer</option>
+                <option value="Roofer">Roofer</option>
+                <option value="Landscaper">Landscaper</option>
+                <option value="Painter">Painter / Decorator</option>
+                <option value="Welder">Welder / Metalwork</option>
+                <option value="Flooring">Flooring / Tile</option>
+                <option value="Drywall">Drywall / Insulation</option>
+                <option value="Mason">Masonry / Bricklaying</option>
+                <option disabled>--- Other Businesses ---</option>
+                <option value="Consultant">Professional / Consultant</option>
+                <option value="RealEstate">Real Estate Agent / Landlord</option>
+                <option value="Ecommerce">E-Commerce / Online Store</option>
+                <option value="Health">Health & Beauty / Wellness</option>
+            </select>
         </div>
 
         <div class="form-group">
             <label class="form-label">Software Preference</label>
-            <select class="form-select" id="user-software"></select>
+            <select class="form-select" id="user-software">
+                <option value="ALL">I haven't decided (Show All)</option>
+                <option value="QBO">QuickBooks Online</option>
+                <option value="XERO">Xero</option>
+                <option value="FRESHBOOKS">FreshBooks</option>
+            </select>
         </div>
 
-        <button class="action-btn" style="width:100%; padding:20px;" onclick="saveProfile()">Build My Roadmap</button>
+        <button class="start-btn" onclick="saveProfile()">Build My Roadmap</button>
     </div>
 </div>
 
@@ -166,35 +258,28 @@
     </div>
     <div class="page-title-section"><h1 class="page-title">The Foundational Roadmap</h1></div>
 </header>
-
 <div class="workspace" id="main-ws">
     <section id="pane-library" class="side-pane">
         <button class="close-btn" style="margin-bottom:10px;" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button>
-        <div id="library-content"></div>
-    </section>
+        <div id="library-content"></div> </section>
     
-    <section id="pane-modules">
-        <div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">Syncing Roadmap...</div>
-    </section>
-
+    <section id="pane-modules"><div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">Syncing Roadmap...</div></section>
     <section id="pane-video" class="side-pane">
         <button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button>
         <div class="video-header">
-            <div id="video-display-title" style="font-size: 1rem; font-weight: 800; text-transform: uppercase; color: var(--primary-brand);">Tutorial</div>
-            <button class="action-btn" style="padding: 8px 12px; font-size: 0.6rem;" onclick="popOutVideo()">Pop Out</button>
+            <div id="video-display-title">Tutorial</div>
+            <button class="pop-out-btn" onclick="popOutVideo()">Pop Out</button>
         </div>
         <div class="video-wrapper" id="video-frame"></div>
+        <div class="transcript-hint"><strong>Pro-Tip:</strong> Enable <strong>CC</strong> for auto-captions or pop out this window to watch while you work.</div>
     </section>
 </div>
-
 <script>
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv' + '&t=' + Date.now();
-    let modules = [], metadata = { provinces: [], softwares: [], industries: [] };
+    let modules = [];
     const state = JSON.parse(localStorage.getItem('eoco_state')) || {};
     let userProfile = JSON.parse(localStorage.getItem('eoco_profile')) || null;
     let activeLibId = null, currentVideoId = null;
-
-    window.onload = init;
 
     function toggleTheme() {
         const next = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
@@ -203,24 +288,29 @@
         localStorage.setItem('eoco_theme', next);
     }
 
-    function closeProfile() { document.getElementById('modal-overlay').classList.remove('active'); }
+    function checkOnboarding() {
+        if (!userProfile) {
+            document.getElementById('modal-overlay').classList.add('active');
+        } else {
+            init();
+        }
+    }
 
     function saveProfile() {
-        userProfile = { 
-            province: document.getElementById('user-province').value, 
-            industry: document.getElementById('user-industry').value, 
-            software: document.getElementById('user-software').value 
-        };
+        const prov = document.getElementById('user-province').value;
+        const ind = document.getElementById('user-industry').value;
+        const soft = document.getElementById('user-software').value;
+        userProfile = { province: prov, industry: ind, software: soft };
         localStorage.setItem('eoco_profile', JSON.stringify(userProfile));
-        closeProfile();
-        render(); 
+        document.getElementById('modal-overlay').classList.remove('active');
+        init(); 
     }
 
     function openProfile() {
         if(userProfile) {
             document.getElementById('user-province').value = userProfile.province;
             document.getElementById('user-industry').value = userProfile.industry;
-            document.getElementById('user-software').value = userProfile.software;
+            document.getElementById('user-software').value = userProfile.software || 'ALL';
         }
         document.getElementById('modal-overlay').classList.add('active');
     }
@@ -232,158 +322,326 @@
             const res = await fetch(SHEET_URL); 
             const text = await res.text(); 
             const rows = parseCSV(text);
-            let currentMod = null; modules = []; 
+            let currentMod = null;
+            modules = []; 
 
             rows.forEach(row => {
                 const key = row[0]?.toString().trim().toUpperCase(); 
-                const b = row[1], c = row[2];
-
-                if (key === 'METADATA') {
-                    metadata[b.toLowerCase()] = c.split(',').filter(x => x);
-                    return;
-                }
+                const b = row[1]; 
+                const c = row[2];
                 
                 if (key === 'ID') { 
                     if (currentMod) modules.push(currentMod); 
                     currentMod = { id: b, phase: 'PHASE 1', title: '', description: '', video: '', library: [], steps: [], tags: [] }; 
                 }
                 if (!currentMod) return;
-                if (key === 'PHASE') currentMod.phase = b;
-                if (key === 'TITLE') { const p = parseTaggedItem(b); currentMod.title = p.name; currentMod.tags = p.tags; }
+                
+                if (key === 'PHASE') currentMod.phase = b || 'PHASE 1';
+                
+                if (key === 'TITLE') {
+                    const parsed = parseTaggedItem(b, '');
+                    currentMod.title = parsed.name;
+                    currentMod.tags = parsed.tags; 
+                }
+
                 if (key === 'DESCRIPTION') currentMod.description = b;
                 if (key === 'VIDEO') currentMod.video = c;
-                if (key === 'SECTION') currentMod.library.push({ title: b, items: [] });
-                if (key === 'TOOL') {
-                    let last = currentMod.library[currentMod.library.length - 1] || { title: "Tools", items: [] };
-                    if (!currentMod.library.length) currentMod.library.push(last);
-                    last.items.push(parseTaggedItem(b, c));
+                
+                if (key === 'SECTION') {
+                    currentMod.library.push({ title: b, items: [] });
                 }
-                if (key === 'STEP') currentMod.steps.push(parseTaggedItem(b, c));
+                if (key === 'TOOL') {
+                    let lastSection = currentMod.library[currentMod.library.length - 1];
+                    if (!lastSection) {
+                        lastSection = { title: "Module Library", items: [] };
+                        currentMod.library.push(lastSection);
+                    }
+                    lastSection.items.push(parseTaggedItem(b, c));
+                }
+
+                if (key === 'STEP') {
+                    currentMod.steps.push(parseTaggedItem(b, c));
+                }
             });
-            if (currentMod) modules.push(currentMod); 
             
-            buildDropdowns();
-            if (!userProfile) document.getElementById('modal-overlay').classList.add('active');
+            if (currentMod) modules.push(currentMod); 
             render();
         } catch (e) { console.error(e); }
     }
 
-    function buildDropdowns() {
-        const pSel = document.getElementById('user-province');
-        pSel.innerHTML = '<option value="CAN">National / All Canada</option>';
-        metadata.provinces.forEach(p => pSel.innerHTML += `<option value="${p}">${getFriendly(p)}</option>`);
-        
-        const iSel = document.getElementById('user-industry');
-        iSel.innerHTML = '<option value="ALL">Show All Industries</option>';
-        metadata.industries.forEach(i => iSel.innerHTML += `<option value="${i}">${i.charAt(0)+i.slice(1).toLowerCase()}</option>`);
-        
-        const sSel = document.getElementById('user-software');
-        sSel.innerHTML = '<option value="ALL">Undecided / Show All</option>';
-        metadata.softwares.forEach(s => sSel.innerHTML += `<option value="${s}">${getFriendly(s)}</option>`);
+    function parseTaggedItem(name, value) {
+        const tagMatch = name.match(/\{([^}]+)\}/);
+        let tags = [];
+        let cleanName = name;
 
-        if (userProfile) {
-            pSel.value = userProfile.province; iSel.value = userProfile.industry; sSel.value = userProfile.software;
+        if (tagMatch) {
+            tags = tagMatch[1].split(',').map(t => t.trim().toUpperCase()); 
+            cleanName = name.replace(/\{[^}]+\}/g, '').trim(); 
         }
-    }
 
-    function getFriendly(tag) {
-        const map = {'NS':'Nova Scotia','AB':'Alberta','BC':'British Columbia','ON':'Ontario','QBO':'QuickBooks Online'};
-        return map[tag] || tag;
-    }
-
-    function parseTaggedItem(name, value = "") {
-        const m = name.match(/\{([^}]+)\}/);
-        let tags = m ? m[1].split(',').map(t => t.trim().toUpperCase()) : [];
-        let clean = name.replace(/\{[^}]+\}/g, '').trim();
-        return { name: clean, val: value, tags: tags };
+        return { name: cleanName, val: value, tags: tags };
     }
 
     function isVisible(item) {
-        if (!item.tags || !item.tags.length) return true;
-        if (!userProfile) return true;
-        const p = userProfile.province, i = userProfile.industry, s = userProfile.software;
-        const iSoft = item.tags.filter(t => metadata.softwares.includes(t));
-        if (iSoft.length && s !== 'ALL' && !iSoft.includes(s)) return false;
-        const iProv = item.tags.filter(t => metadata.provinces.includes(t));
-        if (iProv.length && p !== 'CAN' && !iProv.includes(p)) return false;
-        const iInd = item.tags.filter(t => !metadata.provinces.includes(t) && !metadata.softwares.includes(t));
-        if (iInd.length && i !== 'ALL' && !iInd.includes(i)) return false;
-        return true;
+        if (!item.tags || item.tags.length === 0) return true; 
+        if (!userProfile) return true; 
+
+        const userProv = userProfile.province.toUpperCase();
+        const userInd = userProfile.industry.toUpperCase();
+        const userSoft = (userProfile.software || 'ALL').toUpperCase();
+        
+        const allowAllProv = (userProv === 'CAN');
+        const allowAllTrade = (userInd === 'ALL');
+        const allowAllSoft = (userSoft === 'ALL');
+
+        // Check for Software Tags
+        const softwareTags = ['QBO', 'XERO', 'FRESHBOOKS'];
+        const isSoftwareTag = item.tags.some(tag => softwareTags.includes(tag));
+        
+        if (isSoftwareTag) {
+            if (allowAllSoft) return true;
+            return item.tags.includes(userSoft);
+        }
+
+        const directMatch = item.tags.some(tag => tag === userProv || tag === userInd);
+        if (allowAllProv || allowAllTrade) return true; 
+        
+        return directMatch;
     }
 
     function parseCSV(t) {
-        const re = /(?!\s*$)\s*(?:"([^"]*(?:""[^"]*)*)"|([^",\r\n]*))\s*(?:,|$)/g, res = [];
+        const re = /(?!\s*$)\s*(?:"([^"]*(?:""[^"]*)*)"|([^",\r\n]*))\s*(?:,|$)/g; 
+        const res = [];
         t.split(/\r?\n/).forEach(l => { 
             const r = []; 
-            l.replace(re, (m, p1, p2) => { r.push(p1 !== undefined ? p1.replace(/""/g, '"') : p2); return ''; }); 
+            l.replace(re, (m, p1, p2) => { 
+                r.push(p1 !== undefined ? p1.replace(/""/g, '"') : p2); 
+                return ''; 
+            }); 
             if(r.length) res.push(r); 
-        }); return res;
+        }); 
+        return res;
     }
 
     function render() {
         const list = document.getElementById('module-list');
-        const grouped = modules.reduce((acc, m) => { if (!acc[m.phase]) acc[m.phase] = []; acc[m.phase].push(m); return acc; }, {});
-        list.innerHTML = Object.keys(grouped).map(phase => {
-            const vis = grouped[phase].filter(isVisible); if (!vis.length) return '';
-            return `<div class="phase-section open"><div class="phase-header"><span class="phase-title">${phase}</span></div>
-            ${vis.map(m => `
-                <div class="module-card">
-                    <div class="module-title">${m.title}</div>
-                    <div class="module-desc">${m.description}</div>
-                    ${m.steps.filter(isVisible).map((s, idx) => `
-                        <div class="step-container">
-                            <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
-                                <span class="step-name">${s.name}</span>
-                                <input type="checkbox" onclick="event.stopPropagation(); toggleCheck('${m.id}', ${idx})" ${state[m.id]?.includes(idx) ? 'checked' : ''}>
-                            </div>
-                            <div class="step-content"><div class="content-inner">${s.val}</div></div>
-                        </div>`).join('')}
-                    <div class="btn-row"><button class="action-btn" onclick="toggleLibrary('${m.id}')">Tools</button><button class="action-btn" onclick="toggleVideo('${m.id}')">Video</button></div>
-                </div>`).join('')}</div>`;
-        }).join('');
-    }
+        const grouped = modules.reduce((acc, m) => { 
+            if (!acc[m.phase]) acc[m.phase] = []; 
+            acc[m.phase].push(m); 
+            return acc; 
+        }, {});
 
-    function toggleCheck(mid, idx) {
-        if (!state[mid]) state[mid] = []; const i = state[mid].indexOf(idx);
-        if (i > -1) state[mid].splice(i, 1); else state[mid].push(idx);
-        localStorage.setItem('eoco_state', JSON.stringify(state));
-        render(); 
-    }
+        list.innerHTML = Object.keys(grouped).map(phaseName => {
+            let totalSteps = 0, completedSteps = 0;
+            
+            const visibleModules = grouped[phaseName].filter(isVisible);
+            if (visibleModules.length === 0) return ''; 
 
-    function updateLayout() {
-        const ws = document.getElementById('main-ws'), lib = document.getElementById('pane-library').classList.contains('active'), vid = document.getElementById('pane-video').classList.contains('active');
-        ws.className = 'workspace'; if (lib && vid) ws.classList.add('both-active'); else if (lib) ws.classList.add('lib-active'); else if (vid) ws.classList.add('vid-active');
-    }
+            visibleModules.forEach(m => { 
+                const visibleSteps = m.steps.filter(isVisible);
+                totalSteps += visibleSteps.length; 
+                const checkedIndices = state[m.id] || [];
+                const visibleCheckCount = visibleSteps.filter((s, originalIndex) => {
+                     const realIndex = m.steps.indexOf(s);
+                     return checkedIndices.includes(realIndex);
+                }).length;
 
-    function toggleLibrary(mid) { 
-        const p = document.getElementById('pane-library'), c = document.getElementById('library-content');
-        if (!mid || (p.classList.contains('active') && activeLibId === mid)) { p.classList.remove('active'); activeLibId = null; updateLayout(); return; }
-        const m = modules.find(mod => mod.id === mid); activeLibId = mid;
-        c.innerHTML = m.library.map(sec => {
-            const items = sec.items.filter(isVisible); if (!items.length) return '';
-            let html = `<div style="text-align:center; font-weight:800; font-size:0.9rem; text-transform:uppercase; margin-bottom:20px; color:var(--primary-brand);">${sec.title}</div>`;
-            const clusters = {}, generic = [];
-            items.forEach(item => {
-                const tags = item.tags.filter(t => metadata.provinces.includes(t) || metadata.industries.includes(t));
-                if (tags.length && (userProfile.province === 'CAN' || userProfile.industry === 'ALL')) { if (!clusters[tags[0]]) clusters[tags[0]] = []; clusters[tags[0]].push(item); } else generic.push(item);
+                completedSteps += visibleCheckCount;
             });
-            html += `<div class="gallery-grid">${generic.map(i => `<a href="${i.val}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image:url('https://image.thum.io/get/width/400/crop/800/noanimate/${i.val}')"></div><div class="tile-name">${i.name}</div></a>`).join('')}</div>`;
-            Object.keys(clusters).sort().forEach(tag => { html += `<details class="cluster-group"><summary style="padding:12px; font-weight:700; background:var(--bg-main); border-top:1px solid var(--border-grey);">${getFriendly(tag)}</summary><div style="padding:15px;"><div class="gallery-grid">${clusters[tag].map(i => `<a href="${i.val}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image:url('https://image.thum.io/get/width/400/crop/800/noanimate/${i.val}')"></div><div class="tile-name">${i.name}</div></a>`).join('')}</div></div></details>`; });
-            return html;
+
+            const phaseId = `phase-${phaseName.replace(/[^a-zA-Z0-9]/g, '-')}`;
+
+            return `
+            <div class="phase-section open" id="${phaseId}">
+                <div class="phase-header" onclick="this.parentElement.classList.toggle('open')" title="Click to collapse/expand">
+                    <div class="phase-title-group">
+                        <svg class="phase-icon" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                        <span class="phase-title">${phaseName}</span>
+                    </div>
+                    <span class="phase-badge ${completedSteps === totalSteps && totalSteps > 0 ? 'complete' : ''}">
+                        ${completedSteps}/${totalSteps}
+                    </span>
+                </div>
+                <div class="phase-content">
+                    <div class="phase-inner">
+                        ${visibleModules.map(m => `
+                            <div class="module-card" id="mod-${m.id}">
+                                <div class="module-title">${m.title}</div>
+                                <div class="module-desc">${m.description || ''}</div>
+                                ${m.steps.map((s, i) => {
+                                    if (!isVisible(s)) return ''; 
+                                    let tagLabel = '';
+                                    if ((userProfile.province === 'CAN' || userProfile.industry === 'ALL') && s.tags.length > 0) {
+                                        tagLabel = `<span style="font-size:0.6rem; background:#eee; padding:2px 6px; border-radius:4px; margin-left:8px; color:#666;">${s.tags.join(', ')}</span>`;
+                                    }
+                                    return `
+                                    <div class="step-container">
+                                        <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
+                                            <span class="step-name">${s.name} ${tagLabel}</span>
+                                            <input type="checkbox" 
+                                                id="chk-${m.id}-${i}"
+                                                ${(state[m.id]?.includes(i)) ? 'checked' : ''} 
+                                                onclick="event.stopPropagation(); toggleCheck('${m.id}', ${i}, '${phaseId}')">
+                                        </div>
+                                        <div class="step-content"><div class="content-inner">${s.val}</div></div>
+                                    </div>
+                                `}).join('')}
+                                <div class="btn-row">
+                                    <button class="action-btn" onclick="toggleLibrary('${m.id}')">Links & Tools</button>
+                                    <button class="action-btn" onclick="toggleVideo('${m.id}')">Watch Video</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>`;
         }).join('');
-        p.classList.add('active'); updateLayout();
+    }
+
+    function toggleCheck(mid, idx, phaseId) {
+        if (!state[mid]) state[mid] = [];
+        const i = state[mid].indexOf(idx);
+        if (i > -1) state[mid].splice(i, 1); 
+        else state[mid].push(idx);
+        localStorage.setItem('eoco_state', JSON.stringify(state));
+        init(); 
+    }
+
+    function updateLayoutClasses() {
+        const ws = document.getElementById('main-ws');
+        const libActive = document.getElementById('pane-library').classList.contains('active');
+        const vidActive = document.getElementById('pane-video').classList.contains('active');
+        ws.classList.remove('lib-active', 'vid-active', 'both-active');
+        if (libActive && vidActive) ws.classList.add('both-active');
+        else if (libActive) ws.classList.add('lib-active');
+        else if (vidActive) ws.classList.add('vid-active');
+    }
+
+    function toggleLibrary(mid) {
+        const p = document.getElementById('pane-library');
+        const content = document.getElementById('library-content');
+        
+        if (!mid || (p.classList.contains('active') && activeLibId === mid)) { 
+            p.classList.remove('active'); activeLibId = null; updateLayoutClasses(); return; 
+        }
+        
+        const m = modules.find(mod => mod.id === mid);
+        
+        if (m.library && m.library.length > 0) {
+            content.innerHTML = m.library.map((section, index) => {
+                
+                const visibleItems = section.items.filter(isVisible);
+                if (visibleItems.length === 0) return ''; 
+
+                const isAllCan = (userProfile.province === 'CAN');
+                const isAllTrades = (userProfile.industry === 'ALL');
+
+                if (!isAllCan && !isAllTrades) {
+                    const grid = visibleItems.map(l => renderTile(l)).join('');
+                    const divider = index > 0 ? '<hr class="section-divider">' : '';
+                    return `<div class="lib-drawer">${divider}<div class="lib-section-title">${section.title}</div><div class="gallery-grid">${grid}</div></div>`;
+                }
+
+                const genericItems = [];
+                const clusters = {}; 
+
+                visibleItems.forEach(item => {
+                    if (!item.tags || item.tags.length === 0) {
+                        genericItems.push(item);
+                    } else {
+                        const tag = item.tags[0]; 
+                        if (!clusters[tag]) clusters[tag] = [];
+                        clusters[tag].push(item);
+                    }
+                });
+
+                let html = '';
+                if (index > 0) html += '<hr class="section-divider">';
+                html += `<div class="lib-section-title">${section.title}</div>`;
+                
+                if (genericItems.length > 0) {
+                    html += `<div class="gallery-grid">${genericItems.map(renderTile).join('')}</div>`;
+                }
+
+                const sortedKeys = Object.keys(clusters).sort();
+                sortedKeys.forEach(tag => {
+                    const friendlyName = getFriendlyName(tag);
+                    const itemsHtml = clusters[tag].map(renderTile).join('');
+                    html += `
+                    <details class="cluster-group">
+                        <summary>${friendlyName}</summary>
+                        <div class="cluster-content">
+                            <div class="gallery-grid">${itemsHtml}</div>
+                        </div>
+                    </details>`;
+                });
+
+                return `<div class="lib-drawer">${html}</div>`;
+
+            }).join('');
+        } else {
+            content.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">No tools available for this module.</div>';
+        }
+        
+        p.classList.add('active'); activeLibId = mid; updateLayoutClasses();
+    }
+
+    function renderTile(l) {
+        return `
+        <a href="${l.val}" target="_blank" class="tool-tile">
+            <div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.val}')"></div>
+            <div class="tile-name">${l.name}</div>
+        </a>`;
+    }
+
+    function getFriendlyName(tag) {
+        const map = {
+            'NS': 'Nova Scotia', 'AB': 'Alberta', 'BC': 'British Columbia', 'ON': 'Ontario',
+            'NB': 'New Brunswick', 'NL': 'Newfoundland', 'PE': 'PEI', 'MB': 'Manitoba',
+            'SK': 'Saskatchewan', 'QC': 'Quebec', 'YT': 'Yukon', 'NT': 'NWT', 'NU': 'Nunavut',
+            'ELECTRICIAN': 'Electrician', 'PLUMBER': 'Plumber', 'HVAC': 'HVAC', 
+            'CARPENTER': 'Carpenter', 'ROOFER': 'Roofer', 'GENERAL': 'General Contractor',
+            'CONSULTANT': 'Consultant', 'REALESTATE': 'Real Estate', 'ECOMMERCE': 'E-Commerce', 'HEALTH': 'Health & Beauty'
+        };
+        return map[tag] || tag; 
+    }
+
+    function popOutVideo() {
+        if (!currentVideoId) return;
+        const width = 640; const height = 360;
+        const left = (window.innerWidth / 2) - (width / 2); 
+        const top = (window.innerHeight / 2) - (height / 2);
+        window.open(`https://www.youtube.com/embed/${currentVideoId}?autoplay=1&cc_load_policy=1`, 'YouTubePopOut', `width=${width},height=${height},top=${top},left=${left},menubar=no,status=no,titlebar=no`);
+        toggleVideo(null);
     }
 
     async function toggleVideo(mid) {
         const p = document.getElementById('pane-video'), f = document.getElementById('video-frame');
-        if (!mid || p.classList.contains('active')) { p.classList.remove('active'); updateLayout(); return; }
+        const iframe = f.querySelector('iframe');
         const m = modules.find(mod => mod.id === mid);
-        let id = m.video.includes('v=') ? m.video.split('v=')[1].split('&')[0] : m.video.split('/').pop();
-        f.innerHTML = `<iframe width="100%" height="300" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
-        p.classList.add('active'); updateLayout();
+        
+        if (!mid || p.classList.contains('active')) {
+            p.classList.remove('active'); updateLayoutClasses();
+            if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            return;
+        }
+        
+        let id = m.video.includes('v=') ? m.video.split('v=')[1]?.split('&')[0] : m.video.split('/').pop();
+        try {
+            const response = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`);
+            const data = await response.json();
+            document.getElementById('video-display-title').innerText = data.title || m.title;
+        } catch (e) { document.getElementById('video-display-title').innerText = m.title; }
+        
+        if (currentVideoId !== id) {
+            f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&cc_load_policy=1" allow="autoplay; fullscreen"></iframe>`;
+            currentVideoId = id;
+        } else if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        
+        p.classList.add('active'); updateLayoutClasses();
     }
 
-    function popOutVideo() { /* Same as before */ }
+    checkOnboarding();
 </script>
 </body>
 </html>
