@@ -47,12 +47,7 @@
         }
         .brand-container { text-align: center; }
         .brand-name { font-size: 1.2rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin: 0; }
-        
-        /* FULL SLOGAN */
-        .brand-slogan { 
-            font-size: 0.65rem; font-weight: 500; letter-spacing: 1px; 
-            text-transform: uppercase; color: #8DA9C4; margin-top: 4px; 
-        }
+        .brand-slogan { font-size: 0.65rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: #8DA9C4; margin-top: 4px; }
         
         .page-title-section { 
             background: rgba(255,255,255,0.05); width: 100vw; text-align: center; 
@@ -60,11 +55,7 @@
         }
         .page-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: white; margin: 0; }
 
-        /* HEADER CONTROLS */
-        .header-controls { 
-            display: flex; gap: 10px; align-items: center; 
-            position: absolute; right: 0; top: 0;
-        }
+        .header-controls { display: flex; gap: 10px; align-items: center; position: absolute; right: 0; top: 0; }
         .theme-toggle, .profile-btn { 
             background: var(--primary-brand); color: white; 
             border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: var(--radius); 
@@ -74,9 +65,9 @@
         .profile-btn { background: transparent; border: 1px solid rgba(255,255,255,0.4); }
         .theme-toggle:hover, .profile-btn:hover { background: #4B6685; }
 
+        /* WORKSPACE & PANELS */
         .workspace { display: flex; height: calc(100vh - 125px); width: 100vw; position: relative; overflow: hidden; }
         
-        /* PANELS */
         .side-pane { 
             position: absolute; top: 0; height: 100%; background: var(--bg-panel); 
             border-color: var(--border-grey); transition: transform 0.5s var(--ease); 
@@ -166,8 +157,6 @@
         /* ONBOARDING MODAL */
         #modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(28, 37, 65, 0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
         #modal-overlay.active { display: flex; }
-        
-        /* UPDATED MODAL STYLES FOR RELATIVE POSITIONING OF X BUTTON */
         .modal-card { background: var(--bg-panel); padding: 40px; border-radius: var(--radius); width: 90%; max-width: 500px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid var(--border-grey); position: relative; }
         
         .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; color: var(--primary-brand); letter-spacing: 1px; text-transform: uppercase; }
@@ -178,7 +167,7 @@
         .start-btn { background: var(--primary-brand); color: white; border: none; padding: 16px; width: 100%; border-radius: var(--radius); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; margin-top: 10px; }
         .start-btn:hover { background: #2A4058; }
 
-        /* CLOSE X BUTTON STYLE */
+        /* CLOSE X BUTTON */
         .close-modal-x {
             position: absolute;
             top: 20px;
@@ -276,13 +265,18 @@
     </section>
 </div>
 <script>
+    // --- SETTINGS ---
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv' + '&t=' + Date.now();
+    
+    // TAG LISTS (Used to filter the dropdown & logic)
+    const PROVINCE_TAGS = ['AB', 'BC', 'ON', 'NS', 'NB', 'NL', 'PE', 'MB', 'SK', 'QC', 'YT', 'NT', 'NU', 'CAN'];
+    const SOFTWARE_TAGS = ['QBO', 'XERO', 'FRESHBOOKS'];
+
     let modules = [];
     const state = JSON.parse(localStorage.getItem('eoco_state')) || {};
     let userProfile = JSON.parse(localStorage.getItem('eoco_profile')) || null;
     let activeLibId = null, currentVideoId = null;
 
-    // Initialize immediately to start fetching data
     window.onload = function() {
         init();
     };
@@ -294,7 +288,6 @@
         localStorage.setItem('eoco_theme', next);
     }
 
-    // NEW FUNCTION: Just closes the modal
     function closeProfile() {
         document.getElementById('modal-overlay').classList.remove('active');
     }
@@ -306,15 +299,14 @@
         userProfile = { province: prov, industry: ind, software: soft };
         localStorage.setItem('eoco_profile', JSON.stringify(userProfile));
         document.getElementById('modal-overlay').classList.remove('active');
-        render(); // Re-render with new settings (no need to fetch again)
+        render(); 
     }
 
     function openProfile() {
         if(userProfile) {
             document.getElementById('user-province').value = userProfile.province;
-            // Industry is dynamic, so we just set value. If list isn't loaded yet, it waits.
             if (document.getElementById('user-industry').options.length > 1) {
-                 document.getElementById('user-industry').value = userProfile.industry;
+                document.getElementById('user-industry').value = userProfile.industry;
             }
             document.getElementById('user-software').value = userProfile.software || 'ALL';
         }
@@ -336,11 +328,10 @@
                 const b = row[1]; 
                 const c = row[2];
                 
-                // --- NEW: DYNAMIC INDUSTRY LOADER ---
+                // DYNAMIC INDUSTRY POPULATION
                 if (key === 'METADATA' && b === 'INDUSTRIES') {
                     populateIndustries(c);
                 }
-                // ------------------------------------
 
                 if (key === 'ID') { 
                     if (currentMod) modules.push(currentMod); 
@@ -378,7 +369,6 @@
             
             if (currentMod) modules.push(currentMod); 
             
-            // Check Onboarding AFTER data load (so dropdown is populated)
             if (!userProfile) {
                 document.getElementById('modal-overlay').classList.add('active');
             }
@@ -387,25 +377,26 @@
         } catch (e) { console.error(e); }
     }
 
-    // NEW HELPER: Populates the Industry Dropdown
     function populateIndustries(csvString) {
         const select = document.getElementById('user-industry');
-        select.innerHTML = '<option value="ALL">Show Everything</option>'; // Reset
+        select.innerHTML = '<option value="ALL">Show Everything</option>'; 
         
         if (csvString) {
-            const inds = csvString.split(',').sort();
-            inds.forEach(i => {
-                const val = i.trim();
+            const rawTags = csvString.split(',').sort();
+            rawTags.forEach(tag => {
+                const val = tag.trim();
                 if (!val) return;
+                
+                // FILTER: Do not show Province or Software tags in this list
+                if (PROVINCE_TAGS.includes(val) || SOFTWARE_TAGS.includes(val)) return;
+
                 const opt = document.createElement('option');
                 opt.value = val;
-                // Capitalize: "ELECTRICIAN" -> "Electrician"
                 opt.textContent = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
                 select.appendChild(opt);
             });
         }
         
-        // Restore selection if profile exists
         if (userProfile && userProfile.industry) {
             select.value = userProfile.industry;
         }
@@ -424,31 +415,49 @@
         return { name: cleanName, val: value, tags: tags };
     }
 
+    // --- STRICT FILTER LOGIC ---
     function isVisible(item) {
+        // If no tags, it's visible to everyone
         if (!item.tags || item.tags.length === 0) return true; 
         if (!userProfile) return true; 
 
         const userProv = userProfile.province.toUpperCase();
         const userInd = userProfile.industry.toUpperCase();
         const userSoft = (userProfile.software || 'ALL').toUpperCase();
-        
-        const allowAllProv = (userProv === 'CAN');
-        const allowAllTrade = (userInd === 'ALL');
-        const allowAllSoft = (userSoft === 'ALL');
 
-        // Check for Software Tags
-        const softwareTags = ['QBO', 'XERO', 'FRESHBOOKS'];
-        const isSoftwareTag = item.tags.some(tag => softwareTags.includes(tag));
-        
-        if (isSoftwareTag) {
-            if (allowAllSoft) return true;
-            return item.tags.includes(userSoft);
+        // 1. SOFTWARE CHECK
+        const itemSoftTags = item.tags.filter(t => SOFTWARE_TAGS.includes(t));
+        if (itemSoftTags.length > 0) {
+            // If user hasn't decided (ALL), generally show all options
+            // If user HAS decided, item must match
+            if (userSoft !== 'ALL' && !itemSoftTags.includes(userSoft)) return false;
         }
 
-        const directMatch = item.tags.some(tag => tag === userProv || tag === userInd);
-        if (allowAllProv || allowAllTrade) return true; 
+        // 2. PROVINCE CHECK
+        const itemProvTags = item.tags.filter(t => PROVINCE_TAGS.includes(t));
+        if (itemProvTags.length > 0) {
+            // Item is specific to a province (e.g. {AB})
+            // If user is National (CAN), hide specific provincial tools? 
+            // Or show them? Usually clean to hide them unless requested.
+            if (userProv === 'CAN') return false; 
+            
+            // If user is specific (e.g. NS), item must match NS
+            if (!itemProvTags.includes(userProv)) return false;
+        }
+
+        // 3. INDUSTRY CHECK
+        // Any tag that isn't Province or Software is considered an Industry Tag
+        const itemIndTags = item.tags.filter(t => !PROVINCE_TAGS.includes(t) && !SOFTWARE_TAGS.includes(t));
         
-        return directMatch;
+        if (itemIndTags.length > 0) {
+            // Item is specific to a trade (e.g. {PLUMBER})
+            if (userInd === 'ALL') return true; // Show everything
+            
+            // If user selected a trade, item must match
+            if (!itemIndTags.includes(userInd)) return false;
+        }
+
+        return true;
     }
 
     function parseCSV(t) {
@@ -513,7 +522,8 @@
                                 ${m.steps.map((s, i) => {
                                     if (!isVisible(s)) return ''; 
                                     let tagLabel = '';
-                                    if ((userProfile.province === 'CAN' || userProfile.industry === 'ALL') && s.tags.length > 0) {
+                                    // Debug Helper: Show tag if "Show Everything" is on
+                                    if ((userProfile.industry === 'ALL') && s.tags.length > 0) {
                                         tagLabel = `<span style="font-size:0.6rem; background:#eee; padding:2px 6px; border-radius:4px; margin-left:8px; color:#666;">${s.tags.join(', ')}</span>`;
                                     }
                                     return `
@@ -575,23 +585,26 @@
                 const visibleItems = section.items.filter(isVisible);
                 if (visibleItems.length === 0) return ''; 
 
-                const isAllCan = (userProfile.province === 'CAN');
                 const isAllTrades = (userProfile.industry === 'ALL');
 
-                if (!isAllCan && !isAllTrades) {
+                if (!isAllTrades) {
+                    // FLAT LIST for specific trades
                     const grid = visibleItems.map(l => renderTile(l)).join('');
                     const divider = index > 0 ? '<hr class="section-divider">' : '';
                     return `<div class="lib-drawer">${divider}<div class="lib-section-title">${section.title}</div><div class="gallery-grid">${grid}</div></div>`;
                 }
 
+                // CLUSTERED LIST for "Show Everything"
                 const genericItems = [];
                 const clusters = {}; 
 
                 visibleItems.forEach(item => {
-                    if (!item.tags || item.tags.length === 0) {
+                    const indTags = item.tags.filter(t => !PROVINCE_TAGS.includes(t) && !SOFTWARE_TAGS.includes(t));
+                    
+                    if (indTags.length === 0) {
                         genericItems.push(item);
                     } else {
-                        const tag = item.tags[0]; 
+                        const tag = indTags[0]; 
                         if (!clusters[tag]) clusters[tag] = [];
                         clusters[tag].push(item);
                     }
@@ -637,15 +650,8 @@
     }
 
     function getFriendlyName(tag) {
-        const map = {
-            'NS': 'Nova Scotia', 'AB': 'Alberta', 'BC': 'British Columbia', 'ON': 'Ontario',
-            'NB': 'New Brunswick', 'NL': 'Newfoundland', 'PE': 'PEI', 'MB': 'Manitoba',
-            'SK': 'Saskatchewan', 'QC': 'Quebec', 'YT': 'Yukon', 'NT': 'NWT', 'NU': 'Nunavut',
-            'ELECTRICIAN': 'Electrician', 'PLUMBER': 'Plumber', 'HVAC': 'HVAC', 
-            'CARPENTER': 'Carpenter', 'ROOFER': 'Roofer', 'GENERAL': 'General Contractor',
-            'CONSULTANT': 'Consultant', 'REALESTATE': 'Real Estate', 'ECOMMERCE': 'E-Commerce', 'HEALTH': 'Health & Beauty'
-        };
-        return map[tag] || tag; 
+        // Just formats tags to Title Case
+        return tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
     }
 
     function popOutVideo() {
