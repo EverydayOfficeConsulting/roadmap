@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EOCO | Simple. Better.</title>
+    <title>EOCO | Simple Systems. Better Business.</title>
     <style>
         :root { 
             /* THEME: STEEL & SLATE */
@@ -107,6 +107,7 @@
         /* PHASE & MODULE STYLES */
         .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 1px solid var(--border-grey); }
         .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; user-select: none; }
+        
         .phase-title-group { display: flex; align-items: center; gap: 10px; }
         .phase-icon { width: 14px; height: 14px; transition: transform 0.3s var(--ease); fill: var(--primary-brand); }
         .phase-section:not(.open) .phase-icon { transform: rotate(-90deg); }
@@ -146,7 +147,7 @@
         .lib-section-title { text-align: center; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 20px; margin-top: 10px; color: var(--primary-brand); letter-spacing: 1px; }
         .section-divider { height: 1px; background: var(--border-grey); width: 100%; margin: 30px 0; border: none; }
 
-        /* CLUSTER / ACCORDION STYLES FOR "ALL CANADA" MODE */
+        /* CLUSTER STYLES */
         details.cluster-group { margin-top: 15px; border: 1px solid var(--border-grey); border-radius: var(--radius); overflow: hidden; }
         details.cluster-group summary { 
             background: var(--bg-main); padding: 12px; cursor: pointer; 
@@ -222,6 +223,16 @@
             </select>
         </div>
 
+        <div class="form-group">
+            <label class="form-label">Software Preference</label>
+            <select class="form-select" id="user-software">
+                <option value="ALL">I haven't decided (Show All)</option>
+                <option value="QBO">QuickBooks Online (Recommended)</option>
+                <option value="XERO">Xero</option>
+                <option value="FRESHBOOKS">FreshBooks</option>
+            </select>
+        </div>
+
         <button class="start-btn" onclick="saveProfile()">Build My Roadmap</button>
     </div>
 </div>
@@ -280,7 +291,8 @@
     function saveProfile() {
         const prov = document.getElementById('user-province').value;
         const ind = document.getElementById('user-industry').value;
-        userProfile = { province: prov, industry: ind };
+        const soft = document.getElementById('user-software').value;
+        userProfile = { province: prov, industry: ind, software: soft };
         localStorage.setItem('eoco_profile', JSON.stringify(userProfile));
         document.getElementById('modal-overlay').classList.remove('active');
         init(); 
@@ -290,6 +302,7 @@
         if(userProfile) {
             document.getElementById('user-province').value = userProfile.province;
             document.getElementById('user-industry').value = userProfile.industry;
+            document.getElementById('user-software').value = userProfile.software || 'ALL';
         }
         document.getElementById('modal-overlay').classList.add('active');
     }
@@ -311,12 +324,18 @@
                 
                 if (key === 'ID') { 
                     if (currentMod) modules.push(currentMod); 
-                    currentMod = { id: b, phase: 'PHASE 1', title: '', description: '', video: '', library: [], steps: [] }; 
+                    currentMod = { id: b, phase: 'PHASE 1', title: '', description: '', video: '', library: [], steps: [], tags: [] }; 
                 }
                 if (!currentMod) return;
                 
                 if (key === 'PHASE') currentMod.phase = b || 'PHASE 1';
-                if (key === 'TITLE') currentMod.title = b;
+                
+                if (key === 'TITLE') {
+                    const parsed = parseTaggedItem(b, '');
+                    currentMod.title = parsed.name;
+                    currentMod.tags = parsed.tags; 
+                }
+
                 if (key === 'DESCRIPTION') currentMod.description = b;
                 if (key === 'VIDEO') currentMod.video = c;
                 
@@ -355,29 +374,30 @@
         return { name: cleanName, val: value, tags: tags };
     }
 
-    // RETURNS TRUE IF ITEM SHOULD BE VISIBLE TO CURRENT USER
     function isVisible(item) {
-        // 1. If item has no tags, show it to everyone
         if (!item.tags || item.tags.length === 0) return true; 
         if (!userProfile) return true; 
 
-        // 2. If User is "CAN" (All Canada), show ALL Region tags (AB, NS, etc.)
-        //    AND if User is "ALL" (All Trades), show ALL Trade tags.
-        
         const userProv = userProfile.province.toUpperCase();
         const userInd = userProfile.industry.toUpperCase();
-
-        // Check if the item matches the specific user profile
-        const directMatch = item.tags.some(tag => tag === userProv || tag === userInd);
+        const userSoft = (userProfile.software || 'ALL').toUpperCase();
         
-        // Check for "Show All" overrides
-        const showBecauseAllCan = (userProv === 'CAN'); // Logic: We want to show it, but we might cluster it later
-        const showBecauseAllTrade = (userInd === 'ALL');
+        const allowAllProv = (userProv === 'CAN');
+        const allowAllTrade = (userInd === 'ALL');
+        const allowAllSoft = (userSoft === 'ALL');
 
-        // Note: We return TRUE here for everything if mode is ALL, 
-        // because we will handle the "clustering" in the render function.
-        if (showBecauseAllCan || showBecauseAllTrade) return true;
+        // Check specifically for Software tags
+        const softwareTags = ['QBO', 'XERO', 'FRESHBOOKS'];
+        const isSoftwareTag = item.tags.some(tag => softwareTags.includes(tag));
+        
+        if (isSoftwareTag) {
+            if (allowAllSoft) return true;
+            return item.tags.includes(userSoft);
+        }
 
+        const directMatch = item.tags.some(tag => tag === userProv || tag === userInd);
+        if (allowAllProv || allowAllTrade) return true; 
+        
         return directMatch;
     }
 
@@ -406,13 +426,14 @@
         list.innerHTML = Object.keys(grouped).map(phaseName => {
             let totalSteps = 0, completedSteps = 0;
             
-            grouped[phaseName].forEach(m => { 
+            const visibleModules = grouped[phaseName].filter(isVisible);
+            if (visibleModules.length === 0) return ''; 
+
+            visibleModules.forEach(m => { 
                 const visibleSteps = m.steps.filter(isVisible);
                 totalSteps += visibleSteps.length; 
                 const checkedIndices = state[m.id] || [];
-                // Count visible checks
                 const visibleCheckCount = visibleSteps.filter((s, originalIndex) => {
-                     // Find the step in the master list to match the index state
                      const realIndex = m.steps.indexOf(s);
                      return checkedIndices.includes(realIndex);
                 }).length;
@@ -435,19 +456,16 @@
                 </div>
                 <div class="phase-content">
                     <div class="phase-inner">
-                        ${grouped[phaseName].map(m => `
+                        ${visibleModules.map(m => `
                             <div class="module-card" id="mod-${m.id}">
                                 <div class="module-title">${m.title}</div>
                                 <div class="module-desc">${m.description || ''}</div>
                                 ${m.steps.map((s, i) => {
                                     if (!isVisible(s)) return ''; 
-                                    
-                                    // Visual Tag for "All" Mode in Steps
                                     let tagLabel = '';
                                     if ((userProfile.province === 'CAN' || userProfile.industry === 'ALL') && s.tags.length > 0) {
                                         tagLabel = `<span style="font-size:0.6rem; background:#eee; padding:2px 6px; border-radius:4px; margin-left:8px; color:#666;">${s.tags.join(', ')}</span>`;
                                     }
-
                                     return `
                                     <div class="step-container">
                                         <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
@@ -478,7 +496,7 @@
         if (i > -1) state[mid].splice(i, 1); 
         else state[mid].push(idx);
         localStorage.setItem('eoco_state', JSON.stringify(state));
-        init(); // Re-render to update badges
+        init(); 
     }
 
     function updateLayoutClasses() {
@@ -504,39 +522,31 @@
         if (m.library && m.library.length > 0) {
             content.innerHTML = m.library.map((section, index) => {
                 
-                // --- SMART CLUSTERING LOGIC ---
-                // 1. Get all items that are technically visible
                 const visibleItems = section.items.filter(isVisible);
                 if (visibleItems.length === 0) return ''; 
 
-                // 2. If User is NOT "All Canada" and NOT "All Trades", render normally
                 const isAllCan = (userProfile.province === 'CAN');
                 const isAllTrades = (userProfile.industry === 'ALL');
 
                 if (!isAllCan && !isAllTrades) {
-                    // STANDARD RENDER (No Clustering)
                     const grid = visibleItems.map(l => renderTile(l)).join('');
                     const divider = index > 0 ? '<hr class="section-divider">' : '';
                     return `<div class="lib-drawer">${divider}<div class="lib-section-title">${section.title}</div><div class="gallery-grid">${grid}</div></div>`;
                 }
 
-                // 3. CLUSTERING MODE
-                // Separate Generic Items vs Tagged Items
                 const genericItems = [];
-                const clusters = {}; // Key = Tag, Value = [Items]
+                const clusters = {}; 
 
                 visibleItems.forEach(item => {
                     if (!item.tags || item.tags.length === 0) {
                         genericItems.push(item);
                     } else {
-                        // Group by FIRST tag found (Simplification for UI)
                         const tag = item.tags[0]; 
                         if (!clusters[tag]) clusters[tag] = [];
                         clusters[tag].push(item);
                     }
                 });
 
-                // Render Generic Items First
                 let html = '';
                 if (index > 0) html += '<hr class="section-divider">';
                 html += `<div class="lib-section-title">${section.title}</div>`;
@@ -545,10 +555,8 @@
                     html += `<div class="gallery-grid">${genericItems.map(renderTile).join('')}</div>`;
                 }
 
-                // Render Clusters (Accordions)
                 const sortedKeys = Object.keys(clusters).sort();
                 sortedKeys.forEach(tag => {
-                    // Map Tags to Friendly Names if possible
                     const friendlyName = getFriendlyName(tag);
                     const itemsHtml = clusters[tag].map(renderTile).join('');
                     html += `
@@ -586,7 +594,7 @@
             'ELECTRICIAN': 'Electrician', 'PLUMBER': 'Plumber', 'HVAC': 'HVAC', 
             'CARPENTER': 'Carpenter', 'ROOFER': 'Roofer', 'GENERAL': 'General Contractor'
         };
-        return map[tag] || tag; // Fallback to tag code if name not found
+        return map[tag] || tag; 
     }
 
     function popOutVideo() {
