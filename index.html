@@ -265,10 +265,7 @@
     </section>
 </div>
 <script>
-    // --- SETTINGS ---
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv' + '&t=' + Date.now();
-    
-    // TAG LISTS (Used to filter the dropdown & logic)
     const PROVINCE_TAGS = ['AB', 'BC', 'ON', 'NS', 'NB', 'NL', 'PE', 'MB', 'SK', 'QC', 'YT', 'NT', 'NU', 'CAN'];
     const SOFTWARE_TAGS = ['QBO', 'XERO', 'FRESHBOOKS'];
 
@@ -277,9 +274,7 @@
     let userProfile = JSON.parse(localStorage.getItem('eoco_profile')) || null;
     let activeLibId = null, currentVideoId = null;
 
-    window.onload = function() {
-        init();
-    };
+    window.onload = function() { init(); };
 
     function toggleTheme() {
         const next = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
@@ -288,9 +283,7 @@
         localStorage.setItem('eoco_theme', next);
     }
 
-    function closeProfile() {
-        document.getElementById('modal-overlay').classList.remove('active');
-    }
+    function closeProfile() { document.getElementById('modal-overlay').classList.remove('active'); }
 
     function saveProfile() {
         const prov = document.getElementById('user-province').value;
@@ -325,34 +318,21 @@
 
             rows.forEach(row => {
                 const key = row[0]?.toString().trim().toUpperCase(); 
-                const b = row[1]; 
-                const c = row[2];
-                
-                // DYNAMIC INDUSTRY POPULATION
-                if (key === 'METADATA' && b === 'INDUSTRIES') {
-                    populateIndustries(c);
-                }
-
+                const b = row[1]; const c = row[2];
+                if (key === 'METADATA' && b === 'INDUSTRIES') { populateIndustries(c); }
                 if (key === 'ID') { 
                     if (currentMod) modules.push(currentMod); 
                     currentMod = { id: b, phase: 'PHASE 1', title: '', description: '', video: '', library: [], steps: [], tags: [] }; 
                 }
                 if (!currentMod) return;
-                
                 if (key === 'PHASE') currentMod.phase = b || 'PHASE 1';
-                
                 if (key === 'TITLE') {
                     const parsed = parseTaggedItem(b, '');
-                    currentMod.title = parsed.name;
-                    currentMod.tags = parsed.tags; 
+                    currentMod.title = parsed.name; currentMod.tags = parsed.tags; 
                 }
-
                 if (key === 'DESCRIPTION') currentMod.description = b;
                 if (key === 'VIDEO') currentMod.video = c;
-                
-                if (key === 'SECTION') {
-                    currentMod.library.push({ title: b, items: [] });
-                }
+                if (key === 'SECTION') { currentMod.library.push({ title: b, items: [] }); }
                 if (key === 'TOOL') {
                     let lastSection = currentMod.library[currentMod.library.length - 1];
                     if (!lastSection) {
@@ -361,18 +341,10 @@
                     }
                     lastSection.items.push(parseTaggedItem(b, c));
                 }
-
-                if (key === 'STEP') {
-                    currentMod.steps.push(parseTaggedItem(b, c));
-                }
+                if (key === 'STEP') { currentMod.steps.push(parseTaggedItem(b, c)); }
             });
-            
             if (currentMod) modules.push(currentMod); 
-            
-            if (!userProfile) {
-                document.getElementById('modal-overlay').classList.add('active');
-            }
-            
+            if (!userProfile) { document.getElementById('modal-overlay').classList.add('active'); }
             render();
         } catch (e) { console.error(e); }
     }
@@ -380,44 +352,32 @@
     function populateIndustries(csvString) {
         const select = document.getElementById('user-industry');
         select.innerHTML = '<option value="ALL">Show Everything</option>'; 
-        
         if (csvString) {
             const rawTags = csvString.split(',').sort();
             rawTags.forEach(tag => {
                 const val = tag.trim();
-                if (!val) return;
-                
-                // FILTER: Do not show Province or Software tags in this list
-                if (PROVINCE_TAGS.includes(val) || SOFTWARE_TAGS.includes(val)) return;
-
+                if (!val || PROVINCE_TAGS.includes(val) || SOFTWARE_TAGS.includes(val)) return;
                 const opt = document.createElement('option');
                 opt.value = val;
                 opt.textContent = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
                 select.appendChild(opt);
             });
         }
-        
-        if (userProfile && userProfile.industry) {
-            select.value = userProfile.industry;
-        }
+        if (userProfile && userProfile.industry) { select.value = userProfile.industry; }
     }
 
     function parseTaggedItem(name, value) {
         const tagMatch = name.match(/\{([^}]+)\}/);
-        let tags = [];
-        let cleanName = name;
-
+        let tags = []; let cleanName = name;
         if (tagMatch) {
             tags = tagMatch[1].split(',').map(t => t.trim().toUpperCase()); 
             cleanName = name.replace(/\{[^}]+\}/g, '').trim(); 
         }
-
         return { name: cleanName, val: value, tags: tags };
     }
 
-    // --- STRICT FILTER LOGIC ---
+    // --- UPDATED INCLUSIVE FILTER LOGIC ---
     function isVisible(item) {
-        // If no tags, it's visible to everyone
         if (!item.tags || item.tags.length === 0) return true; 
         if (!userProfile) return true; 
 
@@ -425,37 +385,19 @@
         const userInd = userProfile.industry.toUpperCase();
         const userSoft = (userProfile.software || 'ALL').toUpperCase();
 
-        // 1. SOFTWARE CHECK
         const itemSoftTags = item.tags.filter(t => SOFTWARE_TAGS.includes(t));
-        if (itemSoftTags.length > 0) {
-            // If user hasn't decided (ALL), generally show all options
-            // If user HAS decided, item must match
-            if (userSoft !== 'ALL' && !itemSoftTags.includes(userSoft)) return false;
-        }
-
-        // 2. PROVINCE CHECK
         const itemProvTags = item.tags.filter(t => PROVINCE_TAGS.includes(t));
-        if (itemProvTags.length > 0) {
-            // Item is specific to a province (e.g. {AB})
-            // If user is National (CAN), hide specific provincial tools? 
-            // Or show them? Usually clean to hide them unless requested.
-            if (userProv === 'CAN') return false; 
-            
-            // If user is specific (e.g. NS), item must match NS
-            if (!itemProvTags.includes(userProv)) return false;
-        }
-
-        // 3. INDUSTRY CHECK
-        // Any tag that isn't Province or Software is considered an Industry Tag
         const itemIndTags = item.tags.filter(t => !PROVINCE_TAGS.includes(t) && !SOFTWARE_TAGS.includes(t));
-        
-        if (itemIndTags.length > 0) {
-            // Item is specific to a trade (e.g. {PLUMBER})
-            if (userInd === 'ALL') return true; // Show everything
-            
-            // If user selected a trade, item must match
-            if (!itemIndTags.includes(userInd)) return false;
-        }
+
+        // 1. Software Check: Only block if user selected a SPECIFIC software that doesn't match
+        if (itemSoftTags.length > 0 && userSoft !== 'ALL' && !itemSoftTags.includes(userSoft)) return false;
+
+        // 2. Province Check: Block if item is for a different specific province.
+        // If user is National (CAN), we show ALL provincial tools in the clustered list.
+        if (itemProvTags.length > 0 && userProv !== 'CAN' && !itemProvTags.includes(userProv)) return false;
+
+        // 3. Industry Check: Block if item is for a different specific industry.
+        if (itemIndTags.length > 0 && userInd !== 'ALL' && !itemIndTags.includes(userInd)) return false;
 
         return true;
     }
@@ -478,16 +420,13 @@
         const list = document.getElementById('module-list');
         const grouped = modules.reduce((acc, m) => { 
             if (!acc[m.phase]) acc[m.phase] = []; 
-            acc[m.phase].push(m); 
-            return acc; 
+            acc[m.phase].push(m); return acc; 
         }, {});
 
         list.innerHTML = Object.keys(grouped).map(phaseName => {
             let totalSteps = 0, completedSteps = 0;
-            
             const visibleModules = grouped[phaseName].filter(isVisible);
             if (visibleModules.length === 0) return ''; 
-
             visibleModules.forEach(m => { 
                 const visibleSteps = m.steps.filter(isVisible);
                 totalSteps += visibleSteps.length; 
@@ -496,15 +435,12 @@
                      const realIndex = m.steps.indexOf(s);
                      return checkedIndices.includes(realIndex);
                 }).length;
-
                 completedSteps += visibleCheckCount;
             });
-
             const phaseId = `phase-${phaseName.replace(/[^a-zA-Z0-9]/g, '-')}`;
-
             return `
             <div class="phase-section open" id="${phaseId}">
-                <div class="phase-header" onclick="this.parentElement.classList.toggle('open')" title="Click to collapse/expand">
+                <div class="phase-header" onclick="this.parentElement.classList.toggle('open')">
                     <div class="phase-title-group">
                         <svg class="phase-icon" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
                         <span class="phase-title">${phaseName}</span>
@@ -521,19 +457,13 @@
                                 <div class="module-desc">${m.description || ''}</div>
                                 ${m.steps.map((s, i) => {
                                     if (!isVisible(s)) return ''; 
-                                    let tagLabel = '';
-                                    // Debug Helper: Show tag if "Show Everything" is on
-                                    if ((userProfile.industry === 'ALL') && s.tags.length > 0) {
-                                        tagLabel = `<span style="font-size:0.6rem; background:#eee; padding:2px 6px; border-radius:4px; margin-left:8px; color:#666;">${s.tags.join(', ')}</span>`;
-                                    }
                                     return `
                                     <div class="step-container">
                                         <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
-                                            <span class="step-name">${s.name} ${tagLabel}</span>
-                                            <input type="checkbox" 
-                                                id="chk-${m.id}-${i}"
+                                            <span class="step-name">${s.name}</span>
+                                            <input type="checkbox" id="chk-${m.id}-${i}"
                                                 ${(state[m.id]?.includes(i)) ? 'checked' : ''} 
-                                                onclick="event.stopPropagation(); toggleCheck('${m.id}', ${i}, '${phaseId}')">
+                                                onclick="event.stopPropagation(); toggleCheck('${m.id}', ${i})">
                                         </div>
                                         <div class="step-content"><div class="content-inner">${s.val}</div></div>
                                     </div>
@@ -550,13 +480,12 @@
         }).join('');
     }
 
-    function toggleCheck(mid, idx, phaseId) {
+    function toggleCheck(mid, idx) {
         if (!state[mid]) state[mid] = [];
         const i = state[mid].indexOf(idx);
-        if (i > -1) state[mid].splice(i, 1); 
-        else state[mid].push(idx);
+        if (i > -1) state[mid].splice(i, 1); else state[mid].push(idx);
         localStorage.setItem('eoco_state', JSON.stringify(state));
-        init(); 
+        render(); 
     }
 
     function updateLayoutClasses() {
@@ -570,123 +499,68 @@
     }
 
     function toggleLibrary(mid) {
-        const p = document.getElementById('pane-library');
-        const content = document.getElementById('library-content');
-        
+        const p = document.getElementById('pane-library'); const content = document.getElementById('library-content');
         if (!mid || (p.classList.contains('active') && activeLibId === mid)) { 
             p.classList.remove('active'); activeLibId = null; updateLayoutClasses(); return; 
         }
-        
         const m = modules.find(mod => mod.id === mid);
-        
         if (m.library && m.library.length > 0) {
             content.innerHTML = m.library.map((section, index) => {
-                
                 const visibleItems = section.items.filter(isVisible);
                 if (visibleItems.length === 0) return ''; 
-
+                
+                // --- LOGIC FOR CLUSTERING ---
+                // If user is National (CAN) or Show Everything (ALL), we cluster provincial and trade tools.
+                const isNational = (userProfile.province === 'CAN');
                 const isAllTrades = (userProfile.industry === 'ALL');
 
-                if (!isAllTrades) {
-                    // FLAT LIST for specific trades
-                    const grid = visibleItems.map(l => renderTile(l)).join('');
-                    const divider = index > 0 ? '<hr class="section-divider">' : '';
-                    return `<div class="lib-drawer">${divider}<div class="lib-section-title">${section.title}</div><div class="gallery-grid">${grid}</div></div>`;
+                if (!isNational && !isAllTrades) {
+                    return `<div class="lib-drawer">${index > 0 ? '<hr class="section-divider">' : ''}<div class="lib-section-title">${section.title}</div><div class="gallery-grid">${visibleItems.map(renderTile).join('')}</div></div>`;
                 }
 
-                // CLUSTERED LIST for "Show Everything"
-                const genericItems = [];
-                const clusters = {}; 
-
+                const genericItems = []; const clusters = {}; 
                 visibleItems.forEach(item => {
-                    const indTags = item.tags.filter(t => !PROVINCE_TAGS.includes(t) && !SOFTWARE_TAGS.includes(t));
-                    
-                    if (indTags.length === 0) {
-                        genericItems.push(item);
-                    } else {
-                        const tag = indTags[0]; 
-                        if (!clusters[tag]) clusters[tag] = [];
+                    const clusterTags = item.tags.filter(t => (isNational && PROVINCE_TAGS.includes(t)) || (isAllTrades && !PROVINCE_TAGS.includes(t) && !SOFTWARE_TAGS.includes(t)));
+                    if (clusterTags.length === 0) { genericItems.push(item); } 
+                    else {
+                        const tag = clusterTags[0]; if (!clusters[tag]) clusters[tag] = [];
                         clusters[tag].push(item);
                     }
                 });
 
-                let html = '';
-                if (index > 0) html += '<hr class="section-divider">';
-                html += `<div class="lib-section-title">${section.title}</div>`;
-                
-                if (genericItems.length > 0) {
-                    html += `<div class="gallery-grid">${genericItems.map(renderTile).join('')}</div>`;
-                }
-
-                const sortedKeys = Object.keys(clusters).sort();
-                sortedKeys.forEach(tag => {
-                    const friendlyName = getFriendlyName(tag);
-                    const itemsHtml = clusters[tag].map(renderTile).join('');
-                    html += `
-                    <details class="cluster-group">
-                        <summary>${friendlyName}</summary>
-                        <div class="cluster-content">
-                            <div class="gallery-grid">${itemsHtml}</div>
-                        </div>
-                    </details>`;
+                let html = `${index > 0 ? '<hr class="section-divider">' : ''}<div class="lib-section-title">${section.title}</div>`;
+                if (genericItems.length > 0) { html += `<div class="gallery-grid">${genericItems.map(renderTile).join('')}</div>`; }
+                Object.keys(clusters).sort().forEach(tag => {
+                    html += `<details class="cluster-group"><summary>${getFriendlyName(tag)}</summary><div class="cluster-content"><div class="gallery-grid">${clusters[tag].map(renderTile).join('')}</div></div></details>`;
                 });
-
                 return `<div class="lib-drawer">${html}</div>`;
-
             }).join('');
-        } else {
-            content.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">No tools available for this module.</div>';
-        }
-        
+        } else { content.innerHTML = '<div style="padding:20px; text-align:center; color:#666;">No tools available.</div>'; }
         p.classList.add('active'); activeLibId = mid; updateLayoutClasses();
     }
 
     function renderTile(l) {
-        return `
-        <a href="${l.val}" target="_blank" class="tool-tile">
-            <div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.val}')"></div>
-            <div class="tile-name">${l.name}</div>
-        </a>`;
+        return `<a href="${l.val}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image: url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.val}')"></div><div class="tile-name">${l.name}</div></a>`;
     }
 
     function getFriendlyName(tag) {
-        // Just formats tags to Title Case
-        return tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
+        const map = { 'NS': 'Nova Scotia', 'AB': 'Alberta', 'BC': 'British Columbia', 'ON': 'Ontario', 'NB': 'New Brunswick', 'NL': 'Newfoundland', 'PE': 'PEI', 'MB': 'Manitoba', 'SK': 'Saskatchewan', 'QC': 'Quebec', 'YT': 'Yukon', 'NT': 'NWT', 'NU': 'Nunavut' };
+        return map[tag] || tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
     }
 
     function popOutVideo() {
         if (!currentVideoId) return;
-        const width = 640; const height = 360;
-        const left = (window.innerWidth / 2) - (width / 2); 
-        const top = (window.innerHeight / 2) - (height / 2);
-        window.open(`https://www.youtube.com/embed/${currentVideoId}?autoplay=1&cc_load_policy=1`, 'YouTubePopOut', `width=${width},height=${height},top=${top},left=${left},menubar=no,status=no,titlebar=no`);
+        window.open(`https://www.youtube.com/embed/${currentVideoId}?autoplay=1&cc_load_policy=1`, 'YouTubePopOut', `width=640,height=360,menubar=no,status=no`);
         toggleVideo(null);
     }
 
     async function toggleVideo(mid) {
         const p = document.getElementById('pane-video'), f = document.getElementById('video-frame');
-        const iframe = f.querySelector('iframe');
         const m = modules.find(mod => mod.id === mid);
-        
-        if (!mid || p.classList.contains('active')) {
-            p.classList.remove('active'); updateLayoutClasses();
-            if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-            return;
-        }
-        
+        if (!mid || p.classList.contains('active')) { p.classList.remove('active'); updateLayoutClasses(); return; }
         let id = m.video.includes('v=') ? m.video.split('v=')[1]?.split('&')[0] : m.video.split('/').pop();
-        try {
-            const response = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`);
-            const data = await response.json();
-            document.getElementById('video-display-title').innerText = data.title || m.title;
-        } catch (e) { document.getElementById('video-display-title').innerText = m.title; }
-        
-        if (currentVideoId !== id) {
-            f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&cc_load_policy=1" allow="autoplay; fullscreen"></iframe>`;
-            currentVideoId = id;
-        } else if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-        
-        p.classList.add('active'); updateLayoutClasses();
+        f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&cc_load_policy=1" allow="autoplay; fullscreen"></iframe>`;
+        currentVideoId = id; p.classList.add('active'); updateLayoutClasses();
     }
 </script>
 </body>
