@@ -3,418 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EOCO Roadmap</title>
+    <title>EOCO | Simple. Better.</title>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --accent: #e67e22;
-            --light: #ecf0f1;
-            --border: #bdc3c7;
+        :root { 
+            /* THEME: STEEL & SLATE */
+            --primary-brand: #3A506B;   
+            --primary-dark: #1C2541;    
+            --bg-main: #F0F4F8;         
+            --bg-panel: #FFFFFF;        
+            --text-main: #334155;       
+            --text-muted: #64748B;      
+            --border-grey: #D1D9E6;     
+            --radius: 3px;              
+            --shadow: 0 4px 12px rgba(58, 80, 107, 0.08); 
+            --ease: cubic-bezier(0.2, 1, 0.3, 1);
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: 0 auto; }
+
+        [data-theme="dark"] {
+            --bg-main: #0B1015; --bg-panel: #151B24; --border-grey: #2A3645;
+            --text-main: #E2E8F0; --text-muted: #94A3B8; --primary-brand: #5C7C99;
+            --primary-dark: #000000; --shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main); }
         
         /* HEADER */
-        header { text-align: center; margin-bottom: 30px; }
-        h1 { margin: 0 0 10px 0; color: var(--primary); }
+        header { 
+            background: var(--primary-dark); color: white; 
+            display: flex; flex-direction: column; align-items: center; 
+            padding: 15px 20px 0 20px; z-index: 4000; position: relative; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .header-top { display: flex; justify-content: center; align-items: center; width: 100%; position: relative; padding-bottom: 15px; }
+        .brand-container { text-align: center; }
+        .brand-name { font-size: 1.2rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin: 0; }
+        .brand-slogan { font-size: 0.65rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: #8DA9C4; margin-top: 4px; }
+        
+        .page-title-section { background: rgba(255,255,255,0.05); width: 100vw; text-align: center; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1); }
+        .page-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: white; margin: 0; }
 
-        /* WIZARD (Collapsible) */
-        .wizard { 
-            background: white; 
-            padding: 20px 20px 10px 20px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
-            text-align: left; 
-            position: relative; 
-            transition: all 0.3s ease;
-            margin-bottom: 30px;
+        .header-controls { display: flex; gap: 10px; align-items: center; position: absolute; right: 0; top: 0; }
+        .theme-toggle, .profile-btn { 
+            background: var(--primary-brand); color: white; border: 1px solid rgba(255,255,255,0.2); 
+            padding: 6px 14px; border-radius: var(--radius); cursor: pointer; font-size: 0.6rem; font-weight: 700; 
+            text-transform: uppercase; transition: background 0.2s;
         }
 
-        .wizard h3 { margin-top: 0; margin-bottom: 15px; color: var(--primary); }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
-        select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px; background: #fff; }
-
-        /* Minimized State */
-        .wizard.minimized {
-            padding: 15px 20px;
-            cursor: pointer;
-            background: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .workspace { display: flex; height: calc(100vh - 125px); width: 100vw; position: relative; overflow: hidden; }
+        
+        /* PANELS */
+        .side-pane { 
+            position: absolute; top: 0; height: 100%; background: var(--bg-panel); border-color: var(--border-grey); 
+            transition: transform 0.5s var(--ease); z-index: 3000; display: flex; flex-direction: column; padding: 25px; 
+            box-shadow: var(--shadow); 
         }
+        #pane-library { left: 0; border-right: 1px solid var(--border-grey); transform: translateX(-100%); width: 50%; overflow-y: auto; }
+        #pane-library.active { transform: translateX(0); }
+        #pane-video { right: 0; border-left: 1px solid var(--border-grey); transform: translateX(100%); width: 50%; }
+        #pane-video.active { transform: translateX(0); }
         
-        .wizard.minimized h3, 
-        .wizard.minimized .form-group,
-        .wizard.minimized .close-btn {
-            display: none;
-        }
+        #pane-modules { flex: 1; height: 100%; overflow-y: auto; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; transition: margin 0.5s var(--ease); }
+        .workspace.lib-active #pane-modules { margin-left: 50%; }
+        .workspace.vid-active #pane-modules { margin-right: 50%; }
+        .workspace.both-active #pane-modules { margin-left: 33.33%; margin-right: 33.33%; }
+        .workspace.both-active #pane-library, .workspace.both-active #pane-video { width: 33.33%; }
 
-        .wizard.minimized::after {
-            content: "⚙️ Edit Profile Settings";
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        /* Close Button */
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 24px;
-            font-weight: bold;
-            color: #bdc3c7;
-            cursor: pointer;
-            line-height: 1;
-            z-index: 10;
-        }
-        .close-btn:hover { color: #e74c3c; }
-
-        /* MODULES */
-        .phase-title { margin: 40px 0 20px 0; border-bottom: 2px solid var(--primary); padding-bottom: 5px; color: var(--primary); }
-        .module { background: white; border-radius: 8px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s; }
-        .module:hover { transform: translateY(-2px); }
+        /* PHASE & MODULE CARDS */
+        .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 1px solid var(--border-grey); }
+        .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; user-select: none; }
+        .phase-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--primary-brand); letter-spacing: 1.5px; }
+        .phase-badge { font-size: 0.6rem; padding: 4px 10px; border-radius: var(--radius); background: var(--border-grey); color: var(--text-muted); font-weight: 600; }
+        .phase-badge.complete { background: var(--primary-brand); color: white; }
         
-        .module-header { padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: white; }
-        .module-header h3 { margin: 0; font-size: 1.1em; }
-        .status-icon { font-size: 1.2em; color: var(--border); }
+        .module-card { background: var(--bg-panel); border-radius: var(--radius); padding: 35px; margin: 20px 0; border: 1px solid var(--border-grey); box-shadow: var(--shadow); }
+        .module-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; color: var(--text-main); }
+        .module-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
+
+        .step-container { border: 1px solid var(--border-grey); border-radius: var(--radius); margin-bottom: 10px; background: var(--bg-panel); overflow: hidden; }
+        .step-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; }
+        .step-content { display: none; padding: 0 20px 20px 20px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+        .step-container.open .step-content { display: block; }
+
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
+        .action-btn, .close-btn { background: var(--primary-brand); color: white; border: none; padding: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; border-radius: var(--radius); }
+
+        /* CLUSTER GROUP (All Canada Mode) */
+        details.cluster-group { margin-top: 15px; border: 1px solid var(--border-grey); border-radius: var(--radius); overflow: hidden; }
+        details.cluster-group summary { background: var(--bg-main); padding: 12px; cursor: pointer; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
         
-        /* Completed State */
-        .module.completed .status-icon { color: #27ae60; content: "✓"; }
-        .module.completed .module-header h3 { text-decoration: line-through; color: #7f8c8d; }
-
-        .module-content { display: none; padding: 0 20px 20px 20px; border-top: 1px solid #eee; }
-        .module.open .module-content { display: block; }
-
-        /* SECTIONS & TOOLS */
-        .section-title { font-size: 0.85em; text-transform: uppercase; color: #7f8c8d; margin: 15px 0 10px 0; letter-spacing: 1px; font-weight: bold; }
-        .tool-link { display: flex; align-items: center; padding: 12px; background: #f8f9fa; border: 1px solid #eee; border-radius: 6px; text-decoration: none; color: #333; margin-bottom: 8px; transition: background 0.2s; }
-        .tool-link:hover { background: #eef2f3; border-color: #ddd; }
-        .tool-link span { flex-grow: 1; }
-        .tool-link::after { content: "→"; color: var(--accent); font-weight: bold; }
-
-        /* STEPS CHECKLIST */
-        .step-list { list-style: none; padding: 0; margin: 15px 0; }
-        .step-item { display: flex; align-items: flex-start; margin-bottom: 12px; }
-        .step-checkbox { margin-right: 12px; margin-top: 4px; transform: scale(1.3); cursor: pointer; }
-        .step-text { font-size: 0.95em; line-height: 1.4; color: #555; }
-        
-        /* VIDEO */
-        .video-container { margin-top: 15px; text-align: center; }
-        .video-btn { display: inline-block; background: #c4302b; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-size: 0.9em; font-weight: bold; }
-        .video-btn:hover { background: #e74c3c; }
-        
-        /* PROGRESS BAR */
-        #progress-container { background: #ddd; height: 8px; border-radius: 4px; margin: 20px 0; overflow: hidden; }
-        #progress-bar { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
-
+        /* MODAL */
+        #modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(28, 37, 65, 0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
+        #modal-overlay.active { display: flex; }
+        .modal-card { background: var(--bg-panel); padding: 40px; border-radius: var(--radius); width: 90%; max-width: 500px; text-align: center; }
+        .form-select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border-grey); border-radius: var(--radius); }
     </style>
 </head>
-<body>
+<body data-theme="light">
 
-<div class="container">
-    <header>
-        <h1>EOCO Roadmap</h1>
-        <div id="progress-container"><div id="progress-bar"></div></div>
-    </header>
-
-    <div id="profile-wizard" class="wizard" onclick="openWizard()">
-        <span class="close-btn" onclick="closeWizard(event)">×</span>
-        
-        <h3>Customize Your Roadmap</h3>
-        
-        <div class="form-group">
-            <label>Where is your business located?</label>
-            <select id="province" onchange="savePreferences()">
-                <option value="ALL">Select Province...</option>
-                <option value="AB">Alberta</option>
-                <option value="BC">British Columbia</option>
-                <option value="ON">Ontario</option>
-                <option value="NS">Nova Scotia</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>What is your industry?</label>
-            <select id="industry" onchange="savePreferences()">
-                <option value="ALL">Loading Industries...</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Which accounting software do you use?</label>
-            <select id="software" onchange="savePreferences()">
-                <option value="ALL">I haven't decided yet</option>
-                <option value="QBO">QuickBooks Online</option>
-                <option value="XERO">Xero</option>
-                <option value="FRESHBOOKS">FreshBooks</option>
-            </select>
-        </div>
-    </div>
-
-    <div id="roadmap-content">
-        <p style="text-align:center; margin-top:50px; color:#7f8c8d;">Loading your personalized roadmap...</p>
+<div id="modal-overlay">
+    <div class="modal-card">
+        <h2 style="color:var(--primary-brand);">Customize Roadmap</h2>
+        <select id="user-province" class="form-select">
+            <option value="CAN">All Canada</option>
+            <option value="AB">Alberta</option><option value="BC">British Columbia</option>
+            <option value="NS">Nova Scotia</option><option value="ON">Ontario</option>
+        </select>
+        <select id="user-industry" class="form-select">
+            <option value="ALL">All Trades</option>
+            <option value="Electrician">Electrician</option><option value="Plumber">Plumber</option>
+            <option value="General">General Contractor</option>
+        </select>
+        <select id="user-software" class="form-select">
+            <option value="QBO">QuickBooks</option><option value="XERO">Xero</option><option value="FRESHBOOKS">FreshBooks</option>
+        </select>
+        <button class="action-btn" style="width:100%;" onclick="saveProfile()">Build My Roadmap</button>
     </div>
 </div>
 
+<header>
+    <div class="header-top">
+        <div class="brand-container">
+            <div class="brand-name">EOCO</div>
+            <div class="brand-slogan">Simple Systems. Better Business.</div>
+        </div>
+        <div class="header-controls">
+            <button class="profile-btn" onclick="openProfile()">Profile</button>
+            <button class="theme-toggle" onclick="toggleTheme()">Mode</button>
+        </div>
+    </div>
+    <div class="page-title-section"><h1 class="page-title">The Foundational Roadmap</h1></div>
+</header>
+
+<div class="workspace" id="main-ws">
+    <section id="pane-library" class="side-pane">
+        <button class="close-btn" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button>
+        <div id="library-content"></div>
+    </section>
+    
+    <section id="pane-modules"><div id="module-list">Syncing Roadmap...</div></section>
+
+    <section id="pane-video" class="side-pane">
+        <button class="close-btn" onclick="toggleVideo(null)">✕ CLOSE TUTORIAL</button>
+        <div id="video-display-title" style="font-weight:800; margin:20px 0;">Tutorial</div>
+        <div id="video-frame"></div>
+    </section>
+</div>
+
 <script>
-    // --- CONFIGURATION ---
-    // PASTE YOUR GOOGLE SCRIPT URL HERE
-    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbz1.../exec'; 
+    // 1. UPDATE THIS URL WITH YOUR PUBLISHED GOOGLE SHEET CSV LINK
+    const SHEET_URL = 'PASTE_YOUR_CSV_LINK_HERE';
+    
+    let modules = [];
+    let state = JSON.parse(localStorage.getItem('eoco_state')) || {};
+    let userProfile = JSON.parse(localStorage.getItem('eoco_profile'));
 
-    let allModules = [];
-
-    // --- INITIALIZATION ---
-    window.onload = function() {
-        loadPreferences();
-        fetchData();
-    };
-
-    // --- WIZARD LOGIC ---
-    function closeWizard(e) {
-        e.stopPropagation(); // Stop the click from bubbling to the parent div
-        document.getElementById('profile-wizard').classList.add('minimized');
-        localStorage.setItem('wizard_minimized', 'true');
+    function toggleTheme() {
+        const next = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        document.body.setAttribute('data-theme', next);
+        localStorage.setItem('eoco_theme', next);
     }
 
-    function openWizard() {
-        const wizard = document.getElementById('profile-wizard');
-        if (wizard.classList.contains('minimized')) {
-            wizard.classList.remove('minimized');
-            localStorage.setItem('wizard_minimized', 'false');
-        }
+    function openProfile() { document.getElementById('modal-overlay').classList.add('active'); }
+
+    function saveProfile() {
+        userProfile = {
+            province: document.getElementById('user-province').value,
+            industry: document.getElementById('user-industry').value,
+            software: document.getElementById('user-software').value
+        };
+        localStorage.setItem('eoco_profile', JSON.stringify(userProfile));
+        document.getElementById('modal-overlay').classList.remove('active');
+        init();
     }
 
-    function loadPreferences() {
-        const prov = localStorage.getItem('eoco_province');
-        const ind = localStorage.getItem('eoco_industry');
-        const soft = localStorage.getItem('eoco_software');
-        const isMin = localStorage.getItem('wizard_minimized');
-        
-        if(prov) document.getElementById('province').value = prov;
-        // Industry will be set after fetch completes
-        if(soft) document.getElementById('software').value = soft;
-        
-        if(isMin === 'true') {
-            document.getElementById('profile-wizard').classList.add('minimized');
-        }
-    }
-
-    function savePreferences() {
-        localStorage.setItem('eoco_province', document.getElementById('province').value);
-        localStorage.setItem('eoco_industry', document.getElementById('industry').value);
-        localStorage.setItem('eoco_software', document.getElementById('software').value);
-        renderRoadmap();
-    }
-
-    // --- DATA FETCHING ---
-    async function fetchData() {
+    async function init() {
+        if (!userProfile) { openProfile(); return; }
         try {
-            const response = await fetch(SHEET_URL);
-            const text = await response.text();
-            parseCSV(text);
-        } catch (e) {
-            console.error("Error fetching data:", e);
-            document.getElementById('roadmap-content').innerHTML = '<p style="text-align:center; color:red;">Error loading roadmap. Please try refreshing.</p>';
-        }
+            const res = await fetch(SHEET_URL + '&t=' + Date.now());
+            const text = await res.text();
+            parseCSVData(text);
+            render();
+        } catch (e) { console.error("Sync Error:", e); }
     }
 
-    function parseCSV(text) {
-        const rows = text.split('\n');
+    function parseCSVData(text) {
+        const rows = text.split(/\r?\n/).map(row => row.split(','));
+        modules = [];
         let currentMod = null;
-        allModules = [];
 
         rows.forEach(row => {
-            // Simple CSV split (handles basic commas)
-            const cols = row.split(',').map(c => c.trim()); 
-            const type = cols[0];
-
-            // --- 1. DYNAMIC INDUSTRY LOADER ---
-            // Looks for the "METADATA" row from your AppScript
-            if (type === 'METADATA' && cols[1] === 'INDUSTRIES') {
-                // Reconstruct the full row string to handle the list properly
-                // Find where "INDUSTRIES," ends and split the rest
-                const rawList = row.substring(row.indexOf('INDUSTRIES,') + 11);
-                const industries = rawList.split(',');
-                
-                const select = document.getElementById('industry');
-                select.innerHTML = '<option value="ALL">Select Industry...</option>';
-                
-                industries.forEach(ind => {
-                    const cleanInd = ind.trim();
-                    if(cleanInd !== '') {
-                        let opt = document.createElement('option');
-                        opt.value = cleanInd;
-                        // Format: "ELECTRICIAN" -> "Electrician"
-                        opt.textContent = cleanInd.charAt(0).toUpperCase() + cleanInd.slice(1).toLowerCase();
-                        select.appendChild(opt);
-                    }
-                });
-                
-                // Restore saved industry selection
-                const savedInd = localStorage.getItem('eoco_industry');
-                if(savedInd) select.value = savedInd;
-                return; // Skip the rest of this loop iteration
+            const key = row[0]?.trim().toUpperCase();
+            if (key === 'ID') {
+                if (currentMod) modules.push(currentMod);
+                currentMod = { id: row[1], phase: 'PHASE 1', title: '', desc: '', video: '', library: [], steps: [], tags: [] };
             }
-            // ----------------------------------
-
-            if (type === 'ID') {
-                if (currentMod) allModules.push(currentMod);
-                currentMod = { 
-                    id: cols[1], 
-                    phase: '', title: '', desc: '', video: '', 
-                    tools: [], steps: [], tags: [] 
-                };
-            } else if (currentMod) {
-                if (type === 'PHASE') currentMod.phase = cols[1];
-                if (type === 'TITLE') {
-                    // Extract {TAG} from Title
-                    let rawTitle = cols[1];
-                    let tagMatch = rawTitle.match(/\{(.*?)\}/);
-                    if (tagMatch) {
-                        currentMod.tags.push(tagMatch[1]);
-                        currentMod.title = rawTitle.replace(/\{.*?\}/, '').trim();
-                    } else {
-                        currentMod.title = rawTitle;
-                    }
-                }
-                if (type === 'DESCRIPTION') currentMod.desc = cols[1];
-                if (type === 'VIDEO') currentMod.video = cols[2];
-                if (type === 'SECTION') currentMod.tools.push({ type: 'section', name: cols[1] });
-                if (type === 'TOOL') {
-                    // Extract {TAG} from Tool Name
-                    let rawName = cols[1];
-                    let toolTag = null;
-                    let tagMatch = rawName.match(/\{(.*?)\}/);
-                    if (tagMatch) {
-                        toolTag = tagMatch[1];
-                        rawName = rawName.replace(/\{.*?\}/, '').trim();
-                    }
-                    currentMod.tools.push({ type: 'link', name: rawName, url: cols[2], tag: toolTag });
-                }
-                if (type === 'STEP') currentMod.steps.push({ name: cols[1], desc: cols[2] });
+            if (!currentMod) return;
+            if (key === 'PHASE') currentMod.phase = row[1];
+            if (key === 'TITLE') {
+                const tagMatch = row[1].match(/\{([^}]+)\}/);
+                currentMod.title = row[1].replace(/\{[^}]+\}/g, '').trim();
+                if (tagMatch) currentMod.tags = tagMatch[1].split(',').map(t => t.trim().toUpperCase());
             }
+            if (key === 'DESCRIPTION') currentMod.desc = row[1];
+            if (key === 'STEP') currentMod.steps.push({ name: row[1], val: row[2] });
+            if (key === 'TOOL') currentMod.library.push({ name: row[1], val: row[2] });
+            if (key === 'VIDEO') currentMod.video = row[2];
         });
-        if (currentMod) allModules.push(currentMod);
-        renderRoadmap();
+        if (currentMod) modules.push(currentMod);
     }
 
-    // --- RENDERING ---
-    function renderRoadmap() {
-        const container = document.getElementById('roadmap-content');
-        container.innerHTML = '';
-        
-        const userProv = document.getElementById('province').value;
-        const userInd = document.getElementById('industry').value;
-        const userSoft = document.getElementById('software').value;
+    function isVisible(m) {
+        if (!m.tags || m.tags.length === 0) return true;
+        const s = userProfile.software.toUpperCase();
+        return m.tags.includes(s);
+    }
 
-        // Group by Phase
-        const phases = {};
-        
-        allModules.forEach(mod => {
-            // 1. MODULE VISIBILITY LOGIC (The Wizard)
-            let showModule = true;
-            
-            // Check Software Tags
-            if (mod.tags.includes('QBO') && userSoft !== 'ALL' && userSoft !== 'QBO') showModule = false;
-            if (mod.tags.includes('XERO') && userSoft !== 'ALL' && userSoft !== 'XERO') showModule = false;
-            if (mod.tags.includes('FRESHBOOKS') && userSoft !== 'ALL' && userSoft !== 'FRESHBOOKS') showModule = false;
-
-            if (showModule) {
-                if (!phases[mod.phase]) phases[mod.phase] = [];
-                phases[mod.phase].push(mod);
-            }
-        });
-
-        // Build HTML
-        for (const [phaseName, modules] of Object.entries(phases)) {
-            const pTitle = document.createElement('h2');
-            pTitle.className = 'phase-title';
-            pTitle.textContent = phaseName;
-            container.appendChild(pTitle);
-
-            modules.forEach(mod => {
-                const el = document.createElement('div');
-                el.className = 'module';
-                // Check if completed
-                if (localStorage.getItem('mod_complete_' + mod.id) === 'true') {
-                    el.classList.add('completed');
-                }
-
-                let toolsHTML = '';
-                mod.tools.forEach(tool => {
-                    if (tool.type === 'section') {
-                        toolsHTML += `<div class="section-title">${tool.name}</div>`;
-                    } else {
-                        // 2. TOOL VISIBILITY LOGIC (The Filter)
-                        let showTool = true;
-                        
-                        // Province Check (Tags like AB, BC, ON, NS)
-                        if (tool.tag && ['AB','BC','ON','NS'].includes(tool.tag)) {
-                            if (userProv !== 'ALL' && userProv !== tool.tag) showTool = false;
-                        }
-                        
-                        // Industry Check (All other tags)
-                        if (tool.tag && !['AB','BC','ON','NS'].includes(tool.tag)) {
-                            if (userInd !== 'ALL' && userInd !== tool.tag) showTool = false;
-                        }
-
-                        if (showTool) {
-                            toolsHTML += `<a href="${tool.url}" target="_blank" class="tool-link"><span>${tool.name}</span></a>`;
-                        }
-                    }
-                });
-
-                let stepsHTML = '';
-                mod.steps.forEach((step, index) => {
-                    const stepId = mod.id + '_step_' + index;
-                    const isChecked = localStorage.getItem(stepId) === 'true' ? 'checked' : '';
-                    stepsHTML += `
-                        <li class="step-item">
-                            <input type="checkbox" class="step-checkbox" id="${stepId}" ${isChecked} onchange="toggleStep('${mod.id}', '${stepId}')">
-                            <div class="step-text"><strong>${step.name}</strong><br>${step.desc}</div>
-                        </li>`;
-                });
-
-                let videoHTML = mod.video ? `<div class="video-container"><a href="${mod.video}" target="_blank" class="video-btn">▶ Watch Tutorial</a></div>` : '';
-
-                el.innerHTML = `
-                    <div class="module-header" onclick="this.parentElement.classList.toggle('open')">
-                        <h3>${mod.title}</h3>
-                        <span class="status-icon">✓</span>
+    function render() {
+        const list = document.getElementById('module-list');
+        list.innerHTML = modules.filter(isVisible).map(m => `
+            <div class="module-card">
+                <div class="module-title">${m.title}</div>
+                <div class="module-desc">${m.desc}</div>
+                ${m.steps.map(s => `
+                    <div class="step-container" onclick="this.classList.toggle('open')">
+                        <div class="step-header"><span class="step-name">${s.name}</span></div>
+                        <div class="step-content">${s.val}</div>
                     </div>
-                    <div class="module-content">
-                        <p>${mod.desc}</p>
-                        ${videoHTML}
-                        ${toolsHTML}
-                        <ul class="step-list">${stepsHTML}</ul>
-                    </div>
-                `;
-                container.appendChild(el);
-            });
-        }
-        updateProgress();
+                `).join('')}
+                <div class="btn-row">
+                    <button class="action-btn" onclick="toggleLibrary('${m.id}')">Links & Tools</button>
+                    <button class="action-btn" onclick="toggleVideo('${m.id}')">Watch Video</button>
+                </div>
+            </div>
+        `).join('');
     }
 
-    // --- INTERACTION ---
-    function toggleStep(modId, stepId) {
-        const checkbox = document.getElementById(stepId);
-        localStorage.setItem(stepId, checkbox.checked);
-        updateProgress();
+    function toggleLibrary(id) {
+        const p = document.getElementById('pane-library');
+        if (!id) { p.classList.remove('active'); return; }
+        const m = modules.find(mod => mod.id === id);
+        document.getElementById('library-content').innerHTML = `<h3>${m.title} Tools</h3>` + 
+            m.library.map(l => `<a href="${l.val}" target="_blank" class="action-btn" style="display:block; margin-bottom:10px; text-decoration:none; text-align:center;">${l.name}</a>`).join('');
+        p.classList.add('active');
+        updateLayout();
     }
 
-    function updateProgress() {
-        const checkboxes = document.querySelectorAll('.step-checkbox');
-        const checked = document.querySelectorAll('.step-checkbox:checked');
-        
-        if(checkboxes.length > 0) {
-            const pct = (checked.length / checkboxes.length) * 100;
-            document.getElementById('progress-bar').style.width = pct + '%';
-        }
+    function toggleVideo(id) {
+        const p = document.getElementById('pane-video');
+        if (!id) { p.classList.remove('active'); return; }
+        const m = modules.find(mod => mod.id === id);
+        const vidId = m.video.split('v=')[1]?.split('&')[0];
+        document.getElementById('video-frame').innerHTML = `<iframe width="100%" height="300" src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe>`;
+        p.classList.add('active');
+        updateLayout();
     }
+
+    function updateLayout() {
+        const ws = document.getElementById('main-ws');
+        const lib = document.getElementById('pane-library').classList.contains('active');
+        const vid = document.getElementById('pane-video').classList.contains('active');
+        ws.className = 'workspace' + (lib ? ' lib-active' : '') + (vid ? ' vid-active' : '') + (lib && vid ? ' both-active' : '');
+    }
+
+    init();
 </script>
-
 </body>
 </html>
