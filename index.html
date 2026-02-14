@@ -166,7 +166,10 @@
         /* ONBOARDING MODAL */
         #modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(28, 37, 65, 0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
         #modal-overlay.active { display: flex; }
-        .modal-card { background: var(--bg-panel); padding: 40px; border-radius: var(--radius); width: 90%; max-width: 500px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid var(--border-grey); }
+        
+        /* UPDATED MODAL STYLES FOR RELATIVE POSITIONING OF X BUTTON */
+        .modal-card { background: var(--bg-panel); padding: 40px; border-radius: var(--radius); width: 90%; max-width: 500px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid var(--border-grey); position: relative; }
+        
         .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; color: var(--primary-brand); letter-spacing: 1px; text-transform: uppercase; }
         .modal-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 30px; }
         .form-group { margin-bottom: 20px; text-align: left; }
@@ -175,12 +178,28 @@
         .start-btn { background: var(--primary-brand); color: white; border: none; padding: 16px; width: 100%; border-radius: var(--radius); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; margin-top: 10px; }
         .start-btn:hover { background: #2A4058; }
 
+        /* CLOSE X BUTTON STYLE */
+        .close-modal-x {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 800;
+            transition: 0.2s;
+        }
+        .close-modal-x:hover { color: var(--primary-brand); }
+
     </style>
 </head>
 <body data-theme="light">
 
 <div id="modal-overlay">
     <div class="modal-card">
+        <span class="close-modal-x" onclick="closeProfile()">×</span>
+        
         <div class="modal-title">Welcome to EOCO</div>
         <div class="modal-subtitle">Customize your roadmap to your business.</div>
         
@@ -209,25 +228,7 @@
         <div class="form-group">
             <label class="form-label">Industry / Business Type</label>
             <select class="form-select" id="user-industry">
-                <option value="ALL">Show Everything</option>
-                <option disabled>--- Construction & Trades ---</option>
-                <option value="General">General Contractor</option>
-                <option value="Electrician">Electrician</option>
-                <option value="Plumber">Plumber</option>
-                <option value="HVAC">HVAC Technician</option>
-                <option value="Carpenter">Carpenter / Framer</option>
-                <option value="Roofer">Roofer</option>
-                <option value="Landscaper">Landscaper</option>
-                <option value="Painter">Painter / Decorator</option>
-                <option value="Welder">Welder / Metalwork</option>
-                <option value="Flooring">Flooring / Tile</option>
-                <option value="Drywall">Drywall / Insulation</option>
-                <option value="Mason">Masonry / Bricklaying</option>
-                <option disabled>--- Other Businesses ---</option>
-                <option value="Consultant">Professional / Consultant</option>
-                <option value="RealEstate">Real Estate Agent / Landlord</option>
-                <option value="Ecommerce">E-Commerce / Online Store</option>
-                <option value="Health">Health & Beauty / Wellness</option>
+                <option value="ALL">Loading Industries...</option>
             </select>
         </div>
 
@@ -281,6 +282,11 @@
     let userProfile = JSON.parse(localStorage.getItem('eoco_profile')) || null;
     let activeLibId = null, currentVideoId = null;
 
+    // Initialize immediately to start fetching data
+    window.onload = function() {
+        init();
+    };
+
     function toggleTheme() {
         const next = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
         document.body.setAttribute('data-theme', next); 
@@ -288,12 +294,9 @@
         localStorage.setItem('eoco_theme', next);
     }
 
-    function checkOnboarding() {
-        if (!userProfile) {
-            document.getElementById('modal-overlay').classList.add('active');
-        } else {
-            init();
-        }
+    // NEW FUNCTION: Just closes the modal
+    function closeProfile() {
+        document.getElementById('modal-overlay').classList.remove('active');
     }
 
     function saveProfile() {
@@ -303,13 +306,16 @@
         userProfile = { province: prov, industry: ind, software: soft };
         localStorage.setItem('eoco_profile', JSON.stringify(userProfile));
         document.getElementById('modal-overlay').classList.remove('active');
-        init(); 
+        render(); // Re-render with new settings (no need to fetch again)
     }
 
     function openProfile() {
         if(userProfile) {
             document.getElementById('user-province').value = userProfile.province;
-            document.getElementById('user-industry').value = userProfile.industry;
+            // Industry is dynamic, so we just set value. If list isn't loaded yet, it waits.
+            if (document.getElementById('user-industry').options.length > 1) {
+                 document.getElementById('user-industry').value = userProfile.industry;
+            }
             document.getElementById('user-software').value = userProfile.software || 'ALL';
         }
         document.getElementById('modal-overlay').classList.add('active');
@@ -330,6 +336,12 @@
                 const b = row[1]; 
                 const c = row[2];
                 
+                // --- NEW: DYNAMIC INDUSTRY LOADER ---
+                if (key === 'METADATA' && b === 'INDUSTRIES') {
+                    populateIndustries(c);
+                }
+                // ------------------------------------
+
                 if (key === 'ID') { 
                     if (currentMod) modules.push(currentMod); 
                     currentMod = { id: b, phase: 'PHASE 1', title: '', description: '', video: '', library: [], steps: [], tags: [] }; 
@@ -365,8 +377,38 @@
             });
             
             if (currentMod) modules.push(currentMod); 
+            
+            // Check Onboarding AFTER data load (so dropdown is populated)
+            if (!userProfile) {
+                document.getElementById('modal-overlay').classList.add('active');
+            }
+            
             render();
         } catch (e) { console.error(e); }
+    }
+
+    // NEW HELPER: Populates the Industry Dropdown
+    function populateIndustries(csvString) {
+        const select = document.getElementById('user-industry');
+        select.innerHTML = '<option value="ALL">Show Everything</option>'; // Reset
+        
+        if (csvString) {
+            const inds = csvString.split(',').sort();
+            inds.forEach(i => {
+                const val = i.trim();
+                if (!val) return;
+                const opt = document.createElement('option');
+                opt.value = val;
+                // Capitalize: "ELECTRICIAN" -> "Electrician"
+                opt.textContent = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
+                select.appendChild(opt);
+            });
+        }
+        
+        // Restore selection if profile exists
+        if (userProfile && userProfile.industry) {
+            select.value = userProfile.industry;
+        }
     }
 
     function parseTaggedItem(name, value) {
@@ -640,8 +682,6 @@
         
         p.classList.add('active'); updateLayoutClasses();
     }
-
-    checkOnboarding();
 </script>
 </body>
 </html>
