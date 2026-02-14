@@ -6,16 +6,9 @@
     <title>EOCO | Simple. Better.</title>
     <style>
         :root { 
-            --primary-brand: #3A506B;   
-            --primary-dark: #1C2541;    
-            --bg-main: #F0F4F8;         
-            --bg-panel: #FFFFFF;        
-            --text-main: #334155;       
-            --text-muted: #64748B;      
-            --border-grey: #D1D9E6;     
-            --radius: 3px;              
-            --shadow: 0 4px 12px rgba(58, 80, 107, 0.08); 
-            --ease: cubic-bezier(0.2, 1, 0.3, 1);
+            --primary-brand: #3A506B; --primary-dark: #1C2541; --bg-main: #F0F4F8; --bg-panel: #FFFFFF; 
+            --text-main: #334155; --text-muted: #64748B; --border-grey: #D1D9E6; --radius: 3px; 
+            --shadow: 0 4px 12px rgba(58, 80, 107, 0.08); --ease: cubic-bezier(0.2, 1, 0.3, 1);
         }
         [data-theme="dark"] {
             --bg-main: #0B1015; --bg-panel: #151B24; --border-grey: #2A3645;
@@ -59,54 +52,34 @@
         .form-label { display: block; font-size: 0.7rem; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; color: var(--text-main); }
         .form-select { width: 100%; padding: 12px; border: 1px solid var(--border-grey); border-radius: var(--radius); font-size: 1rem; background: var(--bg-main); color: var(--text-main); border-left: 4px solid var(--primary-brand); }
         .close-modal-x { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); font-weight: 800; }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
         .tool-tile { background: var(--bg-panel); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-grey); text-decoration: none; color: inherit; transition: 0.2s; display: block; }
         .tile-img { height: 90px; background-size: cover; background-position: top; }
         .tile-name { padding: 10px; font-size: 0.7rem; font-weight: 700; text-align: center; text-transform: uppercase; color: var(--text-muted); }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
         .cluster-group summary { background: var(--bg-main); padding: 12px; cursor: pointer; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; list-style: none; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body data-theme="light">
-
 <div id="modal-overlay">
     <div class="modal-card">
         <span class="close-modal-x" onclick="closeProfile()">×</span>
         <div style="font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; color: var(--primary-brand); text-transform: uppercase;">Profile Settings</div>
-        
-        <div class="form-group">
-            <label class="form-label">Location</label>
-            <select class="form-select" id="user-province">
-                </select>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">Industry</label>
-            <select class="form-select" id="user-industry">
-                </select>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Software</label>
-            <select class="form-select" id="user-software">
-                </select>
-        </div>
-
-        <button style="background: var(--primary-brand); color: white; border: none; padding: 16px; width: 100%; border-radius: var(--radius); font-weight: 800; text-transform: uppercase; cursor: pointer;" onclick="saveProfile()">Save & Update</button>
+        <div class="form-group"><label class="form-label">Location</label><select class="form-select" id="user-province"></select></div>
+        <div class="form-group"><label class="form-label">Industry</label><select class="form-select" id="user-industry"></select></div>
+        <div class="form-group"><label class="form-label">Software</label><select class="form-select" id="user-software"></select></div>
+        <button class="action-btn" style="width:100%; padding:20px;" onclick="saveProfile()">Save & Update</button>
     </div>
 </div>
-
 <header>
     <div class="header-top"><div class="brand-container"><div class="brand-name">EOCO</div><div class="brand-slogan">Simple Systems. Better Business.</div></div>
     <div class="header-controls"><button class="profile-btn" onclick="openProfile()">Profile</button><button class="theme-toggle" onclick="toggleTheme()">Dark Mode</button></div></div>
     <div class="page-title-section"><h1 class="page-title">The Foundational Roadmap</h1></div>
 </header>
-
 <div class="workspace" id="main-ws">
     <section id="pane-library" class="side-pane"><button class="action-btn" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button><div id="library-content"></div></section>
     <section id="pane-modules"><div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">Syncing...</div></section>
     <section id="pane-video" class="side-pane"><button class="action-btn" onclick="toggleVideo(null)">✕ CLOSE VIDEO</button><div id="video-frame" style="margin-top:20px;"></div></section>
 </div>
-
 <script>
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv&t=' + Date.now();
     let modules = [];
@@ -127,15 +100,8 @@
             rows.forEach(row => {
                 const key = row[0]?.toUpperCase();
                 const b = row[1]; const c = row[2];
-                
-                if (key === 'METADATA') {
-                    metadata[b.toLowerCase()] = c.split(',').filter(x => x);
-                    return;
-                }
-                if (key === 'ID') {
-                    if (currentMod) modules.push(currentMod);
-                    currentMod = { id: b, phase: 'PHASE 1', title: '', description: '', video: '', library: [], steps: [], tags: [] };
-                }
+                if (key === 'METADATA') { metadata[b.toLowerCase()] = c.split(',').filter(x => x); return; }
+                if (key === 'ID') { if (currentMod) modules.push(currentMod); currentMod = { id: b, phase: 'PHASE 1', title: '', description: '', video: '', library: [], steps: [], tags: [] }; }
                 if (!currentMod) return;
                 if (key === 'PHASE') currentMod.phase = b;
                 if (key === 'TITLE') { const p = parseTaggedItem(b); currentMod.title = p.name; currentMod.tags = p.tags; }
@@ -150,7 +116,6 @@
                 if (key === 'STEP') currentMod.steps.push(parseTaggedItem(b, c));
             });
             if (currentMod) modules.push(currentMod);
-            
             buildDropdowns();
             if (!userProfile) document.getElementById('modal-overlay').classList.add('active');
             render();
@@ -158,51 +123,30 @@
     }
 
     function buildDropdowns() {
-        // PROVINCES
-        const pSel = document.getElementById('user-province');
-        pSel.innerHTML = '<option value="CAN">National / All Canada</option>';
+        const pSel = document.getElementById('user-province'); pSel.innerHTML = '<option value="CAN">National / All Canada</option>';
         metadata.provinces.forEach(p => pSel.innerHTML += `<option value="${p}">${getFriendly(p)}</option>`);
-        
-        // INDUSTRIES
-        const iSel = document.getElementById('user-industry');
-        iSel.innerHTML = '<option value="ALL">Show All Industries</option>';
+        const iSel = document.getElementById('user-industry'); iSel.innerHTML = '<option value="ALL">Show All Industries</option>';
         metadata.industries.forEach(i => iSel.innerHTML += `<option value="${i}">${getFriendly(i)}</option>`);
-        
-        // SOFTWARE
-        const sSel = document.getElementById('user-software');
-        sSel.innerHTML = '<option value="ALL">Undecided / Show All</option>';
+        const sSel = document.getElementById('user-software'); sSel.innerHTML = '<option value="ALL">Undecided / Show All</option>';
         metadata.softwares.forEach(s => sSel.innerHTML += `<option value="${s}">${getFriendly(s)}</option>`);
-
-        if (userProfile) {
-            pSel.value = userProfile.province;
-            iSel.value = userProfile.industry;
-            sSel.value = userProfile.software;
-        }
+        if (userProfile) { pSel.value = userProfile.province; iSel.value = userProfile.industry; sSel.value = userProfile.software; }
     }
 
     function getFriendly(tag) {
-        const map = { 'NS': 'Nova Scotia', 'AB': 'Alberta', 'BC': 'British Columbia', 'ON': 'Ontario', 'QBO': 'QuickBooks Online' };
+        const map = { 'NS': 'Nova Scotia', 'AB': 'Alberta', 'BC': 'British Columbia', 'ON': 'Ontario', 'NB': 'New Brunswick', 'NL': 'Newfoundland', 'PE': 'PEI', 'MB': 'Manitoba', 'SK': 'Saskatchewan', 'QC': 'Quebec', 'YT': 'Yukon', 'NT': 'NWT', 'NU': 'Nunavut', 'QBO': 'QuickBooks Online' };
         return map[tag] || tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
     }
 
     function isVisible(item) {
         if (!item.tags || !item.tags.length) return true;
         if (!userProfile) return true;
-        
         const p = userProfile.province; const i = userProfile.industry; const s = userProfile.software;
-        
-        // If it has software tags, must match user software unless user is ALL
         const iSoft = item.tags.filter(t => metadata.softwares.includes(t));
         if (iSoft.length && s !== 'ALL' && !iSoft.includes(s)) return false;
-
-        // If it has province tags, must match user province unless user is CAN
         const iProv = item.tags.filter(t => metadata.provinces.includes(t));
         if (iProv.length && p !== 'CAN' && !iProv.includes(p)) return false;
-
-        // If it has industry tags, must match user industry unless user is ALL
         const iInd = item.tags.filter(t => metadata.industries.includes(t));
         if (iInd.length && i !== 'ALL' && !iInd.includes(i)) return false;
-
         return true;
     }
 
@@ -215,43 +159,29 @@
 
     function parseCSV(t) {
         const re = /(?!\s*$)\s*(?:"([^"]*(?:""[^"]*)*)"|([^",\r\n]*))\s*(?:,|$)/g;
-        const res = [];
-        t.split(/\r?\n/).forEach(l => {
+        const res = []; t.split(/\r?\n/).forEach(l => {
             const r = []; l.replace(re, (m, p1, p2) => { r.push(p1 !== undefined ? p1.replace(/""/g, '"') : p2); return ''; });
             if (r.length) res.push(r);
-        });
-        return res;
+        }); return res;
     }
 
     function render() {
         const list = document.getElementById('module-list');
         const grouped = modules.reduce((acc, m) => { if (!acc[m.phase]) acc[m.phase] = []; acc[m.phase].push(m); return acc; }, {});
         list.innerHTML = Object.keys(grouped).map(phase => {
-            const vis = grouped[phase].filter(isVisible);
-            if (!vis.length) return '';
+            const vis = grouped[phase].filter(isVisible); if (!vis.length) return '';
             return `<div class="phase-section open"><div class="phase-header"><span class="phase-title">${phase}</span></div>
             ${vis.map(m => `
                 <div class="module-card">
                     <div class="module-title">${m.title}</div>
                     <div class="module-desc">${m.description}</div>
-                    ${m.steps.filter(isVisible).map((s, idx) => `
-                        <div class="step-container">
-                            <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
-                                <span>${s.name}</span>
-                                <input type="checkbox" onclick="event.stopPropagation()" ${state[m.id]?.includes(idx) ? 'checked' : ''}>
-                            </div>
-                            <div class="step-content" style="padding:0 20px;"><div style="padding:15px 0; border-top:1px solid #ddd;">${s.val}</div></div>
-                        </div>`).join('')}
+                    ${m.steps.filter(isVisible).map((s, idx) => `<div class="step-container"><div class="step-header" onclick="this.parentElement.classList.toggle('open')"><span>${s.name}</span><input type="checkbox" onclick="event.stopPropagation()" ${state[m.id]?.includes(idx) ? 'checked' : ''}></div><div class="step-content" style="padding:0 20px;"><div style="padding:15px 0; border-top:1px solid #ddd;">${s.val}</div></div></div>`).join('')}
                     <div class="btn-row"><button class="action-btn" onclick="toggleLibrary('${m.id}')">Tools</button><button class="action-btn" onclick="toggleVideo('${m.id}')">Video</button></div>
                 </div>`).join('')}</div>`;
         }).join('');
     }
 
-    function saveProfile() {
-        userProfile = { province: document.getElementById('user-province').value, industry: document.getElementById('user-industry').value, software: document.getElementById('user-software').value };
-        localStorage.setItem('eoco_profile', JSON.stringify(userProfile));
-        closeProfile(); render();
-    }
+    function saveProfile() { userProfile = { province: document.getElementById('user-province').value, industry: document.getElementById('user-industry').value, software: document.getElementById('user-software').value }; localStorage.setItem('eoco_profile', JSON.stringify(userProfile)); closeProfile(); render(); }
     function openProfile() { document.getElementById('modal-overlay').classList.add('active'); }
     function closeProfile() { document.getElementById('modal-overlay').classList.remove('active'); }
     function toggleLibrary(mid) { 
@@ -259,26 +189,23 @@
         if (!mid || p.classList.contains('active')) { p.classList.remove('active'); document.getElementById('main-ws').className='workspace'; return; }
         const m = modules.find(mod => mod.id === mid);
         c.innerHTML = m.library.map(sec => {
-            const items = sec.items.filter(isVisible);
-            if (!items.length) return '';
+            const items = sec.items.filter(isVisible); if (!items.length) return '';
             let html = `<div class="lib-section-title">${sec.title}</div>`;
             const clusters = {}; const generic = [];
             items.forEach(item => {
                 const tags = item.tags.filter(t => metadata.provinces.includes(t) || metadata.industries.includes(t));
                 if (tags.length && (userProfile.province === 'CAN' || userProfile.industry === 'ALL')) {
-                    if (!clusters[tags[0]]) clusters[tags[0]] = [];
-                    clusters[tags[0]].push(item);
+                    if (!clusters[tags[0]]) clusters[tags[0]] = []; clusters[tags[0]].push(item);
                 } else generic.push(item);
             });
-            html += `<div class="gallery-grid">${generic.map(renderTile).join('')}</div>`;
+            html += `<div class="gallery-grid">${generic.map(item => `<a href="${item.val}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image:url('https://image.thum.io/get/width/400/crop/800/noanimate/${item.val}')"></div><div class="tile-name">${item.name}</div></a>`).join('')}</div>`;
             Object.keys(clusters).forEach(tag => {
-                html += `<details class="cluster-group"><summary>${getFriendly(tag)}</summary><div style="padding:15px;"><div class="gallery-grid">${clusters[tag].map(renderTile).join('')}</div></div></details>`;
+                html += `<details class="cluster-group"><summary>${getFriendly(tag)}</summary><div style="padding:15px;"><div class="gallery-grid">${clusters[tag].map(item => `<a href="${item.val}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image:url('https://image.thum.io/get/width/400/crop/800/noanimate/${item.val}')"></div><div class="tile-name">${item.name}</div></a>`).join('')}</div></div></details>`;
             });
             return html;
         }).join('');
         p.classList.add('active'); document.getElementById('main-ws').className='workspace lib-active';
     }
-    function renderTile(l) { return `<a href="${l.val}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image:url('https://image.thum.io/get/width/400/crop/800/noanimate/${l.val}')"></div><div class="tile-name">${l.name}</div></a>`; }
     function toggleVideo(mid) {
         const p = document.getElementById('pane-video'); const f = document.getElementById('video-frame');
         if (!mid || p.classList.contains('active')) { p.classList.remove('active'); document.getElementById('main-ws').className='workspace'; return; }
