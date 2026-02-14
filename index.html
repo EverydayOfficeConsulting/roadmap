@@ -6,7 +6,6 @@
     <title>EOCO | Simple Systems. Better Business.</title>
     <style>
         :root { 
-            /* THEME: STEEL & SLATE */
             --primary-brand: #3A506B;   
             --primary-dark: #1C2541;    
             --bg-main: #F0F4F8;         
@@ -14,76 +13,36 @@
             --text-main: #334155;       
             --text-muted: #64748B;      
             --border-grey: #D1D9E6;     
-            
             --radius: 3px;              
             --shadow: 0 4px 12px rgba(58, 80, 107, 0.08); 
             --ease: cubic-bezier(0.2, 1, 0.3, 1);
         }
-
         [data-theme="dark"] {
-            --bg-main: #0B1015; 
-            --bg-panel: #151B24; 
-            --border-grey: #2A3645;
-            --text-main: #E2E8F0; 
-            --text-muted: #94A3B8; 
-            --primary-brand: #5C7C99;
-            --primary-dark: #000000;
-            --shadow: 0 4px 15px rgba(0,0,0,0.5);
+            --bg-main: #0B1015; --bg-panel: #151B24; --border-grey: #2A3645;
+            --text-main: #E2E8F0; --text-muted: #94A3B8; --primary-brand: #5C7C99;
+            --primary-dark: #000000; --shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-
         * { box-sizing: border-box; }
         body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main); }
         
-        /* HEADER */
-        header { 
-            background: var(--primary-dark); color: white; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 15px 20px 0 20px; z-index: 4000; position: relative; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        .header-top { 
-            display: flex; justify-content: center; align-items: center; 
-            width: 100%; position: relative; padding-bottom: 15px; 
-        }
-        .brand-container { text-align: center; }
+        header { background: var(--primary-dark); color: white; display: flex; flex-direction: column; align-items: center; padding: 15px 20px 0 20px; z-index: 4000; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .header-top { display: flex; justify-content: center; align-items: center; width: 100%; position: relative; padding-bottom: 15px; }
         .brand-name { font-size: 1.2rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin: 0; }
         .brand-slogan { font-size: 0.65rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: #8DA9C4; margin-top: 4px; }
-        
-        .page-title-section { 
-            background: rgba(255,255,255,0.05); width: 100vw; text-align: center; 
-            padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1);
-        }
+        .page-title-section { background: rgba(255,255,255,0.05); width: 100vw; text-align: center; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1); }
         .page-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: white; margin: 0; }
-
-        /* HEADER CONTROLS */
-        .header-controls { 
-            display: flex; gap: 10px; align-items: center; 
-            position: absolute; right: 0; top: 0;
-        }
-        .theme-toggle, .profile-btn { 
-            background: var(--primary-brand); color: white; 
-            border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: var(--radius); 
-            cursor: pointer; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; 
-            transition: background 0.2s;
-        }
+        .header-controls { display: flex; gap: 10px; align-items: center; position: absolute; right: 0; top: 0; }
+        .theme-toggle, .profile-btn { background: var(--primary-brand); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: var(--radius); cursor: pointer; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; transition: background 0.2s; }
         .profile-btn { background: transparent; border: 1px solid rgba(255,255,255,0.4); }
         .theme-toggle:hover, .profile-btn:hover { background: #4B6685; }
 
         .workspace { display: flex; height: calc(100vh - 125px); width: 100vw; position: relative; overflow: hidden; }
-        
-        /* PANELS */
-        .side-pane { 
-            position: absolute; top: 0; height: 100%; background: var(--bg-panel); 
-            border-color: var(--border-grey); transition: transform 0.5s var(--ease); 
-            z-index: 3000; display: flex; flex-direction: column; padding: 25px; 
-            box-shadow: var(--shadow); 
-        }
+        .side-pane { position: absolute; top: 0; height: 100%; background: var(--bg-panel); border-color: var(--border-grey); transition: transform 0.5s var(--ease); z-index: 3000; display: flex; flex-direction: column; padding: 25px; box-shadow: var(--shadow); }
         #pane-library { left: 0; border-right: 1px solid var(--border-grey); transform: translateX(-100%); width: 50%; overflow-y: auto; }
         #pane-library.active { transform: translateX(0); }
         #pane-video { right: 0; border-left: 1px solid var(--border-grey); transform: translateX(100%); width: 50%; }
         #pane-video.active { transform: translateX(0); }
         .workspace.both-active #pane-library, .workspace.both-active #pane-video { width: 33.33%; }
-        
         #pane-modules { flex: 1; height: 100%; overflow-y: auto; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; transition: margin 0.5s var(--ease); }
         .workspace.lib-active #pane-modules { margin-left: 50%; }
         .workspace.vid-active #pane-modules { margin-right: 50%; }
@@ -104,10 +63,8 @@
         .pop-out-btn:hover { border-color: var(--primary-brand); color: var(--primary-brand); }
         .transcript-hint { margin-top: 20px; padding: 15px; background: var(--bg-main); border-radius: var(--radius); border: 1px solid var(--border-grey); font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); }
 
-        /* PHASE & MODULE STYLES */
         .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 1px solid var(--border-grey); }
         .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; user-select: none; }
-        
         .phase-title-group { display: flex; align-items: center; gap: 10px; }
         .phase-icon { width: 14px; height: 14px; transition: transform 0.3s var(--ease); fill: var(--primary-brand); }
         .phase-section:not(.open) .phase-icon { transform: rotate(-90deg); }
@@ -118,7 +75,6 @@
         .phase-section:not(.open) .phase-content { grid-template-rows: 0fr; }
         .phase-inner { overflow: hidden; }
 
-        /* CARDS */
         .module-card { background: var(--bg-panel); border-radius: var(--radius); padding: 35px; margin: 20px 0; border: 1px solid var(--border-grey); box-shadow: var(--shadow); }
         .module-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; color: var(--text-main); }
         .module-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; font-weight: 400; }
@@ -142,12 +98,10 @@
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-grey); }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
-        /* LIBRARY DRAWER STYLES */
         .lib-drawer { margin-bottom: 10px; }
         .lib-section-title { text-align: center; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 20px; margin-top: 10px; color: var(--primary-brand); letter-spacing: 1px; }
         .section-divider { height: 1px; background: var(--border-grey); width: 100%; margin: 30px 0; border: none; }
 
-        /* CLUSTER STYLES */
         details.cluster-group { margin-top: 15px; border: 1px solid var(--border-grey); border-radius: var(--radius); overflow: hidden; }
         details.cluster-group summary { 
             background: var(--bg-main); padding: 12px; cursor: pointer; 
@@ -159,7 +113,6 @@
         details.cluster-group[open] summary::after { content: '-'; }
         details.cluster-group .cluster-content { padding: 15px; background: var(--bg-panel); border-top: 1px solid var(--border-grey); }
 
-        /* ONBOARDING MODAL */
         #modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(28, 37, 65, 0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
         #modal-overlay.active { display: flex; }
         .modal-card { background: var(--bg-panel); padding: 40px; border-radius: var(--radius); width: 90%; max-width: 500px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid var(--border-grey); }
@@ -178,7 +131,7 @@
 <div id="modal-overlay">
     <div class="modal-card">
         <div class="modal-title">Welcome to EOCO</div>
-        <div class="modal-subtitle">Customize your roadmap to your trade and region.</div>
+        <div class="modal-subtitle">Customize your roadmap to your business.</div>
         
         <div class="form-group">
             <label class="form-label">Region</label>
@@ -203,10 +156,10 @@
         </div>
         
         <div class="form-group">
-            <label class="form-label">Trade / Industry</label>
+            <label class="form-label">Industry / Business Type</label>
             <select class="form-select" id="user-industry">
-                <option value="ALL">All Trades (Show Everything)</option>
-                <option disabled>--- Trades ---</option>
+                <option value="ALL">Show Everything</option>
+                <option disabled>--- Construction & Trades ---</option>
                 <option value="General">General Contractor</option>
                 <option value="Electrician">Electrician</option>
                 <option value="Plumber">Plumber</option>
@@ -219,7 +172,11 @@
                 <option value="Flooring">Flooring / Tile</option>
                 <option value="Drywall">Drywall / Insulation</option>
                 <option value="Mason">Masonry / Bricklaying</option>
+                <option disabled>--- Other Businesses ---</option>
                 <option value="Consultant">Professional / Consultant</option>
+                <option value="RealEstate">Real Estate Agent / Landlord</option>
+                <option value="Ecommerce">E-Commerce / Online Store</option>
+                <option value="Health">Health & Beauty / Wellness</option>
             </select>
         </div>
 
@@ -227,7 +184,7 @@
             <label class="form-label">Software Preference</label>
             <select class="form-select" id="user-software">
                 <option value="ALL">I haven't decided (Show All)</option>
-                <option value="QBO">QuickBooks Online (Recommended)</option>
+                <option value="QBO">QuickBooks Online</option>
                 <option value="XERO">Xero</option>
                 <option value="FRESHBOOKS">FreshBooks</option>
             </select>
@@ -241,7 +198,7 @@
     <div class="header-top">
         <div class="brand-container">
             <div class="brand-name">EOCO</div>
-            <div class="brand-slogan">Simple. Better.</div>
+            <div class="brand-slogan">Simple Systems. Better Business.</div>
         </div>
         <div class="header-controls">
             <button class="profile-btn" onclick="openProfile()">Profile</button>
@@ -386,7 +343,7 @@
         const allowAllTrade = (userInd === 'ALL');
         const allowAllSoft = (userSoft === 'ALL');
 
-        // Check specifically for Software tags
+        // Check for Software Tags
         const softwareTags = ['QBO', 'XERO', 'FRESHBOOKS'];
         const isSoftwareTag = item.tags.some(tag => softwareTags.includes(tag));
         
@@ -592,7 +549,8 @@
             'NB': 'New Brunswick', 'NL': 'Newfoundland', 'PE': 'PEI', 'MB': 'Manitoba',
             'SK': 'Saskatchewan', 'QC': 'Quebec', 'YT': 'Yukon', 'NT': 'NWT', 'NU': 'Nunavut',
             'ELECTRICIAN': 'Electrician', 'PLUMBER': 'Plumber', 'HVAC': 'HVAC', 
-            'CARPENTER': 'Carpenter', 'ROOFER': 'Roofer', 'GENERAL': 'General Contractor'
+            'CARPENTER': 'Carpenter', 'ROOFER': 'Roofer', 'GENERAL': 'General Contractor',
+            'CONSULTANT': 'Consultant', 'REALESTATE': 'Real Estate', 'ECOMMERCE': 'E-Commerce', 'HEALTH': 'Health & Beauty'
         };
         return map[tag] || tag; 
     }
