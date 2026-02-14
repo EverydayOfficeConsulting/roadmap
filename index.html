@@ -155,26 +155,46 @@
 <div id="modal-overlay">
     <div class="modal-card">
         <div class="modal-title">Welcome to EOCO</div>
-        <div class="modal-subtitle">Let's customize your roadmap.</div>
+        <div class="modal-subtitle">Customize your roadmap to your trade and region.</div>
         
         <div class="form-group">
-            <label class="form-label">Province</label>
+            <label class="form-label">Region</label>
             <select class="form-select" id="user-province">
+                <option value="CAN">All of Canada (National)</option>
+                <option disabled>--- Provinces ---</option>
+                <option value="AB">Alberta (AB)</option>
+                <option value="BC">British Columbia (BC)</option>
+                <option value="MB">Manitoba (MB)</option>
+                <option value="NB">New Brunswick (NB)</option>
+                <option value="NL">Newfoundland & Labrador (NL)</option>
                 <option value="NS">Nova Scotia (NS)</option>
                 <option value="ON">Ontario (ON)</option>
-                <option value="BC">British Columbia (BC)</option>
-                <option value="AB">Alberta (AB)</option>
+                <option value="PE">Prince Edward Island (PE)</option>
+                <option value="QC">Quebec (QC)</option>
+                <option value="SK">Saskatchewan (SK)</option>
+                <option disabled>--- Territories ---</option>
+                <option value="NT">Northwest Territories (NT)</option>
+                <option value="NU">Nunavut (NU)</option>
+                <option value="YT">Yukon (YT)</option>
             </select>
         </div>
         
         <div class="form-group">
-            <label class="form-label">Industry / Trade</label>
+            <label class="form-label">Trade / Industry</label>
             <select class="form-select" id="user-industry">
+                <option value="General">General Contractor</option>
                 <option value="Electrician">Electrician</option>
                 <option value="Plumber">Plumber</option>
-                <option value="Carpenter">Carpenter</option>
-                <option value="General">General Contractor</option>
-                <option value="Consultant">Consultant / Professional</option>
+                <option value="HVAC">HVAC Technician</option>
+                <option value="Carpenter">Carpenter / Framer</option>
+                <option value="Roofer">Roofer</option>
+                <option value="Landscaper">Landscaper</option>
+                <option value="Painter">Painter / Decorator</option>
+                <option value="Welder">Welder / Metalwork</option>
+                <option value="Flooring">Flooring / Tile</option>
+                <option value="Drywall">Drywall / Insulation</option>
+                <option value="Mason">Masonry / Bricklaying</option>
+                <option value="Consultant">Professional / Consultant</option>
             </select>
         </div>
 
@@ -239,7 +259,7 @@
         userProfile = { province: prov, industry: ind };
         localStorage.setItem('eoco_profile', JSON.stringify(userProfile));
         document.getElementById('modal-overlay').classList.remove('active');
-        init(); // Re-render with new profile
+        init(); 
     }
 
     function openProfile() {
@@ -258,8 +278,6 @@
             const text = await res.text(); 
             const rows = parseCSV(text);
             let currentMod = null;
-            
-            // RESET MODULES FOR RE-RENDER
             modules = []; 
 
             rows.forEach(row => {
@@ -287,7 +305,6 @@
                         lastSection = { title: "Module Library", items: [] };
                         currentMod.library.push(lastSection);
                     }
-                    // TAG PARSING HAPPENS HERE
                     lastSection.items.push(parseTaggedItem(b, c));
                 }
 
@@ -301,33 +318,24 @@
         } catch (e) { console.error(e); }
     }
 
-    // HELPER: EXTRACT TAGS FROM TEXT
     function parseTaggedItem(name, value) {
-        // Look for content in curly braces e.g. "{NS} Bank Name"
         const tagMatch = name.match(/\{([^}]+)\}/);
         let tags = [];
         let cleanName = name;
 
         if (tagMatch) {
-            tags = tagMatch[1].split(',').map(t => t.trim().toUpperCase()); // Get tag e.g. "NS"
-            cleanName = name.replace(/\{[^}]+\}/g, '').trim(); // Remove tag from display name
+            tags = tagMatch[1].split(',').map(t => t.trim().toUpperCase()); 
+            cleanName = name.replace(/\{[^}]+\}/g, '').trim(); 
         }
 
-        // Return object with tags to check later
         return { name: cleanName, val: value, tags: tags };
     }
 
-    // HELPER: CHECK IF ITEM SHOULD SHOW
     function isVisible(item) {
-        if (!item.tags || item.tags.length === 0) return true; // No tags = Show Everyone
-        if (!userProfile) return true; // Fallback
+        if (!item.tags || item.tags.length === 0) return true; 
+        if (!userProfile) return true; 
 
-        // Check against Profile
         const userTags = [userProfile.province.toUpperCase(), userProfile.industry.toUpperCase()];
-        
-        // If the item has a tag, the user MUST match at least one of them
-        // Example: Item has {NS}. User is {NS, Electrician}. Match!
-        // Example: Item has {BC}. User is {NS, Electrician}. Hide!
         const hasMatch = item.tags.some(tag => userTags.includes(tag));
         return hasMatch;
     }
@@ -357,17 +365,11 @@
         list.innerHTML = Object.keys(grouped).map(phaseName => {
             let totalSteps = 0, completedSteps = 0;
             
-            // Calculate progress based only on VISIBLE steps
             grouped[phaseName].forEach(m => { 
                 const visibleSteps = m.steps.filter(isVisible);
                 totalSteps += visibleSteps.length; 
-                // We need to count checks, but only for visible steps
-                // This is a bit tricky with indices, but for simple counting:
                 const checkedIndices = state[m.id] || [];
-                // We assume steps don't change order dynamically enough to break indices too badly
-                // But specifically:
                 const visibleCheckCount = visibleSteps.filter((s, originalIndex) => {
-                     // We need to find the REAL index of this step in the full list
                      const realIndex = m.steps.indexOf(s);
                      return checkedIndices.includes(realIndex);
                 }).length;
@@ -395,7 +397,7 @@
                                 <div class="module-title">${m.title}</div>
                                 <div class="module-desc">${m.description || ''}</div>
                                 ${m.steps.map((s, i) => {
-                                    if (!isVisible(s)) return ''; // FILTER HIDDEN STEPS
+                                    if (!isVisible(s)) return ''; 
                                     return `
                                     <div class="step-container">
                                         <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
@@ -426,8 +428,6 @@
         if (i > -1) state[mid].splice(i, 1); 
         else state[mid].push(idx);
         localStorage.setItem('eoco_state', JSON.stringify(state));
-
-        // Simplified re-render of badge to avoid complex index math in DOM
         init(); 
     }
 
@@ -451,13 +451,10 @@
         
         const m = modules.find(mod => mod.id === mid);
         
-        // --- RENDER DYNAMIC SECTIONS WITH FILTERING ---
         if (m.library && m.library.length > 0) {
             content.innerHTML = m.library.map((section, index) => {
-                
-                // FILTER ITEMS INSIDE THE DRAWER
                 const visibleItems = section.items.filter(isVisible);
-                if (visibleItems.length === 0) return ''; // Skip empty sections
+                if (visibleItems.length === 0) return ''; 
 
                 const divider = index > 0 ? '<hr class="section-divider">' : '';
                 const grid = visibleItems.map(l => `
@@ -516,7 +513,6 @@
         p.classList.add('active'); updateLayoutClasses();
     }
 
-    // CHECK PROFILE ON LOAD
     checkOnboarding();
 </script>
 </body>
