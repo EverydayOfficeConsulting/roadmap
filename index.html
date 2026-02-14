@@ -6,100 +6,150 @@
     <title>EOCO | Simple. Better.</title>
     <style>
         :root { 
-            --primary-brand: #3A506B; --primary-dark: #1C2541; --bg-main: #F0F4F8; --bg-panel: #FFFFFF; 
-            --text-main: #334155; --text-muted: #64748B; --border-grey: #D1D9E6; --radius: 3px; 
-            --shadow: 0 4px 12px rgba(58, 80, 107, 0.08); --ease: cubic-bezier(0.2, 1, 0.3, 1);
+            /* THEME: STEEL & SLATE */
+            --primary-brand: #3A506B;   
+            --primary-dark: #1C2541;    
+            --bg-main: #F0F4F8;         
+            --bg-panel: #FFFFFF;        
+            --text-main: #334155;       
+            --text-muted: #64748B;      
+            --border-grey: #D1D9E6;     
+            --radius: 3px;              
+            --shadow: 0 4px 12px rgba(58, 80, 107, 0.08); 
+            --ease: cubic-bezier(0.2, 1, 0.3, 1);
         }
+
         [data-theme="dark"] {
             --bg-main: #0B1015; --bg-panel: #151B24; --border-grey: #2A3645;
             --text-main: #E2E8F0; --text-muted: #94A3B8; --primary-brand: #5C7C99;
             --primary-dark: #000000; --shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
+
         * { box-sizing: border-box; }
         body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-main); margin: 0; overflow: hidden; color: var(--text-main); }
-        header { background: var(--primary-dark); color: white; display: flex; flex-direction: column; align-items: center; padding: 15px 20px 0 20px; z-index: 4000; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        
+        /* HEADER */
+        header { 
+            background: var(--primary-dark); color: white; display: flex; flex-direction: column; align-items: center; 
+            padding: 15px 20px 0 20px; z-index: 4000; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
         .header-top { display: flex; justify-content: center; align-items: center; width: 100%; position: relative; padding-bottom: 15px; }
         .brand-container { text-align: center; }
         .brand-name { font-size: 1.2rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin: 0; }
         .brand-slogan { font-size: 0.65rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: #8DA9C4; margin-top: 4px; }
         .page-title-section { background: rgba(255,255,255,0.05); width: 100vw; text-align: center; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1); }
         .page-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: white; margin: 0; }
+
         .header-controls { display: flex; gap: 10px; align-items: center; position: absolute; right: 0; top: 0; }
-        .theme-toggle, .profile-btn { background: var(--primary-brand); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: var(--radius); cursor: pointer; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; transition: background 0.2s; }
+        .theme-toggle, .profile-btn { 
+            background: var(--primary-brand); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; 
+            border-radius: var(--radius); cursor: pointer; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; 
+        }
         .profile-btn { background: transparent; border: 1px solid rgba(255,255,255,0.4); }
+
+        /* WORKSPACE & PANELS */
         .workspace { display: flex; height: calc(100vh - 125px); width: 100vw; position: relative; overflow: hidden; }
-        .side-pane { position: absolute; top: 0; height: 100%; background: var(--bg-panel); border-color: var(--border-grey); transition: transform 0.5s var(--ease); z-index: 3000; display: flex; flex-direction: column; padding: 25px; box-shadow: var(--shadow); }
+        
+        .side-pane { 
+            position: absolute; top: 0; height: 100%; background: var(--bg-panel); border-color: var(--border-grey); 
+            transition: transform 0.5s var(--ease); z-index: 3000; display: flex; flex-direction: column; padding: 25px; box-shadow: var(--shadow); 
+        }
         #pane-library { left: 0; border-right: 1px solid var(--border-grey); transform: translateX(-100%); width: 50%; overflow-y: auto; }
         #pane-library.active { transform: translateX(0); }
         #pane-video { right: 0; border-left: 1px solid var(--border-grey); transform: translateX(100%); width: 50%; }
         #pane-video.active { transform: translateX(0); }
+        .workspace.both-active #pane-library, .workspace.both-active #pane-video { width: 33.33%; }
+        
         #pane-modules { flex: 1; height: 100%; overflow-y: auto; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; transition: margin 0.5s var(--ease); }
         .workspace.lib-active #pane-modules { margin-left: 50%; }
         .workspace.vid-active #pane-modules { margin-right: 50%; }
         .workspace.both-active #pane-modules { margin-left: 33.33%; margin-right: 33.33%; }
+
+        /* PHASE & CARDS */
         .phase-section { width: 100%; max-width: 600px; margin-bottom: 30px; border-bottom: 1px solid var(--border-grey); }
         .phase-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 0; }
         .phase-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--primary-brand); letter-spacing: 1.5px; }
         .module-card { background: var(--bg-panel); border-radius: var(--radius); padding: 35px; margin: 20px 0; border: 1px solid var(--border-grey); box-shadow: var(--shadow); }
+        .module-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; color: var(--text-main); }
+        .module-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
+        
+        /* STEPS DROPDOWN */
         .step-container { border: 1px solid var(--border-grey); border-radius: var(--radius); margin-bottom: 10px; background: var(--bg-panel); overflow: hidden; }
-        .step-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+        .step-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; }
+        .step-name { font-weight: 600; font-size: 0.9rem; }
+        .step-header input { width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary-brand); }
+        .step-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s var(--ease); padding: 0 20px; }
+        .step-container.open .step-content { grid-template-rows: 1fr; padding-bottom: 20px; }
+        .content-inner { overflow: hidden; font-size: 0.85rem; color: var(--text-muted); padding-top: 15px; border-top: 1px solid var(--border-grey); line-height: 1.6; }
+        
+        /* VIDEO & TOOLS */
+        .video-header { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; margin-bottom: 10px; }
+        #video-display-title { font-size: 1rem; font-weight: 800; text-transform: uppercase; color: var(--primary-brand); letter-spacing: 1px; }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; background: #000; border-radius: var(--radius); overflow: hidden; }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
         .action-btn { background: var(--primary-brand); color: white; border: none; padding: 15px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; border-radius: var(--radius); }
         .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
+
+        .tool-tile { background: var(--bg-panel); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-grey); text-decoration: none; color: inherit; display: block; }
+        .tile-img { height: 90px; background-size: cover; background-position: top; }
+        .tile-name { padding: 10px; font-size: 0.7rem; font-weight: 700; text-align: center; text-transform: uppercase; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
+
+        /* MODAL */
         #modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(28, 37, 65, 0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
         #modal-overlay.active { display: flex; }
         .modal-card { background: var(--bg-panel); padding: 40px; border-radius: var(--radius); width: 90%; max-width: 500px; text-align: center; position: relative; }
         .form-group { margin-bottom: 20px; text-align: left; }
-        .form-label { display: block; font-size: 0.7rem; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; color: var(--text-main); }
         .form-select { width: 100%; padding: 12px; border: 1px solid var(--border-grey); border-radius: var(--radius); font-size: 1rem; background: var(--bg-main); color: var(--text-main); border-left: 4px solid var(--primary-brand); }
         .close-modal-x { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); font-weight: 800; }
-        .tool-tile { background: var(--bg-panel); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-grey); text-decoration: none; color: inherit; transition: 0.2s; display: block; }
-        .tile-img { height: 90px; background-size: cover; background-position: top; }
-        .tile-name { padding: 10px; font-size: 0.7rem; font-weight: 700; text-align: center; text-transform: uppercase; color: var(--text-muted); }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
-        .cluster-group summary { background: var(--bg-main); padding: 12px; cursor: pointer; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; list-style: none; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body data-theme="light">
+
 <div id="modal-overlay">
     <div class="modal-card">
         <span class="close-modal-x" onclick="closeProfile()">×</span>
-        <div style="font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; color: var(--primary-brand); text-transform: uppercase;">Profile Settings</div>
-        <div class="form-group"><label class="form-label">Location</label><select class="form-select" id="user-province"></select></div>
-        <div class="form-group"><label class="form-label">Industry</label><select class="form-select" id="user-industry"></select></div>
-        <div class="form-group"><label class="form-label">Software</label><select class="form-select" id="user-software"></select></div>
-        <button class="action-btn" style="width:100%; padding:20px;" onclick="saveProfile()">Save & Update</button>
+        <div style="font-size: 1.5rem; font-weight: 800; margin-bottom: 30px; color: var(--primary-brand); text-transform: uppercase;">Profile Settings</div>
+        <div class="form-group"><label style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">Location</label><select class="form-select" id="user-province"></select></div>
+        <div class="form-group"><label style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">Industry</label><select class="form-select" id="user-industry"></select></div>
+        <div class="form-group"><label style="font-size:0.7rem; font-weight:800; text-transform:uppercase;">Software</label><select class="form-select" id="user-software"></select></div>
+        <button class="action-btn" style="width:100%; padding:20px;" onclick="saveProfile()">Build Roadmap</button>
     </div>
 </div>
+
 <header>
     <div class="header-top"><div class="brand-container"><div class="brand-name">EOCO</div><div class="brand-slogan">Simple Systems. Better Business.</div></div>
     <div class="header-controls"><button class="profile-btn" onclick="openProfile()">Profile</button><button class="theme-toggle" onclick="toggleTheme()">Dark Mode</button></div></div>
     <div class="page-title-section"><h1 class="page-title">The Foundational Roadmap</h1></div>
 </header>
+
 <div class="workspace" id="main-ws">
     <section id="pane-library" class="side-pane"><button class="action-btn" onclick="toggleLibrary(null)">✕ CLOSE TOOLS</button><div id="library-content"></div></section>
     <section id="pane-modules"><div id="module-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">Syncing...</div></section>
-    <section id="pane-video" class="side-pane"><button class="action-btn" onclick="toggleVideo(null)">✕ CLOSE VIDEO</button><div id="video-frame" style="margin-top:20px;"></div></section>
+    <section id="pane-video" class="side-pane">
+        <button class="action-btn" onclick="toggleVideo(null)">✕ CLOSE VIDEO</button>
+        <div class="video-header"><div id="video-display-title">Tutorial</div><button class="action-btn" style="padding:8px 12px; font-size:0.6rem;" onclick="popOutVideo()">Pop Out</button></div>
+        <div class="video-wrapper" id="video-frame"></div>
+    </section>
 </div>
+
 <script>
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv&t=' + Date.now();
-    let modules = [];
-    let metadata = { provinces: [], softwares: [], industries: [] };
-    const state = JSON.parse(localStorage.getItem('eoco_state')) || {};
+    const STATE = { PROVINCE_TAGS: ['AB','BC','ON','NS','NB','NL','PE','MB','SK','QC','YT','NT','NU','CAN'], SOFTWARE_TAGS: ['QBO','XERO','FRESHBOOKS'] };
+    let modules = [], metadata = { provinces: [], softwares: [], industries: [] };
+    const savedState = JSON.parse(localStorage.getItem('eoco_state')) || {};
     let userProfile = JSON.parse(localStorage.getItem('eoco_profile')) || null;
+    let activeLibId = null, currentVideoId = null;
 
     window.onload = init;
 
     async function init() {
+        const savedTheme = localStorage.getItem('eoco_theme') || 'light'; document.body.setAttribute('data-theme', savedTheme);
         try {
-            const res = await fetch(SHEET_URL);
-            const text = await res.text();
-            const rows = parseCSV(text);
-            let currentMod = null;
-            modules = [];
-
+            const res = await fetch(SHEET_URL); const text = await res.text(); const rows = parseCSV(text);
+            let currentMod = null; modules = [];
             rows.forEach(row => {
-                const key = row[0]?.toUpperCase();
-                const b = row[1]; const c = row[2];
+                const key = row[0]?.toUpperCase(); const b = row[1]; const c = row[2];
                 if (key === 'METADATA') { metadata[b.toLowerCase()] = c.split(',').filter(x => x); return; }
                 if (key === 'ID') { if (currentMod) modules.push(currentMod); currentMod = { id: b, phase: 'PHASE 1', title: '', description: '', video: '', library: [], steps: [], tags: [] }; }
                 if (!currentMod) return;
@@ -108,15 +158,10 @@
                 if (key === 'DESCRIPTION') currentMod.description = b;
                 if (key === 'VIDEO') currentMod.video = c;
                 if (key === 'SECTION') currentMod.library.push({ title: b, items: [] });
-                if (key === 'TOOL') {
-                    let last = currentMod.library[currentMod.library.length - 1] || { title: "Tools", items: [] };
-                    if (!currentMod.library.length) currentMod.library.push(last);
-                    last.items.push(parseTaggedItem(b, c));
-                }
-                if (key === 'STEP') currentMod.steps.push(parseTaggedItem(b, c));
+                if (key === 'TOOL') { let last = currentMod.library[currentMod.library.length-1] || {title:"Tools", items:[]}; if(!currentMod.library.length) currentMod.library.push(last); last.items.push(parseTaggedItem(b,c)); }
+                if (key === 'STEP') currentMod.steps.push(parseTaggedItem(b,c));
             });
-            if (currentMod) modules.push(currentMod);
-            buildDropdowns();
+            if (currentMod) modules.push(currentMod); buildDropdowns();
             if (!userProfile) document.getElementById('modal-overlay').classList.add('active');
             render();
         } catch (e) { console.error(e); }
@@ -126,21 +171,17 @@
         const pSel = document.getElementById('user-province'); pSel.innerHTML = '<option value="CAN">National / All Canada</option>';
         metadata.provinces.forEach(p => pSel.innerHTML += `<option value="${p}">${getFriendly(p)}</option>`);
         const iSel = document.getElementById('user-industry'); iSel.innerHTML = '<option value="ALL">Show All Industries</option>';
-        metadata.industries.forEach(i => iSel.innerHTML += `<option value="${i}">${getFriendly(i)}</option>`);
+        metadata.industries.forEach(i => iSel.innerHTML += `<option value="${i}">${i.charAt(0)+i.slice(1).toLowerCase()}</option>`);
         const sSel = document.getElementById('user-software'); sSel.innerHTML = '<option value="ALL">Undecided / Show All</option>';
         metadata.softwares.forEach(s => sSel.innerHTML += `<option value="${s}">${getFriendly(s)}</option>`);
         if (userProfile) { pSel.value = userProfile.province; iSel.value = userProfile.industry; sSel.value = userProfile.software; }
     }
 
-    function getFriendly(tag) {
-        const map = { 'NS': 'Nova Scotia', 'AB': 'Alberta', 'BC': 'British Columbia', 'ON': 'Ontario', 'NB': 'New Brunswick', 'NL': 'Newfoundland', 'PE': 'PEI', 'MB': 'Manitoba', 'SK': 'Saskatchewan', 'QC': 'Quebec', 'YT': 'Yukon', 'NT': 'NWT', 'NU': 'Nunavut', 'QBO': 'QuickBooks Online' };
-        return map[tag] || tag.charAt(0).toUpperCase() + tag.slice(1).toLowerCase();
-    }
+    function getFriendly(tag) { const map = { 'NS': 'Nova Scotia', 'AB': 'Alberta', 'BC': 'British Columbia', 'ON': 'Ontario', 'QBO': 'QuickBooks Online' }; return map[tag] || tag; }
 
     function isVisible(item) {
-        if (!item.tags || !item.tags.length) return true;
-        if (!userProfile) return true;
-        const p = userProfile.province; const i = userProfile.industry; const s = userProfile.software;
+        if (!item.tags || !item.tags.length) return true; if (!userProfile) return true;
+        const p = userProfile.province, i = userProfile.industry, s = userProfile.software;
         const iSoft = item.tags.filter(t => metadata.softwares.includes(t));
         if (iSoft.length && s !== 'ALL' && !iSoft.includes(s)) return false;
         const iProv = item.tags.filter(t => metadata.provinces.includes(t));
@@ -151,23 +192,17 @@
     }
 
     function parseTaggedItem(name, val = "") {
-        const m = name.match(/\{([^}]+)\}/);
-        let tags = m ? m[1].split(',').map(t => t.trim().toUpperCase()) : [];
-        let clean = name.replace(/\{[^}]+\}/g, '').trim();
-        return { name: clean, val, tags };
+        const m = name.match(/\{([^}]+)\}/); let tags = m ? m[1].split(',').map(t => t.trim().toUpperCase()) : [];
+        let clean = name.replace(/\{[^}]+\}/g, '').trim(); return { name: clean, val, tags };
     }
 
     function parseCSV(t) {
-        const re = /(?!\s*$)\s*(?:"([^"]*(?:""[^"]*)*)"|([^",\r\n]*))\s*(?:,|$)/g;
-        const res = []; t.split(/\r?\n/).forEach(l => {
-            const r = []; l.replace(re, (m, p1, p2) => { r.push(p1 !== undefined ? p1.replace(/""/g, '"') : p2); return ''; });
-            if (r.length) res.push(r);
-        }); return res;
+        const re = /(?!\s*$)\s*(?:"([^"]*(?:""[^"]*)*)"|([^",\r\n]*))\s*(?:,|$)/g, res = [];
+        t.split(/\r?\n/).forEach(l => { const r = []; l.replace(re, (m, p1, p2) => { r.push(p1 !== undefined ? p1.replace(/""/g, '"') : p2); return ''; }); if (r.length) res.push(r); }); return res;
     }
 
     function render() {
-        const list = document.getElementById('module-list');
-        const grouped = modules.reduce((acc, m) => { if (!acc[m.phase]) acc[m.phase] = []; acc[m.phase].push(m); return acc; }, {});
+        const list = document.getElementById('module-list'), grouped = modules.reduce((acc, m) => { if (!acc[m.phase]) acc[m.phase] = []; acc[m.phase].push(m); return acc; }, {});
         list.innerHTML = Object.keys(grouped).map(phase => {
             const vis = grouped[phase].filter(isVisible); if (!vis.length) return '';
             return `<div class="phase-section open"><div class="phase-header"><span class="phase-title">${phase}</span></div>
@@ -175,45 +210,63 @@
                 <div class="module-card">
                     <div class="module-title">${m.title}</div>
                     <div class="module-desc">${m.description}</div>
-                    ${m.steps.filter(isVisible).map((s, idx) => `<div class="step-container"><div class="step-header" onclick="this.parentElement.classList.toggle('open')"><span>${s.name}</span><input type="checkbox" onclick="event.stopPropagation()" ${state[m.id]?.includes(idx) ? 'checked' : ''}></div><div class="step-content" style="padding:0 20px;"><div style="padding:15px 0; border-top:1px solid #ddd;">${s.val}</div></div></div>`).join('')}
+                    ${m.steps.filter(isVisible).map((s, idx) => `
+                        <div class="step-container">
+                            <div class="step-header" onclick="this.parentElement.classList.toggle('open')">
+                                <span class="step-name">${s.name}</span>
+                                <input type="checkbox" onclick="event.stopPropagation(); toggleCheck('${m.id}', ${idx})" ${savedState[m.id]?.includes(idx) ? 'checked' : ''}>
+                            </div>
+                            <div class="step-content"><div class="content-inner">${s.val}</div></div>
+                        </div>`).join('')}
                     <div class="btn-row"><button class="action-btn" onclick="toggleLibrary('${m.id}')">Tools</button><button class="action-btn" onclick="toggleVideo('${m.id}')">Video</button></div>
                 </div>`).join('')}</div>`;
         }).join('');
     }
 
+    function toggleCheck(mid, idx) {
+        if (!savedState[mid]) savedState[mid] = []; const i = savedState[mid].indexOf(idx);
+        if (i > -1) savedState[mid].splice(i, 1); else savedState[mid].push(idx);
+        localStorage.setItem('eoco_state', JSON.stringify(savedState)); render(); 
+    }
+
+    function updateLayout() {
+        const ws = document.getElementById('main-ws'), lib = document.getElementById('pane-library').classList.contains('active'), vid = document.getElementById('pane-video').classList.contains('active');
+        ws.className = 'workspace'; if (lib && vid) ws.classList.add('both-active'); else if (lib) ws.classList.add('lib-active'); else if (vid) ws.classList.add('vid-active');
+    }
+
+    function toggleLibrary(mid) { 
+        const p = document.getElementById('pane-library'), c = document.getElementById('library-content');
+        if (!mid || (p.classList.contains('active') && activeLibId === mid)) { p.classList.remove('active'); activeLibId = null; updateLayout(); return; }
+        const m = modules.find(mod => mod.id === mid); activeLibId = mid;
+        c.innerHTML = m.library.map(sec => {
+            const items = sec.items.filter(isVisible); if (!items.length) return '';
+            let html = `<div style="text-align:center; font-weight:800; font-size:0.9rem; text-transform:uppercase; margin-bottom:20px; color:var(--primary-brand);">${sec.title}</div>`;
+            const clusters = {}, generic = [];
+            items.forEach(item => {
+                const tags = item.tags.filter(t => metadata.provinces.includes(t) || metadata.industries.includes(t));
+                if (tags.length && (userProfile.province === 'CAN' || userProfile.industry === 'ALL')) { if (!clusters[tags[0]]) clusters[tags[0]] = []; clusters[tags[0]].push(item); } else generic.push(item);
+            });
+            html += `<div class="gallery-grid">${generic.map(item => `<a href="${item.val}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image:url('https://image.thum.io/get/width/400/crop/800/noanimate/${item.val}')"></div><div class="tile-name">${item.name}</div></a>`).join('')}</div>`;
+            Object.keys(clusters).sort().forEach(tag => { html += `<details class="cluster-group"><summary style="padding:12px; font-weight:700; background:var(--bg-main); border-top:1px solid var(--border-grey);">${getFriendly(tag)}</summary><div style="padding:15px;"><div class="gallery-grid">${clusters[tag].map(item => `<a href="${item.val}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image:url('https://image.thum.io/get/width/400/crop/800/noanimate/${item.val}')"></div><div class="tile-name">${item.name}</div></a>`).join('')}</div></div></details>`; });
+            return html;
+        }).join('');
+        p.classList.add('active'); updateLayout();
+    }
+
+    async function toggleVideo(mid) {
+        const p = document.getElementById('pane-video'), f = document.getElementById('video-frame');
+        if (!mid || p.classList.contains('active')) { p.classList.remove('active'); updateLayout(); return; }
+        const m = modules.find(mod => mod.id === mid);
+        let id = m.video.includes('v=') ? m.video.split('v=')[1].split('&')[0] : m.video.split('/').pop(); currentVideoId = id;
+        try { const r = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`); const d = await r.json(); document.getElementById('video-display-title').innerText = d.title || m.title; } catch(e){}
+        f.innerHTML = `<iframe width="100%" height="300" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+        p.classList.add('active'); updateLayout();
+    }
+
+    function popOutVideo() { if(currentVideoId) window.open(`https://www.youtube.com/embed/${currentVideoId}?autoplay=1`, 'YT','width=640,height=360'); toggleVideo(null); }
     function saveProfile() { userProfile = { province: document.getElementById('user-province').value, industry: document.getElementById('user-industry').value, software: document.getElementById('user-software').value }; localStorage.setItem('eoco_profile', JSON.stringify(userProfile)); closeProfile(); render(); }
     function openProfile() { document.getElementById('modal-overlay').classList.add('active'); }
     function closeProfile() { document.getElementById('modal-overlay').classList.remove('active'); }
-    function toggleLibrary(mid) { 
-        const p = document.getElementById('pane-library'); const c = document.getElementById('library-content');
-        if (!mid || p.classList.contains('active')) { p.classList.remove('active'); document.getElementById('main-ws').className='workspace'; return; }
-        const m = modules.find(mod => mod.id === mid);
-        c.innerHTML = m.library.map(sec => {
-            const items = sec.items.filter(isVisible); if (!items.length) return '';
-            let html = `<div class="lib-section-title">${sec.title}</div>`;
-            const clusters = {}; const generic = [];
-            items.forEach(item => {
-                const tags = item.tags.filter(t => metadata.provinces.includes(t) || metadata.industries.includes(t));
-                if (tags.length && (userProfile.province === 'CAN' || userProfile.industry === 'ALL')) {
-                    if (!clusters[tags[0]]) clusters[tags[0]] = []; clusters[tags[0]].push(item);
-                } else generic.push(item);
-            });
-            html += `<div class="gallery-grid">${generic.map(item => `<a href="${item.val}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image:url('https://image.thum.io/get/width/400/crop/800/noanimate/${item.val}')"></div><div class="tile-name">${item.name}</div></a>`).join('')}</div>`;
-            Object.keys(clusters).forEach(tag => {
-                html += `<details class="cluster-group"><summary>${getFriendly(tag)}</summary><div style="padding:15px;"><div class="gallery-grid">${clusters[tag].map(item => `<a href="${item.val}" target="_blank" class="tool-tile"><div class="tile-img" style="background-image:url('https://image.thum.io/get/width/400/crop/800/noanimate/${item.val}')"></div><div class="tile-name">${item.name}</div></a>`).join('')}</div></div></details>`;
-            });
-            return html;
-        }).join('');
-        p.classList.add('active'); document.getElementById('main-ws').className='workspace lib-active';
-    }
-    function toggleVideo(mid) {
-        const p = document.getElementById('pane-video'); const f = document.getElementById('video-frame');
-        if (!mid || p.classList.contains('active')) { p.classList.remove('active'); document.getElementById('main-ws').className='workspace'; return; }
-        const m = modules.find(mod => mod.id === mid);
-        let id = m.video.includes('v=') ? m.video.split('v=')[1].split('&')[0] : m.video.split('/').pop();
-        f.innerHTML = `<iframe width="100%" height="300" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen></iframe>`;
-        p.classList.add('active'); document.getElementById('main-ws').className='workspace vid-active';
-    }
     function toggleTheme() { const n = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light'; document.body.setAttribute('data-theme', n); }
 </script>
 </body>
