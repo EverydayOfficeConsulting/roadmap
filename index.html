@@ -47,6 +47,7 @@
         }
         .brand-container { text-align: center; }
         .brand-name { font-size: 1.2rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin: 0; }
+        
         .brand-slogan { 
             font-size: 0.65rem; font-weight: 500; letter-spacing: 1px; 
             text-transform: uppercase; color: #8DA9C4; margin-top: 4px; 
@@ -309,6 +310,11 @@
 </div>
 <script>
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv' + '&t=' + Date.now();
+    
+    // STRICT LISTS FOR FILTERING
+    const PROVINCE_TAGS = ['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT', 'CAN'];
+    const SOFTWARE_TAGS = ['QBO', 'XERO', 'FRESHBOOKS'];
+
     let modules = [];
     const state = JSON.parse(localStorage.getItem('eoco_state')) || {};
     let userProfile = JSON.parse(localStorage.getItem('eoco_profile')) || null;
@@ -325,7 +331,6 @@
         localStorage.setItem('eoco_theme', next);
     }
 
-    // NEW FUNCTION: Just closes the modal
     function closeProfile() {
         document.getElementById('modal-overlay').classList.remove('active');
     }
@@ -334,8 +339,8 @@
         const prov = document.getElementById('user-province').value;
         const ind = document.getElementById('user-industry').value;
         const soft = document.getElementById('user-software').value;
-        const yearend = document.getElementById('user-yearend').value; // ADDED THIS
-        userProfile = { province: prov, industry: ind, software: soft, yearend: yearend }; // SAVING THIS
+        const yearend = document.getElementById('user-yearend').value;
+        userProfile = { province: prov, industry: ind, software: soft, yearend: yearend };
         localStorage.setItem('eoco_profile', JSON.stringify(userProfile));
         document.getElementById('modal-overlay').classList.remove('active');
         init(); 
@@ -346,7 +351,7 @@
             document.getElementById('user-province').value = userProfile.province;
             document.getElementById('user-industry').value = userProfile.industry;
             document.getElementById('user-software').value = userProfile.software || 'ALL';
-            document.getElementById('user-yearend').value = userProfile.yearend || '12'; // LOADING THIS
+            document.getElementById('user-yearend').value = userProfile.yearend || '12';
         }
         document.getElementById('modal-overlay').classList.add('active');
     }
@@ -402,7 +407,6 @@
             
             if (currentMod) modules.push(currentMod); 
             
-            // Check Onboarding AFTER data load
             if (!userProfile) {
                 document.getElementById('modal-overlay').classList.add('active');
             }
@@ -424,6 +428,7 @@
         return { name: cleanName, val: value, tags: tags };
     }
 
+    // --- REVISED FILTER LOGIC ---
     function isVisible(item) {
         if (!item.tags || item.tags.length === 0) return true; 
         if (!userProfile) return true; 
@@ -431,24 +436,38 @@
         const userProv = userProfile.province.toUpperCase();
         const userInd = userProfile.industry.toUpperCase();
         const userSoft = (userProfile.software || 'ALL').toUpperCase();
-        
-        const allowAllProv = (userProv === 'CAN');
-        const allowAllTrade = (userInd === 'ALL');
-        const allowAllSoft = (userSoft === 'ALL');
 
-        // Check for Software Tags
-        const softwareTags = ['QBO', 'XERO', 'FRESHBOOKS'];
-        const isSoftwareTag = item.tags.some(tag => softwareTags.includes(tag));
-        
-        if (isSoftwareTag) {
-            if (allowAllSoft) return true;
-            return item.tags.includes(userSoft);
+        // 1. SOFTWARE CHECK
+        // If the item has ANY software tags, it MUST match the user's choice.
+        const itemSoftTags = item.tags.filter(t => SOFTWARE_TAGS.includes(t));
+        if (itemSoftTags.length > 0) {
+            if (userSoft !== 'ALL' && !itemSoftTags.includes(userSoft)) return false;
         }
 
-        const directMatch = item.tags.some(tag => tag === userProv || tag === userInd);
-        if (allowAllProv || allowAllTrade) return true; 
+        // 2. PROVINCE CHECK
+        // If the item has ANY province tags...
+        const itemProvTags = item.tags.filter(t => PROVINCE_TAGS.includes(t));
+        if (itemProvTags.length > 0) {
+            // If user is National (CAN), show ALL provincial items (because we are National).
+            if (userProv === 'CAN') {
+                // Pass (Do nothing, let it be visible)
+            } else {
+                // If user is specific (e.g. NS), item must match NS.
+                if (!itemProvTags.includes(userProv)) return false;
+            }
+        }
+
+        // 3. INDUSTRY CHECK (The Fix)
+        // Identify Industry tags by excluding Province and Software tags
+        const itemIndTags = item.tags.filter(t => !PROVINCE_TAGS.includes(t) && !SOFTWARE_TAGS.includes(t));
         
-        return directMatch;
+        if (itemIndTags.length > 0) {
+            // If user picked a specific trade (e.g. PLUMBER), strictly enforce it.
+            // Even if user is National, they shouldn't see Electrician COAs.
+            if (userInd !== 'ALL' && !itemIndTags.includes(userInd)) return false;
+        }
+
+        return true;
     }
 
     function parseCSV(t) {
@@ -676,7 +695,7 @@
         } catch (e) { document.getElementById('video-display-title').innerText = m.title; }
         
         if (currentVideoId !== id) {
-            f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&cc_load_policy=1" allow="autoplay; fullscreen"></iframe>`;
+            f.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1&cc_load_policy=1\" allow=\"autoplay; fullscreen\"></iframe>`;
             currentVideoId = id;
         } else if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
         
