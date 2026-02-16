@@ -47,8 +47,6 @@
         }
         .brand-container { text-align: center; }
         .brand-name { font-size: 1.2rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin: 0; }
-        
-        /* FULL SLOGAN */
         .brand-slogan { 
             font-size: 0.65rem; font-weight: 500; letter-spacing: 1px; 
             text-transform: uppercase; color: #8DA9C4; margin-top: 4px; 
@@ -74,9 +72,9 @@
         .profile-btn { background: transparent; border: 1px solid rgba(255,255,255,0.4); }
         .theme-toggle:hover, .profile-btn:hover { background: #4B6685; }
 
+        /* WORKSPACE & PANELS */
         .workspace { display: flex; height: calc(100vh - 125px); width: 100vw; position: relative; overflow: hidden; }
         
-        /* PANELS */
         .side-pane { 
             position: absolute; top: 0; height: 100%; background: var(--bg-panel); 
             border-color: var(--border-grey); transition: transform 0.5s var(--ease); 
@@ -166,7 +164,8 @@
         /* ONBOARDING MODAL */
         #modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(28, 37, 65, 0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
         #modal-overlay.active { display: flex; }
-        .modal-card { background: var(--bg-panel); padding: 40px; border-radius: var(--radius); width: 90%; max-width: 500px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid var(--border-grey); }
+        .modal-card { background: var(--bg-panel); padding: 40px; border-radius: var(--radius); width: 90%; max-width: 500px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid var(--border-grey); position: relative; }
+        
         .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; color: var(--primary-brand); letter-spacing: 1px; text-transform: uppercase; }
         .modal-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 30px; }
         .form-group { margin-bottom: 20px; text-align: left; }
@@ -175,12 +174,28 @@
         .start-btn { background: var(--primary-brand); color: white; border: none; padding: 16px; width: 100%; border-radius: var(--radius); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; margin-top: 10px; }
         .start-btn:hover { background: #2A4058; }
 
+        /* CLOSE X BUTTON */
+        .close-modal-x {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 800;
+            transition: 0.2s;
+        }
+        .close-modal-x:hover { color: var(--primary-brand); }
+
     </style>
 </head>
 <body data-theme="light">
 
 <div id="modal-overlay">
     <div class="modal-card">
+        <span class="close-modal-x" onclick="closeProfile()">×</span>
+        
         <div class="modal-title">Welcome to EOCO</div>
         <div class="modal-subtitle">Customize your roadmap to your business.</div>
         
@@ -241,6 +256,24 @@
             </select>
         </div>
 
+        <div class="form-group">
+            <label class="form-label">Fiscal Year-End Month</label>
+            <select class="form-select" id="user-yearend">
+                <option value="12">December (Calendar Year)</option>
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+            </select>
+        </div>
+
         <button class="start-btn" onclick="saveProfile()">Build My Roadmap</button>
     </div>
 </div>
@@ -281,6 +314,10 @@
     let userProfile = JSON.parse(localStorage.getItem('eoco_profile')) || null;
     let activeLibId = null, currentVideoId = null;
 
+    window.onload = function() {
+        init();
+    };
+
     function toggleTheme() {
         const next = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
         document.body.setAttribute('data-theme', next); 
@@ -288,19 +325,17 @@
         localStorage.setItem('eoco_theme', next);
     }
 
-    function checkOnboarding() {
-        if (!userProfile) {
-            document.getElementById('modal-overlay').classList.add('active');
-        } else {
-            init();
-        }
+    // NEW FUNCTION: Just closes the modal
+    function closeProfile() {
+        document.getElementById('modal-overlay').classList.remove('active');
     }
 
     function saveProfile() {
         const prov = document.getElementById('user-province').value;
         const ind = document.getElementById('user-industry').value;
         const soft = document.getElementById('user-software').value;
-        userProfile = { province: prov, industry: ind, software: soft };
+        const yearend = document.getElementById('user-yearend').value; // ADDED THIS
+        userProfile = { province: prov, industry: ind, software: soft, yearend: yearend }; // SAVING THIS
         localStorage.setItem('eoco_profile', JSON.stringify(userProfile));
         document.getElementById('modal-overlay').classList.remove('active');
         init(); 
@@ -311,6 +346,7 @@
             document.getElementById('user-province').value = userProfile.province;
             document.getElementById('user-industry').value = userProfile.industry;
             document.getElementById('user-software').value = userProfile.software || 'ALL';
+            document.getElementById('user-yearend').value = userProfile.yearend || '12'; // LOADING THIS
         }
         document.getElementById('modal-overlay').classList.add('active');
     }
@@ -365,6 +401,12 @@
             });
             
             if (currentMod) modules.push(currentMod); 
+            
+            // Check Onboarding AFTER data load
+            if (!userProfile) {
+                document.getElementById('modal-overlay').classList.add('active');
+            }
+            
             render();
         } catch (e) { console.error(e); }
     }
@@ -640,8 +682,6 @@
         
         p.classList.add('active'); updateLayoutClasses();
     }
-
-    checkOnboarding();
 </script>
 </body>
 </html>
