@@ -153,6 +153,12 @@ details.cluster-group .cluster-content { padding: 15px; background: var(--bg-pan
 .form-select { width: 100%; padding: 12px; border: 1px solid var(--border-grey); border-radius: var(--radius); font-size: 1rem; background: var(--bg-main); color: var(--text-main); border-left: 4px solid var(--primary-brand); }
 .start-btn { background: var(--primary-brand); color: white; border: none; padding: 16px; width: 100%; border-radius: var(--radius); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; margin-top: 10px; }
 .start-btn:hover { background: #2A4058; }
+/* SIGN-IN */
+.modal-overlay-generic { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(28, 37, 65, 0.9); z-index: 5000; display: none; justify-content: center; align-items: center; }
+.modal-overlay-generic.active { display: flex; }
+.auth-note { margin-top: 18px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+.auth-note a { color: var(--primary-brand); font-weight: 700; }
+input.form-select { font-family: inherit; }
 /* CLOSE X BUTTON */
 .close-modal-x {
 position: absolute;
@@ -246,6 +252,20 @@ transition: 0.2s;
 </select>
 </div>
 <button class="start-btn" onclick="saveProfile()">Build My Roadmap</button>
+<div class="auth-note" id="profile-signin-note">Want to pick up where you left off on another device? <a href="#" onclick="event.preventDefault(); document.getElementById('modal-overlay').classList.remove('active'); authButton();">Sign in</a> to save your progress.</div>
+</div>
+</div>
+<div id="auth-overlay" class="modal-overlay-generic">
+<div class="modal-card">
+<span class="close-modal-x" onclick="closeAuth()">×</span>
+<div class="modal-title">Sign In</div>
+<div class="modal-subtitle">We'll email you a link. No password needed. Your roadmap progress is saved to your account so it follows you to any device.</div>
+<div class="form-group">
+<label class="form-label" for="auth-email">Email</label>
+<input class="form-select" id="auth-email" type="email" autocomplete="email" placeholder="you@business.ca" onkeydown="if(event.key==='Enter') sendMagicLink()">
+</div>
+<button class="start-btn" id="auth-send" onclick="sendMagicLink()">Email Me a Sign-In Link</button>
+<div class="auth-note" id="auth-msg" role="status"></div>
 </div>
 </div>
 <header>
@@ -255,6 +275,7 @@ transition: 0.2s;
 <div class="brand-slogan">Simple Systems. Better Business.</div>
 </div>
 <div class="header-controls">
+<button class="profile-btn" id="auth-btn" onclick="authButton()">Sign In</button>
 <button class="profile-btn" onclick="openProfile()">Profile</button>
 <button class="theme-toggle" onclick="toggleTheme()">Dark Mode</button>
 </div>
@@ -276,16 +297,26 @@ transition: 0.2s;
 <div class="transcript-hint"><strong>Pro-Tip:</strong> Enable <strong>CC</strong> for auto-captions or pop out this window to watch while you work.</div>
 </section>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
 <script>
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRzaqh_1AJ24mk-Z8qlzxJOO-LhOtehDUu23m21b_OjbNuBkyA08ZUH_xEMH-9HUT-7l5ry5UsToEQT/pub?output=csv' + '&t=' + Date.now();
+// ---------------------------------------------------------------------
+// DATA NOW COMES FROM SUPABASE (was a published Google Sheet)
+// Modules: public "modules" table, edited in admin.html
+// Profile + checkmarks: saved to the visitor's account when signed in,
+// otherwise kept in this browser until they sign in.
+// ---------------------------------------------------------------------
+const sb = window.supabase.createClient(window.EOCO_CONFIG.SUPABASE_URL, window.EOCO_CONFIG.SUPABASE_ANON_KEY);
 
 // STRICT LISTS FOR FILTERING
 const PROVINCE_TAGS = ['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT', 'CAN'];
 const SOFTWARE_TAGS = ['QBO', 'XERO', 'FRESHBOOKS'];
 
 let modules = [];
-const state = JSON.parse(localStorage.getItem('eoco_state')) || {};
-let userProfile = JSON.parse(localStorage.getItem('eoco_profile')) || null;
+let state = {};            // { moduleId: [stepId, ...] }
+let userProfile = null;
+let currentUser = null;
+let ready = false;
 let activeLibId = null, currentVideoId = null;
 
 window.onload = function() {
@@ -299,26 +330,36 @@ document.querySelector('.theme-toggle').innerText = next === 'light' ? 'Dark Mod
 localStorage.setItem('eoco_theme', next);
 }
 
+// ---------- PROFILE ----------
+async function persistProfile() {
+if (currentUser) {
+const { error } = await sb.from('profiles').upsert({ user_id: currentUser.id, ...userProfile });
+if (error) alert("Couldn't save your profile to your account. It will be used for now.");
+} else {
+localStorage.setItem('eoco_profile', JSON.stringify(userProfile));
+}
+}
+
 function closeProfile() {
-// FIX: don't leave userProfile as null when the user dismisses the modal —
-// downstream code (render/toggleLibrary) assumes a profile object exists.
+// don't leave userProfile as null when the user dismisses the modal
 if (!userProfile) {
 userProfile = { province: 'CAN', industry: 'ALL', software: 'ALL', yearend: '12' };
-localStorage.setItem('eoco_profile', JSON.stringify(userProfile));
+persistProfile();
 }
 document.getElementById('modal-overlay').classList.remove('active');
 render();
 }
 
 function saveProfile() {
-const prov = document.getElementById('user-province').value;
-const ind = document.getElementById('user-industry').value;
-const soft = document.getElementById('user-software').value;
-const yearend = document.getElementById('user-yearend').value;
-userProfile = { province: prov, industry: ind, software: soft, yearend: yearend };
-localStorage.setItem('eoco_profile', JSON.stringify(userProfile));
+userProfile = {
+province: document.getElementById('user-province').value,
+industry: document.getElementById('user-industry').value,
+software: document.getElementById('user-software').value,
+yearend: document.getElementById('user-yearend').value
+};
+persistProfile();
 document.getElementById('modal-overlay').classList.remove('active');
-init();
+render();
 }
 
 function openProfile() {
@@ -328,68 +369,167 @@ document.getElementById('user-industry').value = userProfile.industry;
 document.getElementById('user-software').value = userProfile.software || 'ALL';
 document.getElementById('user-yearend').value = userProfile.yearend || '12';
 }
+document.getElementById('profile-signin-note').style.display = currentUser ? 'none' : 'block';
 document.getElementById('modal-overlay').classList.add('active');
 }
 
+// ---------- LOADING ----------
 async function init() {
 const savedTheme = localStorage.getItem('eoco_theme') || 'light';
 document.body.setAttribute('data-theme', savedTheme);
+document.querySelector('.theme-toggle').innerText = savedTheme === 'light' ? 'Dark Mode' : 'Light Mode';
 try {
-const res = await fetch(SHEET_URL);
-const text = await res.text();
-const rows = parseCSV(text);
-let currentMod = null;
-modules = [];
-rows.forEach(row => {
-const key = row[0]?.toString().trim().toUpperCase();
-const b = row[1];
-const c = row[2];
-if (key === 'ID') {
-if (currentMod) modules.push(currentMod);
-currentMod = { id: b, phase: 'PHASE 1', title: '', description: '', video: '', library: [], steps: [], tags: [] };
+const { data: { session } } = await sb.auth.getSession();
+currentUser = session?.user || null;
+await loadModules();
+if (currentUser) await syncFromAccount();
+else loadLocal();
+} catch (e) {
+console.error(e);
+document.getElementById('module-list').innerText = "Couldn't load the roadmap. Please refresh the page.";
+return;
 }
-if (!currentMod) return;
-if (key === 'PHASE') currentMod.phase = b || 'PHASE 1';
-if (key === 'TITLE') {
-const parsed = parseTaggedItem(b, '');
-currentMod.title = parsed.name;
-currentMod.tags = parsed.tags;
-}
-if (key === 'DESCRIPTION') currentMod.description = b;
-if (key === 'VIDEO') currentMod.video = c;
-if (key === 'SECTION') {
-currentMod.library.push({ title: b, items: [] });
-}
-if (key === 'TOOL') {
-let lastSection = currentMod.library[currentMod.library.length - 1];
-if (!lastSection) {
-lastSection = { title: "Module Library", items: [] };
-currentMod.library.push(lastSection);
-}
-lastSection.items.push(parseTaggedItem(b, c));
-}
-if (key === 'STEP') {
-currentMod.steps.push(parseTaggedItem(b, c));
-}
-});
-if (currentMod) modules.push(currentMod);
-if (!userProfile) {
-document.getElementById('modal-overlay').classList.add('active');
-}
+ready = true;
+updateAuthButton();
+if (!userProfile) openProfile();
 render();
-} catch (e) { console.error(e); }
 }
 
-function parseTaggedItem(name, value) {
-const tagMatch = name.match(/\{([^}]+)\}/);
-let tags = [];
-let cleanName = name;
-if (tagMatch) {
-tags = tagMatch[1].split(',').map(t => t.trim().toUpperCase());
-cleanName = name.replace(/\{[^}]+\}/g, '').trim();
+async function loadModules() {
+const { data, error } = await sb.from('modules').select('*').order('sort_order').order('id');
+if (error) throw error;
+const up = arr => (arr || []).map(t => String(t).toUpperCase());
+modules = data.map(r => ({
+id: r.id,
+phase: r.phase || 'PHASE 1',
+title: r.title || '',
+description: r.description || '',
+video: r.video || '',
+tags: up(r.tags),
+steps: (r.steps || []).map(s => ({ id: s.id, name: s.name, val: s.content || '', tags: up(s.tags) })),
+library: (r.library || []).map(sec => ({
+title: sec.title,
+items: (sec.items || []).map(i => ({ name: i.name, val: i.url, tags: up(i.tags) }))
+}))
+}));
 }
-return { name: cleanName, val: value, tags: tags };
+
+// progress saved in this browser (visitors who haven't signed in)
+function readLocalProgress() {
+let prog = JSON.parse(localStorage.getItem('eoco_progress') || '{}');
+// one-time upgrade from the old Google Sheets version, which saved step
+// NUMBERS ({"M1":[0,2]}). Convert them to the new stable step ids.
+const legacy = JSON.parse(localStorage.getItem('eoco_state') || 'null');
+if (legacy) {
+Object.keys(legacy).forEach(mid => {
+const m = modules.find(x => x.id === mid);
+if (!m) return;
+const ids = (legacy[mid] || []).map(i => m.steps[i]?.id).filter(Boolean);
+prog[mid] = [...new Set([...(prog[mid] || []), ...ids])];
+});
+localStorage.setItem('eoco_progress', JSON.stringify(prog));
+localStorage.removeItem('eoco_state');
 }
+return prog;
+}
+
+function loadLocal() {
+state = readLocalProgress();
+userProfile = JSON.parse(localStorage.getItem('eoco_profile') || 'null');
+}
+
+function saveLocalProgress() {
+localStorage.setItem('eoco_progress', JSON.stringify(state));
+}
+
+// signed in: upload anything saved in this browser, then load from account
+async function syncFromAccount() {
+const uid = currentUser.id;
+const localProg = readLocalProgress();
+const localProf = JSON.parse(localStorage.getItem('eoco_profile') || 'null');
+const validIds = new Set(modules.map(m => m.id));
+
+const rows = [];
+Object.keys(localProg).forEach(mid => {
+if (!validIds.has(mid)) return;
+localProg[mid].forEach(sid => rows.push({ user_id: uid, module_id: mid, step_id: sid }));
+});
+if (rows.length) {
+const { error } = await sb.from('user_progress').upsert(rows, { onConflict: 'user_id,module_id,step_id', ignoreDuplicates: true });
+if (!error) localStorage.removeItem('eoco_progress');
+} else {
+localStorage.removeItem('eoco_progress');
+}
+
+const { data: prog, error: progErr } = await sb.from('user_progress').select('module_id, step_id');
+if (progErr) throw progErr;
+state = {};
+prog.forEach(r => { (state[r.module_id] = state[r.module_id] || []).push(r.step_id); });
+
+const { data: prof } = await sb.from('profiles').select('province, industry, software, yearend').eq('user_id', uid).maybeSingle();
+if (prof) {
+userProfile = prof;
+} else if (localProf) {
+userProfile = localProf;
+await sb.from('profiles').upsert({ user_id: uid, ...localProf });
+} else {
+userProfile = null;
+}
+if (userProfile) localStorage.removeItem('eoco_profile');
+}
+
+// ---------- SIGN IN (email link, no password) ----------
+function updateAuthButton() {
+const btn = document.getElementById('auth-btn');
+btn.innerText = currentUser ? 'Sign Out' : 'Sign In';
+btn.title = currentUser ? `Signed in as ${currentUser.email}` : 'Save your progress to an account';
+}
+
+async function authButton() {
+if (currentUser) {
+await sb.auth.signOut();
+location.reload();
+} else {
+document.getElementById('auth-msg').innerText = '';
+document.getElementById('auth-overlay').classList.add('active');
+document.getElementById('auth-email').focus();
+}
+}
+
+function closeAuth() {
+document.getElementById('auth-overlay').classList.remove('active');
+}
+
+async function sendMagicLink() {
+const email = document.getElementById('auth-email').value.trim();
+const msg = document.getElementById('auth-msg');
+if (!email) { msg.innerText = 'Enter your email address.'; return; }
+const btn = document.getElementById('auth-send');
+btn.disabled = true; btn.innerText = 'Sending...';
+const { error } = await sb.auth.signInWithOtp({
+email,
+options: { emailRedirectTo: location.origin + location.pathname }
+});
+btn.disabled = false; btn.innerText = 'Email Me a Sign-In Link';
+msg.innerText = error
+? `Couldn't send the link: ${error.message}`
+: `Check ${email} and click the link to finish signing in. Your progress on this device will be saved to your account.`;
+}
+
+sb.auth.onAuthStateChange((event, session) => {
+if (!ready) return; // init() handles the first load
+// setTimeout: Supabase recommends not awaiting other calls inside this callback
+setTimeout(async () => {
+if (event === 'SIGNED_IN' && session && currentUser?.id !== session.user.id) {
+currentUser = session.user;
+closeAuth();
+try { await syncFromAccount(); } catch (e) { console.error(e); }
+updateAuthButton();
+if (!userProfile) openProfile();
+render();
+}
+}, 0);
+});
 
 // --- REVISED FILTER LOGIC ---
 function isVisible(item) {
@@ -431,20 +571,6 @@ if (userInd !== 'ALL' && !itemIndTags.includes(userInd)) return false;
 return true;
 }
 
-function parseCSV(t) {
-const re = /(?!\s*$)\s*(?:"([^"]*(?:""[^"]*)*)"|([^",\r\n]*))\s*(?:,|$)/g;
-const res = [];
-t.split(/\r?\n/).forEach(l => {
-const r = [];
-l.replace(re, (m, p1, p2) => {
-r.push(p1 !== undefined ? p1.replace(/""/g, '"') : p2);
-return '';
-});
-if(r.length) res.push(r);
-});
-return res;
-}
-
 function render() {
 const list = document.getElementById('module-list');
 const grouped = modules.reduce((acc, m) => {
@@ -461,11 +587,8 @@ if (visibleModules.length === 0) return '';
 visibleModules.forEach(m => {
 const visibleSteps = m.steps.filter(isVisible);
 totalSteps += visibleSteps.length;
-const checkedIndices = state[m.id] || [];
-const visibleCheckCount = visibleSteps.filter((s, originalIndex) => {
-const realIndex = m.steps.indexOf(s);
-return checkedIndices.includes(realIndex);
-}).length;
+const checked = state[m.id] || [];
+const visibleCheckCount = visibleSteps.filter(s => checked.includes(s.id)).length;
 completedSteps += visibleCheckCount;
 });
 
@@ -500,8 +623,8 @@ return `
 <span class="step-name">${s.name} ${tagLabel}</span>
 <input type="checkbox"
 id="chk-${m.id}-${i}"
-${(state[m.id]?.includes(i)) ? 'checked' : ''}
-onclick="event.stopPropagation(); toggleCheck('${m.id}', ${i}, '${phaseId}')">
+${(state[m.id]?.includes(s.id)) ? 'checked' : ''}
+onclick="event.stopPropagation(); toggleCheck('${m.id}', '${s.id}')">
 </div>
 <div class="step-content"><div class="content-inner">${s.val}</div></div>
 </div>
@@ -518,17 +641,23 @@ onclick="event.stopPropagation(); toggleCheck('${m.id}', ${i}, '${phaseId}')">
 }).join('');
 }
 
-function toggleCheck(mid, idx, phaseId) {
+async function toggleCheck(mid, stepId) {
 if (!state[mid]) state[mid] = [];
-const i = state[mid].indexOf(idx);
-if (i > -1) state[mid].splice(i, 1);
-else state[mid].push(idx);
-localStorage.setItem('eoco_state', JSON.stringify(state));
-// FIX: was calling init(), which re-fetches and re-parses the entire
-// Google Sheet on every single checkbox click. We already have the
-// data in memory (`modules`) and just updated local `state`, so a
-// plain re-render is all that's needed.
+const i = state[mid].indexOf(stepId);
+const nowChecked = i === -1;
+if (nowChecked) state[mid].push(stepId); else state[mid].splice(i, 1);
 render();
+if (!currentUser) { saveLocalProgress(); return; }
+const row = { user_id: currentUser.id, module_id: mid, step_id: stepId };
+const { error } = nowChecked
+? await sb.from('user_progress').upsert(row, { onConflict: 'user_id,module_id,step_id', ignoreDuplicates: true })
+: await sb.from('user_progress').delete().match(row);
+if (error) {
+// undo so the screen matches what's actually saved
+if (nowChecked) state[mid] = state[mid].filter(x => x !== stepId); else state[mid].push(stepId);
+render();
+alert("Couldn't save that checkmark. Check your connection and try again.");
+}
 }
 
 function updateLayoutClasses() {
@@ -638,6 +767,7 @@ p.classList.remove('active'); updateLayoutClasses();
 if (iframe) iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
 return;
 }
+if (!m.video) { alert('No video for this module yet.'); return; }
 let id = m.video.includes('v=') ? m.video.split('v=')[1]?.split('&')[0] : m.video.split('/').pop();
 try {
 const response = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`);

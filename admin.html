@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>EOCO Admin · Modules</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #1C2541;
+  --steel: #3A506B;
+  --steel-hover: #2A4058;
+  --mist: #8DA9C4;
+  --bg: #F0F4F8;
+  --panel: #FFFFFF;
+  --sunken: #F6F8FB;
+  --text: #1F2A3A;
+  --muted: #5B6B80;
+  --line: #D1D9E6;
+  --danger: #A33A3A;
+  --danger-bg: #FBEFEF;
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --shadow-drawer: -12px 0 40px rgba(28, 37, 65, .18);
+  --ease: cubic-bezier(.2, 1, .3, 1);
+}
+[data-theme="dark"] {
+  --bg: #0E141C;
+  --panel: #151D28;
+  --sunken: #111821;
+  --text: #E2E8F0;
+  --muted: #94A3B8;
+  --line: #2A3645;
+  --steel: #5C7C99;
+  --steel-hover: #6F8FAD;
+  --danger: #E07A7A;
+  --danger-bg: #2A1719;
+  --shadow-drawer: -12px 0 40px rgba(0, 0, 0, .5);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px; line-height: 1.5;
+  background: var(--bg); color: var(--text);
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--mist); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+/* ---------- Top bar ---------- */
+.topbar {
+  background: var(--navy); color: #fff;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 14px 24px;
+}
+.brand { display: flex; align-items: baseline; gap: 12px; }
+.brand-mark { font-weight: 700; letter-spacing: 4px; font-size: 1.05rem; }
+.brand-sub { color: var(--mist); font-size: .9rem; }
+.topbar-right { display: flex; align-items: center; gap: 10px; font-size: .85rem; }
+.who { color: var(--mist); max-width: 26ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ghost-light {
+  background: transparent; border: 1px solid rgba(255,255,255,.35); color: #fff;
+  padding: 6px 12px; border-radius: var(--radius-s); cursor: pointer; font-size: .82rem;
+}
+.ghost-light:hover { background: rgba(255,255,255,.08); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  border-radius: var(--radius-s); border: 1px solid transparent;
+  padding: 9px 16px; font-weight: 600; font-size: .9rem; cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.btn-primary { background: var(--steel); color: #fff; }
+.btn-primary:hover { background: var(--steel-hover); }
+.btn-quiet { background: transparent; border-color: var(--line); color: var(--text); }
+.btn-quiet:hover { border-color: var(--steel); color: var(--steel); }
+.btn-danger-quiet { background: transparent; border-color: transparent; color: var(--danger); }
+.btn-danger-quiet:hover { background: var(--danger-bg); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-sm { padding: 5px 10px; font-size: .82rem; font-weight: 500; }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.icon-btn {
+  width: 30px; height: 30px; display: inline-grid; place-items: center;
+  border: 1px solid var(--line); border-radius: var(--radius-s); background: var(--panel);
+  cursor: pointer; color: var(--muted); font-size: .9rem;
+}
+.icon-btn:hover:not(:disabled) { color: var(--steel); border-color: var(--steel); }
+.icon-btn:disabled { opacity: .35; cursor: default; }
+
+/* ---------- Page ---------- */
+.page { max-width: 1040px; margin: 0 auto; padding: 32px 24px 80px; }
+.page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+.page-head h1 { margin: 0; font-size: 1.6rem; font-weight: 600; letter-spacing: -.01em; }
+.page-head p { margin: 4px 0 0; color: var(--muted); }
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 26px; }
+.search {
+  flex: 1; min-width: 220px; padding: 9px 12px;
+  border: 1px solid var(--line); border-radius: var(--radius-s); background: var(--panel);
+}
+.select {
+  padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--radius-s); background: var(--panel);
+}
+
+/* ---------- Roadmap spine (module list) ---------- */
+.phase { position: relative; padding-left: 34px; margin-bottom: 30px; }
+.phase::before {  /* the spine */
+  content: ""; position: absolute; left: 9px; top: 12px; bottom: -30px;
+  width: 2px; background: var(--line);
+}
+.phase:last-child::before { bottom: 0; }
+.phase-node {
+  position: absolute; left: 0; top: 3px; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--bg); border: 3px solid var(--steel);
+}
+.phase-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.phase-name { margin: 0; font-size: 1.05rem; font-weight: 600; color: var(--steel); }
+.phase-count { color: var(--muted); font-size: .85rem; }
+
+.mod-list { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-m); overflow: hidden; }
+.mod {
+  display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center;
+  padding: 16px 18px; border-top: 1px solid var(--line);
+}
+.mod:first-child { border-top: 0; }
+.mod.flash { animation: flash 1.6s var(--ease); }
+@keyframes flash { from { background: color-mix(in srgb, var(--mist) 35%, transparent); } to { background: transparent; } }
+.mod-title { font-weight: 600; font-size: 1rem; margin: 0 0 3px; }
+.mod-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; color: var(--muted); font-size: .84rem; }
+.mod-id { font-variant-numeric: tabular-nums; }
+.chips { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.chip {
+  font-size: .74rem; font-weight: 600; padding: 1px 7px; border-radius: 999px;
+  background: var(--sunken); border: 1px solid var(--line); color: var(--steel);
+}
+.mod-actions { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+
+.empty {
+  text-align: center; padding: 56px 20px; background: var(--panel);
+  border: 1px dashed var(--line); border-radius: var(--radius-m); color: var(--muted);
+}
+.empty h2 { color: var(--text); font-size: 1.1rem; margin: 0 0 6px; font-weight: 600; }
+.empty p { margin: 0 0 18px; }
+.loading { color: var(--muted); padding: 30px 0; }
+
+/* ---------- Login ---------- */
+.gate { min-height: calc(100vh - 60px); display: grid; place-items: center; padding: 24px; }
+.gate-card {
+  width: 100%; max-width: 380px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius-m); padding: 30px;
+}
+.gate-card h1 { margin: 0 0 4px; font-size: 1.3rem; font-weight: 600; }
+.gate-card p { margin: 0 0 20px; color: var(--muted); font-size: .92rem; }
+.gate-card .btn { width: 100%; justify-content: center; margin-top: 6px; }
+.notice { padding: 10px 12px; border-radius: var(--radius-s); font-size: .88rem; margin-top: 14px; }
+.notice.error { background: var(--danger-bg); color: var(--danger); }
+
+/* ---------- Form fields ---------- */
+.field { display: block; margin-bottom: 14px; }
+.field > span { display: block; font-size: .85rem; font-weight: 600; margin-bottom: 5px; }
+.field > small { display: block; color: var(--muted); font-size: .8rem; margin-top: 4px; }
+.input, .textarea {
+  width: 100%; padding: 9px 11px; background: var(--panel);
+  border: 1px solid var(--line); border-radius: var(--radius-s);
+}
+.input:focus, .textarea:focus { border-color: var(--steel); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--mist) 45%, transparent); }
+.input[readonly] { background: var(--sunken); color: var(--muted); }
+.textarea { resize: vertical; min-height: 76px; line-height: 1.45; }
+.textarea.code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .84rem; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.grid-3 { display: grid; grid-template-columns: 2fr 1fr 110px; gap: 0 14px; }
+
+/* ---------- Drawer (editor) ---------- */
+.scrim {
+  position: fixed; inset: 0; background: rgba(28, 37, 65, .45); z-index: 40;
+  opacity: 0; pointer-events: none; transition: opacity .3s var(--ease);
+}
+.scrim.open { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed; top: 0; right: 0; height: 100vh; width: min(720px, 100vw);
+  background: var(--bg); z-index: 50; display: flex; flex-direction: column;
+  transform: translateX(100%); visibility: hidden;
+  transition: transform .4s var(--ease), visibility 0s linear .4s;
+}
+.drawer.open { transform: translateX(0); visibility: visible; box-shadow: var(--shadow-drawer); transition: transform .4s var(--ease); }
+.drawer-head {
+  background: var(--panel); border-bottom: 1px solid var(--line);
+  padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+.drawer-head h2 { margin: 0; font-size: 1.15rem; font-weight: 600; }
+.drawer-head p { margin: 2px 0 0; color: var(--muted); font-size: .85rem; }
+.drawer-body { flex: 1; overflow-y: auto; padding: 22px 24px 40px; }
+.drawer-foot {
+  background: var(--panel); border-top: 1px solid var(--line);
+  padding: 14px 24px; display: flex; justify-content: flex-end; gap: 10px; align-items: center;
+}
+.drawer-foot .status { margin-right: auto; color: var(--muted); font-size: .85rem; }
+.drawer-foot .status.error { color: var(--danger); }
+
+.block { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 18px 18px 6px; margin-bottom: 18px; }
+.block-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; gap: 10px; }
+.block-head h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+.block-head span { color: var(--muted); font-size: .85rem; }
+
+.item { border: 1px solid var(--line); border-radius: var(--radius-s); background: var(--sunken); padding: 12px 12px 0; margin-bottom: 12px; }
+.item-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
+.item-num { font-weight: 600; font-size: .85rem; color: var(--steel); font-variant-numeric: tabular-nums; }
+.item-tools { display: flex; gap: 4px; }
+.subitem { display: grid; grid-template-columns: 1.2fr 1.6fr .9fr auto; gap: 8px; align-items: start; margin-bottom: 8px; }
+.subitem-labels { display: grid; grid-template-columns: 1.2fr 1.6fr .9fr 30px; gap: 8px; font-size: .78rem; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+.add-row { margin: 2px 0 14px; }
+
+/* ---------- Dialog + toast ---------- */
+dialog {
+  border: 1px solid var(--line); border-radius: var(--radius-m); padding: 24px; max-width: 420px; width: calc(100% - 40px);
+  background: var(--panel); color: var(--text);
+}
+dialog::backdrop { background: rgba(28, 37, 65, .5); }
+dialog h2 { margin: 0 0 8px; font-size: 1.1rem; font-weight: 600; }
+dialog p { margin: 0 0 20px; color: var(--muted); }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px);
+  background: var(--navy); color: #fff; padding: 10px 18px; border-radius: var(--radius-s);
+  font-size: .9rem; opacity: 0; transition: opacity .25s, transform .25s var(--ease); z-index: 100; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.error { background: var(--danger); }
+
+@media (max-width: 680px) {
+  .topbar { padding: 12px 16px; }
+  .brand-sub, .who { display: none; }
+  .page { padding: 22px 16px 60px; }
+  .mod { grid-template-columns: 1fr; }
+  .mod-actions { justify-content: flex-start; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .subitem, .subitem-labels { grid-template-columns: 1fr; }
+  .subitem-labels { display: none; }
+  .drawer-body, .drawer-head, .drawer-foot { padding-left: 16px; padding-right: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body data-theme="light">
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">EOCO</span>
+    <span class="brand-sub">Roadmap admin</span>
+  </div>
+  <div class="topbar-right">
+    <span class="who" id="who"></span>
+    <button class="ghost-light" id="theme-btn" type="button">Dark mode</button>
+    <button class="ghost-light" id="signout-btn" type="button" hidden>Sign out</button>
+  </div>
+</header>
+
+<!-- Sign-in -->
+<section class="gate" id="gate" hidden>
+  <div class="gate-card">
+    <h1>Sign in to manage modules</h1>
+    <p>Use the admin account you created in Supabase.</p>
+    <label class="field"><span>Email</span><input class="input" id="login-email" type="email" autocomplete="username"></label>
+    <label class="field"><span>Password</span><input class="input" id="login-pass" type="password" autocomplete="current-password"></label>
+    <button class="btn btn-primary" id="login-btn" type="button">Sign in</button>
+    <div class="notice error" id="login-error" hidden></div>
+  </div>
+</section>
+
+<!-- Dashboard -->
+<main class="page" id="app" hidden>
+  <div class="page-head">
+    <div>
+      <h1>Modules</h1>
+      <p id="summary">Loading…</p>
+    </div>
+    <button class="btn btn-primary" id="create-btn" type="button">+ Create new module</button>
+  </div>
+
+  <div class="toolbar">
+    <input class="search" id="search" type="search" placeholder="Search by title, ID or tag" aria-label="Search modules">
+    <select class="select" id="phase-filter" aria-label="Filter by phase"><option value="">All phases</option></select>
+  </div>
+
+  <div id="list"><div class="loading">Loading modules…</div></div>
+</main>
+
+<!-- Editor drawer -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-labelledby="drawer-title" role="dialog">
+  <div class="drawer-head">
+    <div>
+      <h2 id="drawer-title">New module</h2>
+      <p id="drawer-sub"></p>
+    </div>
+    <button class="icon-btn" id="drawer-close" type="button" aria-label="Close editor">✕</button>
+  </div>
+  <form class="drawer-body" id="editor" autocomplete="off" onsubmit="return false"></form>
+  <div class="drawer-foot">
+    <span class="status" id="save-status"></span>
+    <button class="btn btn-quiet" id="cancel-btn" type="button">Cancel</button>
+    <button class="btn btn-primary" id="save-btn" type="button">Save module</button>
+  </div>
+</aside>
+
+<!-- Confirm dialog -->
+<dialog id="confirm">
+  <h2 id="confirm-title"></h2>
+  <p id="confirm-text"></p>
+  <div class="dialog-actions">
+    <button class="btn btn-quiet" value="cancel" id="confirm-cancel" type="button">Cancel</button>
+    <button class="btn btn-danger" id="confirm-ok" type="button">Delete</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+/* =====================================================================
+   Setup
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const cfg = window.EOCO_CONFIG || {};
+const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+
+let modules = [];
+let draft = null;       // module being edited
+let mode = 'create';    // 'create' | 'edit' | 'duplicate'
+let originalId = null;  // id of the row being edited
+let dirty = false;
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const rid = (p) => p + Math.random().toString(36).slice(2, 8);
+const tagsToText = t => (t || []).join(', ');
+const textToTags = s => s.split(',').map(t => t.trim().toUpperCase()).filter(Boolean);
+const toolCount = m => (m.library || []).reduce((n, s) => n + (s.items || []).length, 0);
+
+function toast(msg, isError) {
+  const t = $('toast');
+  t.textContent = msg; t.classList.toggle('error', !!isError); t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), isError ? 5000 : 2400);
+}
+
+/* Theme (shares the preference with the main site) */
+function applyTheme(t) {
+  document.body.setAttribute('data-theme', t);
+  $('theme-btn').textContent = t === 'light' ? 'Dark mode' : 'Light mode';
+}
+applyTheme(localStorage.getItem('eoco_theme') || 'light');
+$('theme-btn').onclick = () => {
+  const next = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  localStorage.setItem('eoco_theme', next); applyTheme(next);
+};
+
+/* =====================================================================
+   Auth
+   ===================================================================== */
+async function boot() {
+  if (!cfg.SUPABASE_URL || cfg.SUPABASE_URL.includes('YOUR-PROJECT')) {
+    $('gate').hidden = false;
+    $('login-error').hidden = false;
+    $('login-error').textContent = 'Add your Supabase URL and anon key to config.js first.';
+    $('login-btn').disabled = true;
+    return;
+  }
+  const { data: { session } } = await sb.auth.getSession();
+  session ? enter(session) : showGate();
+}
+
+function showGate(message) {
+  $('app').hidden = true; $('gate').hidden = false; $('signout-btn').hidden = true; $('who').textContent = '';
+  $('login-error').hidden = !message; $('login-error').textContent = message || '';
+}
+
+async function enter(session) {
+  const { data: isAdmin, error } = await sb.rpc('is_admin');
+  if (error || !isAdmin) {
+    await sb.auth.signOut();
+    showGate(error
+      ? `Couldn't check admin access: ${error.message}. Did you run schema.sql?`
+      : `${session.user.email} isn't an admin. Add this email to the admins table in Supabase.`);
+    return;
+  }
+  $('gate').hidden = true; $('app').hidden = false; $('signout-btn').hidden = false;
+  $('who').textContent = session.user.email;
+  loadModules();
+}
+
+$('login-btn').onclick = async () => {
+  const email = $('login-email').value.trim(), password = $('login-pass').value;
+  if (!email || !password) { showGate('Enter your email and password.'); return; }
+  $('login-btn').disabled = true; $('login-btn').textContent = 'Signing in…';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  $('login-btn').disabled = false; $('login-btn').textContent = 'Sign in';
+  if (error) { showGate(error.message); return; }
+  enter(data.session);
+};
+$('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') $('login-btn').click(); });
+$('signout-btn').onclick = async () => { await sb.auth.signOut(); showGate(); };
+
+/* =====================================================================
+   1. Fetch + display modules
+   ===================================================================== */
+async function loadModules(flashId) {
+  const { data, error } = await sb.from('modules').select('*').order('sort_order').order('id');
+  if (error) {
+    $('list').innerHTML = `<div class="empty"><h2>Couldn't load modules</h2><p>${esc(error.message)}</p>
+      <button class="btn btn-quiet" type="button" onclick="loadModules()">Try again</button></div>`;
+    return;
+  }
+  modules = data || [];
+  refreshPhaseFilter();
+  renderList();
+  if (flashId) {
+    const el = document.querySelector(`[data-mod="${CSS.escape(flashId)}"]`);
+    if (el) { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.add('flash'); }
+  }
+}
+
+function phasesInOrder() {
+  const seen = [];
+  modules.forEach(m => { if (!seen.includes(m.phase)) seen.push(m.phase); });
+  return seen;
+}
+
+function refreshPhaseFilter() {
+  const sel = $('phase-filter'), cur = sel.value;
+  sel.innerHTML = '<option value="">All phases</option>' +
+    phasesInOrder().map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+  sel.value = phasesInOrder().includes(cur) ? cur : '';
+}
+
+function renderList() {
+  const q = $('search').value.trim().toLowerCase();
+  const phase = $('phase-filter').value;
+  const steps = modules.reduce((n, m) => n + (m.steps || []).length, 0);
+  $('summary').textContent = modules.length
+    ? `${modules.length} module${modules.length === 1 ? '' : 's'} across ${phasesInOrder().length} phase${phasesInOrder().length === 1 ? '' : 's'}, ${steps} steps in total`
+    : 'No modules yet';
+
+  if (!modules.length) {
+    $('list').innerHTML = `<div class="empty"><h2>No modules yet</h2>
+      <p>Import modules.csv in Supabase, or create your first module here.</p>
+      <button class="btn btn-primary" type="button" onclick="openCreate()">+ Create new module</button></div>`;
+    return;
+  }
+
+  const match = m => {
+    if (phase && m.phase !== phase) return false;
+    if (!q) return true;
+    return [m.title, m.id, m.phase, ...(m.tags || [])].join(' ').toLowerCase().includes(q);
+  };
+
+  const html = phasesInOrder().map(p => {
+    const mods = modules.filter(m => m.phase === p && match(m));
+    if (!mods.length) return '';
+    return `<section class="phase">
+      <span class="phase-node" aria-hidden="true"></span>
+      <div class="phase-head"><h2 class="phase-name">${esc(p)}</h2>
+        <span class="phase-count">${mods.length} module${mods.length === 1 ? '' : 's'}</span></div>
+      <div class="mod-list">${mods.map(modRow).join('')}</div>
+    </section>`;
+  }).join('');
+
+  $('list').innerHTML = html || `<div class="empty"><h2>No modules match</h2><p>Try a different search or phase.</p></div>`;
+}
+
+function modRow(m) {
+  const s = (m.steps || []).length, t = toolCount(m);
+  return `<article class="mod" data-mod="${esc(m.id)}">
+    <div>
+      <h3 class="mod-title">${esc(m.title || 'Untitled module')}</h3>
+      <div class="mod-meta">
+        <span class="mod-id">ID ${esc(m.id)}</span>
+        <span>${s} step${s === 1 ? '' : 's'}</span>
+        <span>${t} link${t === 1 ? '' : 's'}</span>
+        <span>${m.video ? 'Has video' : 'No video'}</span>
+        ${(m.tags || []).length ? `<span class="chips">${m.tags.map(x => `<span class="chip">${esc(x)}</span>`).join('')}</span>` : ''}
+      </div>
+    </div>
+    <div class="mod-actions">
+      <button class="btn btn-quiet btn-sm" type="button" data-act="edit" data-id="${esc(m.id)}">Edit</button>
+      <button class="btn btn-quiet btn-sm" type="button" data-act="duplicate" data-id="${esc(m.id)}">Duplicate</button>
+      <button class="btn btn-danger-quiet btn-sm" type="button" data-act="delete" data-id="${esc(m.id)}">Delete</button>
+    </div>
+  </article>`;
+}
+
+$('search').addEventListener('input', renderList);
+$('phase-filter').addEventListener('change', renderList);
+$('list').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const m = modules.find(x => x.id === b.dataset.id); if (!m) return;
+  if (b.dataset.act === 'edit') openEdit(m);
+  if (b.dataset.act === 'duplicate') openDuplicate(m);
+  if (b.dataset.act === 'delete') confirmDelete(m);
+});
+
+/* =====================================================================
+   2–4. Create / Duplicate / Edit / Delete
+   ===================================================================== */
+function uniqueId(base) {
+  base = (base || 'module').toString().trim().replace(/\s+/g, '-');
+  if (!modules.some(m => m.id === base)) return base;
+  let n = 2; while (modules.some(m => m.id === `${base}-${n}`)) n++;
+  return `${base}-${n}`;
+}
+
+function blankModule() {
+  const lastPhase = phasesInOrder().slice(-1)[0] || 'PHASE 1';
+  const maxOrder = modules.reduce((n, m) => Math.max(n, m.sort_order || 0), 0);
+  return { id: uniqueId('mod-' + (modules.length + 1)), sort_order: maxOrder + 10, phase: lastPhase,
+    title: '', tags: [], description: '', video: '',
+    steps: [{ id: rid('s_'), name: '', content: '', tags: [] }], library: [] };
+}
+
+function openCreate() {
+  mode = 'create'; originalId = null; draft = blankModule();
+  openDrawer('New module', 'Fill in the details, then save to add it to the roadmap.');
+}
+
+function openEdit(m) {
+  mode = 'edit'; originalId = m.id; draft = clone(m);
+  draft.steps = draft.steps || []; draft.library = draft.library || []; draft.tags = draft.tags || [];
+  openDrawer('Edit module', `Changes go live on the roadmap as soon as you save.`);
+}
+
+function openDuplicate(m) {
+  mode = 'duplicate'; originalId = null; draft = clone(m);
+  delete draft.created_at; delete draft.updated_at;
+  draft.id = uniqueId(m.id + '-copy');
+  draft.title = (m.title || '') + ' (copy)';
+  draft.sort_order = (m.sort_order || 0) + 1;       // sits right after the original
+  draft.steps = (draft.steps || []).map(s => ({ ...s, id: rid('s_') }));
+  draft.library = draft.library || []; draft.tags = draft.tags || [];
+  openDrawer('Duplicate module', `Copied from “${m.title}”. Nothing is saved until you press Save.`);
+  dirty = true;
+}
+
+function openDrawer(title, sub) {
+  $('drawer-title').textContent = title; $('drawer-sub').textContent = sub;
+  $('save-btn').textContent = mode === 'edit' ? 'Save changes' : 'Save module';
+  $('save-status').textContent = ''; $('save-status').className = 'status';
+  dirty = false;
+  renderEditor();
+  $('drawer').classList.add('open'); $('scrim').classList.add('open');
+  $('drawer').setAttribute('aria-hidden', 'false');
+  $('editor').scrollTop = 0;
+  setTimeout(() => $('f-title')?.focus(), 250);
+}
+
+function closeDrawer(force) {
+  if (!force && dirty && !confirm('Discard your unsaved changes?')) return;
+  $('drawer').classList.remove('open'); $('scrim').classList.remove('open');
+  $('drawer').setAttribute('aria-hidden', 'true');
+  draft = null; dirty = false;
+}
+$('drawer-close').onclick = () => closeDrawer();
+$('cancel-btn').onclick = () => closeDrawer();
+$('scrim').onclick = () => closeDrawer();
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('drawer').classList.contains('open') && !$('confirm').open) closeDrawer(); });
+window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+$('create-btn').onclick = openCreate;
+
+/* ---------- Editor form ---------- */
+function renderEditor() {
+  const d = draft;
+  const phases = phasesInOrder();
+  $('editor').innerHTML = `
+    <div class="block">
+      <div class="block-head"><h3>Basics</h3></div>
+      <label class="field"><span>Title</span>
+        <input class="input" id="f-title" data-f="title" value="${esc(d.title)}" placeholder="e.g. Register your business"></label>
+      <div class="grid-3">
+        <label class="field"><span>Phase</span>
+          <input class="input" data-f="phase" list="phase-list" value="${esc(d.phase)}">
+          <datalist id="phase-list">${phases.map(p => `<option value="${esc(p)}">`).join('')}</datalist>
+          <small>Pick an existing phase or type a new one.</small></label>
+        <label class="field"><span>Module ID</span>
+          <input class="input" data-f="id" value="${esc(d.id)}" ${mode === 'edit' ? 'readonly' : ''}>
+          <small>${mode === 'edit' ? 'IDs can’t change once saved.' : 'Must be unique.'}</small></label>
+        <label class="field"><span>Order</span>
+          <input class="input" data-f="sort_order" type="number" step="1" value="${esc(d.sort_order)}">
+          <small>Lower shows first.</small></label>
+      </div>
+      <label class="field"><span>Description</span>
+        <textarea class="textarea" data-f="description" rows="3">${esc(d.description)}</textarea></label>
+      <div class="grid-2">
+        <label class="field"><span>Video link</span>
+          <input class="input" data-f="video" value="${esc(d.video)}" placeholder="https://www.youtube.com/watch?v=…"></label>
+        <label class="field"><span>Tags</span>
+          <input class="input" data-f="tags" data-tags value="${esc(tagsToText(d.tags))}" placeholder="NS, PLUMBER, QBO">
+          <small>Province, industry or software. Leave empty to show to everyone.</small></label>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-head"><h3>Steps</h3><span>${d.steps.length} step${d.steps.length === 1 ? '' : 's'} with checkboxes</span></div>
+      ${d.steps.map((s, i) => `
+        <div class="item">
+          <div class="item-head">
+            <span class="item-num">Step ${i + 1}</span>
+            <div class="item-tools">
+              <button class="icon-btn" type="button" data-a="step-up" data-i="${i}" ${i === 0 ? 'disabled' : ''} aria-label="Move step ${i + 1} up">↑</button>
+              <button class="icon-btn" type="button" data-a="step-down" data-i="${i}" ${i === d.steps.length - 1 ? 'disabled' : ''} aria-label="Move step ${i + 1} down">↓</button>
+              <button class="icon-btn" type="button" data-a="step-del" data-i="${i}" aria-label="Remove step ${i + 1}">✕</button>
+            </div>
+          </div>
+          <div class="grid-2">
+            <label class="field"><span>Step name</span>
+              <input class="input" data-f="steps.${i}.name" value="${esc(s.name)}"></label>
+            <label class="field"><span>Tags</span>
+              <input class="input" data-f="steps.${i}.tags" data-tags value="${esc(tagsToText(s.tags))}" placeholder="Optional"></label>
+          </div>
+          <label class="field"><span>Content</span>
+            <textarea class="textarea code" data-f="steps.${i}.content" rows="3">${esc(s.content)}</textarea>
+            <small>Shown when the step is opened. HTML is allowed.</small></label>
+        </div>`).join('')}
+      <div class="add-row"><button class="btn btn-quiet btn-sm" type="button" data-a="step-add">+ Add step</button></div>
+    </div>
+
+    <div class="block">
+      <div class="block-head"><h3>Links &amp; tools</h3><span>Grouped into sections in the side panel</span></div>
+      ${d.library.map((sec, si) => `
+        <div class="item">
+          <div class="item-head">
+            <span class="item-num">Section ${si + 1}</span>
+            <div class="item-tools">
+              <button class="icon-btn" type="button" data-a="sec-up" data-i="${si}" ${si === 0 ? 'disabled' : ''} aria-label="Move section up">↑</button>
+              <button class="icon-btn" type="button" data-a="sec-down" data-i="${si}" ${si === d.library.length - 1 ? 'disabled' : ''} aria-label="Move section down">↓</button>
+              <button class="icon-btn" type="button" data-a="sec-del" data-i="${si}" aria-label="Remove section">✕</button>
+            </div>
+          </div>
+          <label class="field"><span>Section title</span>
+            <input class="input" data-f="library.${si}.title" value="${esc(sec.title)}" placeholder="e.g. Banks"></label>
+          ${sec.items.length ? `<div class="subitem-labels"><span>Name</span><span>Link</span><span>Tags</span><span></span></div>` : ''}
+          ${sec.items.map((it, ii) => `
+            <div class="subitem">
+              <input class="input" data-f="library.${si}.items.${ii}.name" value="${esc(it.name)}" aria-label="Tool name">
+              <input class="input" data-f="library.${si}.items.${ii}.url" value="${esc(it.url)}" placeholder="https://" aria-label="Tool link">
+              <input class="input" data-f="library.${si}.items.${ii}.tags" data-tags value="${esc(tagsToText(it.tags))}" aria-label="Tool tags">
+              <button class="icon-btn" type="button" data-a="item-del" data-i="${si}" data-j="${ii}" aria-label="Remove link">✕</button>
+            </div>`).join('')}
+          <div class="add-row"><button class="btn btn-quiet btn-sm" type="button" data-a="item-add" data-i="${si}">+ Add link</button></div>
+        </div>`).join('')}
+      <div class="add-row"><button class="btn btn-quiet btn-sm" type="button" data-a="sec-add">+ Add section</button></div>
+    </div>`;
+}
+
+// typing updates the draft without re-rendering (keeps focus)
+$('editor').addEventListener('input', e => {
+  const el = e.target, path = el.dataset.f; if (!path) return;
+  const keys = path.split('.');
+  let obj = draft;
+  keys.slice(0, -1).forEach(k => obj = obj[k]);
+  const last = keys[keys.length - 1];
+  obj[last] = el.hasAttribute('data-tags') ? textToTags(el.value)
+            : el.type === 'number' ? (el.value === '' ? 0 : Number(el.value))
+            : el.value;
+  dirty = true;
+});
+
+// structural changes re-render
+$('editor').addEventListener('click', e => {
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  const i = +b.dataset.i, j = +b.dataset.j, d = draft;
+  const swap = (arr, a, c) => { [arr[a], arr[c]] = [arr[c], arr[a]]; };
+  switch (b.dataset.a) {
+    case 'step-add':  d.steps.push({ id: rid('s_'), name: '', content: '', tags: [] }); break;
+    case 'step-del':  d.steps.splice(i, 1); break;
+    case 'step-up':   swap(d.steps, i, i - 1); break;
+    case 'step-down': swap(d.steps, i, i + 1); break;
+    case 'sec-add':   d.library.push({ title: '', items: [{ name: '', url: '', tags: [] }] }); break;
+    case 'sec-del':   d.library.splice(i, 1); break;
+    case 'sec-up':    swap(d.library, i, i - 1); break;
+    case 'sec-down':  swap(d.library, i, i + 1); break;
+    case 'item-add':  d.library[i].items.push({ name: '', url: '', tags: [] }); break;
+    case 'item-del':  d.library[i].items.splice(j, 1); break;
+  }
+  dirty = true;
+  const y = $('editor').scrollTop;
+  renderEditor();
+  $('editor').scrollTop = y;
+  if (b.dataset.a === 'step-add') focusLast('[data-f$=".name"][data-f^="steps."]');
+  if (b.dataset.a === 'item-add' || b.dataset.a === 'sec-add') focusLast('[data-f$=".name"][data-f^="library."]');
+});
+function focusLast(sel) { const all = $('editor').querySelectorAll(sel); all[all.length - 1]?.focus(); }
+
+/* ---------- Save ---------- */
+function validate(d) {
+  if (!d.title.trim()) return 'Add a title.';
+  if (!String(d.id).trim()) return 'Add a module ID.';
+  if (mode !== 'edit' && modules.some(m => m.id === d.id.trim())) return `The ID “${d.id}” is already used. Pick another.`;
+  if (!d.phase.trim()) return 'Add a phase.';
+  if (d.steps.some(s => !s.name.trim())) return 'Every step needs a name (or remove the empty ones).';
+  if (d.library.some(sec => !sec.title.trim())) return 'Every links section needs a title.';
+  if (d.library.some(sec => sec.items.some(it => !it.name.trim() || !it.url.trim()))) return 'Every link needs a name and a URL.';
+  return null;
+}
+
+$('save-btn').onclick = async () => {
+  const problem = validate(draft);
+  const status = $('save-status');
+  if (problem) { status.textContent = problem; status.className = 'status error'; return; }
+
+  const row = {
+    id: String(draft.id).trim(),
+    sort_order: Number(draft.sort_order) || 0,
+    phase: draft.phase.trim(),
+    title: draft.title.trim(),
+    tags: draft.tags,
+    description: draft.description || '',
+    video: (draft.video || '').trim(),
+    steps: draft.steps.map(s => ({ id: s.id || rid('s_'), name: s.name.trim(), content: s.content || '', tags: s.tags || [] })),
+    library: draft.library.map(sec => ({ title: sec.title.trim(),
+      items: sec.items.map(it => ({ name: it.name.trim(), url: it.url.trim(), tags: it.tags || [] })) }))
+  };
+
+  $('save-btn').disabled = true; status.textContent = 'Saving…'; status.className = 'status';
+  const { error } = mode === 'edit'
+    ? await sb.from('modules').update(row).eq('id', originalId)
+    : await sb.from('modules').insert(row);
+  $('save-btn').disabled = false;
+
+  if (error) {
+    status.textContent = error.code === '23505' ? 'That module ID is already used.' : `Couldn't save: ${error.message}`;
+    status.className = 'status error';
+    return;
+  }
+  const verb = mode === 'edit' ? 'Changes saved' : mode === 'duplicate' ? 'Duplicate saved' : 'Module created';
+  closeDrawer(true);
+  toast(verb);
+  loadModules(row.id);
+};
+
+/* ---------- Delete ---------- */
+function confirmDelete(m) {
+  const dlg = $('confirm');
+  $('confirm-title').textContent = `Delete “${m.title}”?`;
+  $('confirm-text').textContent = `This removes the module, its ${(m.steps || []).length} steps and ${toolCount(m)} links, and everyone’s checkmarks for it. This can’t be undone.`;
+  $('confirm-ok').onclick = async () => {
+    $('confirm-ok').disabled = true;
+    const { error } = await sb.from('modules').delete().eq('id', m.id);
+    $('confirm-ok').disabled = false;
+    dlg.close();
+    if (error) { toast(`Couldn't delete: ${error.message}`, true); return; }
+    toast('Module deleted');
+    loadModules();
+  };
+  $('confirm-cancel').onclick = () => dlg.close();
+  dlg.showModal();
+  $('confirm-cancel').focus();
+}
+
+boot();
+</script>
+</body>
+</html>
