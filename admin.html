@@ -261,6 +261,16 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
 .backup-grid .block p { color: var(--muted); font-size: .9rem; margin: 0 0 14px; }
 .backup-grid .block .btn { margin-bottom: 14px; }
 
+.kit-card { margin-bottom: 18px; padding-bottom: 18px; border-left: 4px solid var(--steel); }
+.kit-card p { color: var(--muted); font-size: .92rem; margin: 0 0 10px; max-width: 70ch; }
+.kit-body { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; }
+.kit-list { margin: 0; padding-left: 18px; font-size: .88rem; color: var(--muted); }
+.kit-list li { margin-bottom: 3px; }
+.kit-list b { color: var(--text); font-weight: 600; }
+.kit-action { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.kit-action .status { margin: 0; text-align: right; max-width: 260px; }
+@media (max-width: 680px) { .kit-body { grid-template-columns: 1fr; } .kit-action { align-items: stretch; } .kit-action .status { text-align: left; } }
+
 /* ---------- Dialog + toast ---------- */
 dialog { border: 1px solid var(--line); border-radius: var(--radius-m); padding: 24px; max-width: 440px; width: calc(100% - 40px); background: var(--panel); color: var(--text); }
 dialog::backdrop { background: rgba(28, 37, 65, .5); }
@@ -420,11 +430,29 @@ dialog p { margin: 0 0 16px; color: var(--muted); }
       <p>The free Supabase plan doesn't keep backups for you. Download one before big changes, and keep a copy somewhere safe.</p>
     </div>
   </div>
+  <div class="block kit-card">
+    <div class="kit-body">
+      <div>
+        <div class="block-head"><h3>Complete site kit</h3><span>Recommended</span></div>
+        <p>One zip file with everything needed to rebuild the whole roadmap from nothing: your website files, the database setup, all your content and appearance settings, and a step-by-step guide that walks you through it.</p>
+        <ul class="kit-list">
+          <li><b>START-HERE.html</b> — the rebuild guide (opens in any browser)</li>
+          <li><b>website/</b> — index.html, admin.html and config.js, exactly as they are now</li>
+          <li><b>supabase/</b> — two files to paste into the SQL Editor: the setup, then your content</li>
+          <li><b>backup/</b> — a restore file for this Backup tab, a modules spreadsheet and your user list</li>
+        </ul>
+      </div>
+      <div class="kit-action">
+        <button class="btn btn-primary" id="kit-btn" type="button">Download complete kit</button>
+        <span class="status" id="kit-status"></span>
+      </div>
+    </div>
+  </div>
   <div class="backup-grid">
     <div class="block">
-      <div class="block-head"><h3>Full backup</h3></div>
+      <div class="block-head"><h3>Content-only backup</h3></div>
       <p>Every module (including hidden ones), all phases, and your appearance settings in one file.</p>
-      <button class="btn btn-primary" id="backup-json" type="button">Download backup</button>
+      <button class="btn btn-quiet" id="backup-json" type="button">Download backup</button>
     </div>
     <div class="block">
       <div class="block-head"><h3>Modules spreadsheet</h3></div>
@@ -1595,6 +1623,344 @@ $('restore-file').onchange = async e => {
     toast('Backup restored');
     loadAll();
   } catch (err) { toast(`Restore failed: ${err.message}`, true); }
+};
+
+
+
+/* =====================================================================
+   COMPLETE SITE KIT  (one zip: site files + database + content + guide)
+   ===================================================================== */
+const EOCO_SETUP_SQL = "-- =====================================================================\n-- EOCO Roadmap \u2014 1. DATABASE SETUP\n-- Creates every table, security rule and admin function the site needs.\n-- Run this FIRST, then 2-your-content.sql.\n--   Supabase \u2192 SQL Editor \u2192 New query \u2192 paste all \u2192 Run\n-- Safe to run more than once.\n-- =====================================================================\n\n-- PART A: core tables\n-- ---------------------------------------------------------------------\n-- 1. MODULES  (replaces the Google Sheet)\n-- One row per module. Steps and the Links & Tools library are stored as\n-- JSON so a module can be created, edited or duplicated as a single row.\n--\n-- steps   = [ { \"id\": \"s_ab12cd\", \"name\": \"Open a bank account\",\n--               \"content\": \"<p>HTML allowed</p>\", \"tags\": [\"NS\",\"QBO\"] } ]\n-- library = [ { \"title\": \"Banks\",\n--               \"items\": [ { \"name\": \"RBC\", \"url\": \"https://...\", \"tags\": [] } ] } ]\n-- tags    = [ \"NS\", \"PLUMBER\", \"QBO\" ]   (same tags you used in {braces})\n-- ---------------------------------------------------------------------\ncreate table if not exists public.modules (\n  id          text primary key,\n  sort_order  integer     not null default 0,\n  phase       text        not null default 'PHASE 1',\n  title       text        not null,\n  tags        jsonb       not null default '[]'::jsonb,\n  description text        not null default '',\n  video       text        not null default '',\n  steps       jsonb       not null default '[]'::jsonb,\n  library     jsonb       not null default '[]'::jsonb,\n  created_at  timestamptz not null default now(),\n  updated_at  timestamptz not null default now()\n);\n\ncreate index if not exists modules_sort_idx on public.modules (sort_order);\n\n-- keep updated_at current on every edit\ncreate or replace function public.touch_updated_at()\nreturns trigger language plpgsql as $$\nbegin\n  new.updated_at = now();\n  return new;\nend $$;\n\ndrop trigger if exists modules_touch on public.modules;\ncreate trigger modules_touch before update on public.modules\nfor each row execute function public.touch_updated_at();\n\n-- ---------------------------------------------------------------------\n-- 2. ADMINS  (who is allowed to use admin.html)\n-- ---------------------------------------------------------------------\ncreate table if not exists public.admins (\n  email text primary key\n);\n\n-- security definer so policies can check it without exposing the table\ncreate or replace function public.is_admin()\nreturns boolean language sql stable security definer set search_path = public as $$\n  select exists (\n    select 1 from public.admins\n    where lower(email) = lower(coalesce(auth.jwt() ->> 'email', ''))\n  );\n$$;\n\n-- >>> CHANGE THIS to the email you will log into the admin dashboard with <<<\ninsert into public.admins (email) values ('you@example.com')\non conflict do nothing;\n\n-- ---------------------------------------------------------------------\n-- 3. PROFILES  (replaces localStorage \"eoco_profile\")\n-- ---------------------------------------------------------------------\ncreate table if not exists public.profiles (\n  user_id    uuid primary key references auth.users (id) on delete cascade,\n  province   text not null default 'CAN',\n  industry   text not null default 'ALL',\n  software   text not null default 'ALL',\n  yearend    text not null default '12',\n  updated_at timestamptz not null default now()\n);\n\ndrop trigger if exists profiles_touch on public.profiles;\ncreate trigger profiles_touch before update on public.profiles\nfor each row execute function public.touch_updated_at();\n\n-- ---------------------------------------------------------------------\n-- 4. PROGRESS  (replaces localStorage \"eoco_state\")\n-- One row per checked step. Uses the step's stable id, so reordering\n-- steps in the admin dashboard never scrambles anyone's checkmarks.\n-- ---------------------------------------------------------------------\ncreate table if not exists public.user_progress (\n  user_id      uuid not null references auth.users (id) on delete cascade,\n  module_id    text not null references public.modules (id) on delete cascade on update cascade,\n  step_id      text not null,\n  completed_at timestamptz not null default now(),\n  primary key (user_id, module_id, step_id)\n);\n\n-- ---------------------------------------------------------------------\n-- 5. ROW LEVEL SECURITY\n-- ---------------------------------------------------------------------\nalter table public.modules       enable row level security;\nalter table public.admins        enable row level security;\nalter table public.profiles      enable row level security;\nalter table public.user_progress enable row level security;\n\n-- modules: anyone can read, only admins can change\ndrop policy if exists \"modules readable by everyone\" on public.modules;\ncreate policy \"modules readable by everyone\" on public.modules\n  for select using (true);\n\ndrop policy if exists \"admins insert modules\" on public.modules;\ncreate policy \"admins insert modules\" on public.modules\n  for insert to authenticated with check (public.is_admin());\n\ndrop policy if exists \"admins update modules\" on public.modules;\ncreate policy \"admins update modules\" on public.modules\n  for update to authenticated using (public.is_admin()) with check (public.is_admin());\n\ndrop policy if exists \"admins delete modules\" on public.modules;\ncreate policy \"admins delete modules\" on public.modules\n  for delete to authenticated using (public.is_admin());\n\n-- admins: nobody reads it directly (is_admin() handles checks)\n\n-- profiles: each user sees and edits only their own row\ndrop policy if exists \"own profile\" on public.profiles;\ncreate policy \"own profile\" on public.profiles\n  for all to authenticated\n  using (user_id = auth.uid()) with check (user_id = auth.uid());\n\n-- progress: each user sees and edits only their own checkmarks\ndrop policy if exists \"own progress\" on public.user_progress;\ncreate policy \"own progress\" on public.user_progress\n  for all to authenticated\n  using (user_id = auth.uid()) with check (user_id = auth.uid());\n\n-- lets the admin page ask \"am I an admin?\"\ngrant execute on function public.is_admin() to authenticated;\n\n\n-- PART B: phases, hide/show, appearance, insights\n-- ---------------------------------------------------------------------\n-- 1. PHASES  (their own table so they can be added, renamed, reordered\n--    and removed from the admin dashboard)\n-- ---------------------------------------------------------------------\ncreate table if not exists public.phases (\n  name       text primary key,\n  sort_order integer     not null default 0,\n  subtitle   text        not null default '',\n  created_at timestamptz not null default now()\n);\n\n-- create a phase for every phase your modules already use, in the\n-- order they currently appear\ninsert into public.phases (name, sort_order)\nselect phase, (row_number() over (order by min(sort_order))) * 10\nfrom public.modules\ngroup by phase\non conflict (name) do nothing;\n\n-- every module must belong to a real phase. Renaming a phase renames it\n-- on all its modules automatically; a phase that still has modules\n-- can't be deleted by accident.\nalter table public.modules alter column phase drop default;\nalter table public.modules drop constraint if exists modules_phase_fkey;\nalter table public.modules\n  add constraint modules_phase_fkey foreign key (phase)\n  references public.phases (name) on update cascade on delete restrict;\n\nalter table public.phases enable row level security;\n\ndrop policy if exists \"phases readable by everyone\" on public.phases;\ncreate policy \"phases readable by everyone\" on public.phases\n  for select using (true);\n\ndrop policy if exists \"admins manage phases\" on public.phases;\ncreate policy \"admins manage phases\" on public.phases\n  for all to authenticated\n  using (public.is_admin()) with check (public.is_admin());\n\n-- ---------------------------------------------------------------------\n-- 2. HIDE / SHOW MODULES  (hidden modules are only visible to admins,\n--    so you can work on drafts before they go live)\n-- ---------------------------------------------------------------------\nalter table public.modules add column if not exists published boolean not null default true;\n\ngrant execute on function public.is_admin() to anon, authenticated;\n\ndrop policy if exists \"modules readable by everyone\" on public.modules;\ncreate policy \"modules readable by everyone\" on public.modules\n  for select using (published or public.is_admin());\n\n-- ---------------------------------------------------------------------\n-- 3. SITE SETTINGS  (one row holding colours, fonts, sizes, header\n--    text and the announcement banner)\n-- ---------------------------------------------------------------------\ncreate table if not exists public.site_settings (\n  id         integer primary key default 1 check (id = 1),\n  settings   jsonb       not null default '{}'::jsonb,\n  updated_at timestamptz not null default now()\n);\n\ninsert into public.site_settings (id) values (1) on conflict (id) do nothing;\n\ndrop trigger if exists site_settings_touch on public.site_settings;\ncreate trigger site_settings_touch before update on public.site_settings\nfor each row execute function public.touch_updated_at();\n\nalter table public.site_settings enable row level security;\n\ndrop policy if exists \"settings readable by everyone\" on public.site_settings;\ncreate policy \"settings readable by everyone\" on public.site_settings\n  for select using (true);\n\ndrop policy if exists \"admins manage settings\" on public.site_settings;\ncreate policy \"admins manage settings\" on public.site_settings\n  for all to authenticated\n  using (public.is_admin()) with check (public.is_admin());\n\n-- ---------------------------------------------------------------------\n-- 4. INSIGHTS  (numbers for the admin Insights tab; admins only)\n-- ---------------------------------------------------------------------\ncreate or replace function public.admin_insights()\nreturns jsonb\nlanguage plpgsql stable security definer\nset search_path = public, auth\nas $$\ndeclare\n  result jsonb;\nbegin\n  if not public.is_admin() then\n    raise exception 'Only admins can view insights';\n  end if;\n\n  select jsonb_build_object(\n    'total_users',     (select count(*) from auth.users),\n    'new_users_30d',   (select count(*) from auth.users where created_at > now() - interval '30 days'),\n    'active_users_7d', (select count(distinct user_id) from public.user_progress\n                         where completed_at > now() - interval '7 days'),\n    'total_checks',    (select count(*) from public.user_progress),\n    'by_province', coalesce((select jsonb_object_agg(k, n) from\n                     (select province as k, count(*) as n from public.profiles group by province) x), '{}'::jsonb),\n    'by_industry', coalesce((select jsonb_object_agg(k, n) from\n                     (select industry as k, count(*) as n from public.profiles group by industry) x), '{}'::jsonb),\n    'by_software', coalesce((select jsonb_object_agg(k, n) from\n                     (select software as k, count(*) as n from public.profiles group by software) x), '{}'::jsonb),\n    'module_users', coalesce((select jsonb_object_agg(module_id, n) from\n                     (select module_id, count(distinct user_id) as n from public.user_progress group by module_id) x), '{}'::jsonb),\n    'steps', coalesce((select jsonb_agg(jsonb_build_object('module_id', module_id, 'step_id', step_id, 'n', n)) from\n                     (select module_id, step_id, count(*) as n from public.user_progress group by module_id, step_id) x), '[]'::jsonb),\n    'recent_users', coalesce((select jsonb_agg(to_jsonb(u) order by u.created_at desc) from (\n                     select au.email, au.created_at, au.last_sign_in_at,\n                            p.province, p.industry, p.software,\n                            (select count(*) from public.user_progress up where up.user_id = au.id) as steps_done\n                     from auth.users au\n                     left join public.profiles p on p.user_id = au.id\n                     order by au.created_at desc\n                     limit 200) u), '[]'::jsonb)\n  ) into result;\n\n  return result;\nend $$;\n\nrevoke all on function public.admin_insights() from public, anon;\ngrant execute on function public.admin_insights() to authenticated;\n";
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if ([...document.scripts].some(s => s.src === src)) return resolve();
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = () => reject(new Error('Could not load the zip tool. Check your internet connection.'));
+    document.head.appendChild(s);
+  });
+}
+
+async function fetchSiteFile(path) {
+  try {
+    const r = await fetch(path + '?v=' + Date.now(), { cache: 'no-store' });
+    return r.ok ? await r.text() : null;
+  } catch { return null; }
+}
+
+const sqlStr = v => "'" + String(v ?? '').replace(/'/g, "''") + "'";
+const sqlJson = v => sqlStr(JSON.stringify(v ?? null)) + '::jsonb';
+
+function buildContentSQL(all, stamp) {
+  const phaseRows = [...all.phases];
+  all.modules.forEach(m => { if (m.phase && !phaseRows.some(p => p.name === m.phase)) phaseRows.push({ name: m.phase, subtitle: '', sort_order: 1000 }); });
+  const out = [
+`-- =====================================================================
+-- EOCO Roadmap — YOUR CONTENT (snapshot from ${stamp})
+-- ${plural(phaseRows.length, 'phase')}, ${plural(all.modules.length, 'module')}${all.settings ? ', appearance settings' : ''}
+--
+-- Run this AFTER 1-database-setup.sql:
+--   Supabase → SQL Editor → New query → paste all → Run
+-- Safe to run more than once. Modules with the same ID are replaced
+-- with the version in this file; nothing else is deleted.
+-- =====================================================================
+
+begin;
+`];
+  if (phaseRows.length) {
+    out.push('-- Phases');
+    out.push('insert into public.phases (name, subtitle, sort_order) values\n' +
+      phaseRows.map(p => `  (${sqlStr(p.name)}, ${sqlStr(p.subtitle || '')}, ${Number(p.sort_order) || 0})`).join(',\n') +
+      '\non conflict (name) do update set subtitle = excluded.subtitle, sort_order = excluded.sort_order;\n');
+  }
+  all.modules.forEach(m => {
+    out.push(`-- Module ${m.id}: ${String(m.title || '').replace(/[\r\n]+/g, ' ')}
+insert into public.modules (id, sort_order, phase, title, tags, description, video, steps, library, published) values (
+  ${sqlStr(m.id)}, ${Number(m.sort_order) || 0}, ${sqlStr(m.phase)}, ${sqlStr(m.title)},
+  ${sqlJson(m.tags || [])},
+  ${sqlStr(m.description || '')},
+  ${sqlStr(m.video || '')},
+  ${sqlJson(m.steps || [])},
+  ${sqlJson(m.library || [])},
+  ${m.published === false ? 'false' : 'true'}
+)
+on conflict (id) do update set sort_order = excluded.sort_order, phase = excluded.phase, title = excluded.title,
+  tags = excluded.tags, description = excluded.description, video = excluded.video,
+  steps = excluded.steps, library = excluded.library, published = excluded.published;
+`);
+  });
+  if (all.settings) {
+    out.push(`-- Appearance (colours, fonts, sizes, header text, banner)
+insert into public.site_settings (id, settings) values (1, ${sqlJson(all.settings)})
+on conflict (id) do update set settings = excluded.settings;
+`);
+  }
+  out.push('commit;\n');
+  return out.join('\n');
+}
+
+function buildGuide(i) {
+  const e = esc;
+  const step = (n, title, body) => `<section class="step"><div class="num">${n}</div><div><h3>${title}</h3>${body}</div></section>`;
+  return `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>START HERE — EOCO Roadmap rebuild guide</title>
+<style>
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#F0F4F8;color:#1F2A3A;line-height:1.6}
+header{background:#1C2541;color:#fff;padding:36px 24px}
+header .in,main{max-width:820px;margin:0 auto}
+header h1{margin:0 0 6px;font-size:1.7rem}
+header p{margin:0;color:#8DA9C4}
+main{padding:28px 24px 80px}
+h2{font-size:1.3rem;margin:44px 0 6px;color:#1C2541;border-bottom:2px solid #D1D9E6;padding-bottom:6px}
+h2 small{display:block;font-size:.9rem;font-weight:400;color:#5B6B80}
+h3{margin:0 0 6px;font-size:1.05rem}
+.card{background:#fff;border:1px solid #D1D9E6;border-radius:8px;padding:18px 20px;margin:16px 0}
+.card h3{margin-top:0}
+.step{display:grid;grid-template-columns:40px 1fr;gap:14px;background:#fff;border:1px solid #D1D9E6;border-radius:8px;padding:16px 18px;margin:12px 0}
+.num{width:34px;height:34px;border-radius:50%;background:#3A506B;color:#fff;display:grid;place-items:center;font-weight:700}
+.step ol,.step ul{margin:4px 0 0;padding-left:20px}
+.step li{margin-bottom:5px}
+code,.file{background:#EEF2F7;border:1px solid #D1D9E6;border-radius:4px;padding:1px 6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;overflow-wrap:anywhere}
+.file{white-space:nowrap}
+.ok{background:#E9F4EE;border-left:4px solid #2F6B4F;padding:10px 14px;border-radius:4px;margin:10px 0 0;font-size:.95rem}
+.warn{background:#FFF6E5;border-left:4px solid #C08A2E;padding:10px 14px;border-radius:4px;margin:10px 0 0;font-size:.95rem}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+td,th{text-align:left;padding:8px 10px;border-bottom:1px solid #D1D9E6;vertical-align:top}
+th{background:#F6F8FB}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.two{grid-template-columns:1fr}}
+@media print{body{background:#fff}header{background:#fff;color:#000;border-bottom:2px solid #000}header p{color:#333}.step,.card{break-inside:avoid}}
+</style></head><body>
+<header><div class="in">
+  <h1>EOCO Roadmap — complete rebuild kit</h1>
+  <p>Made ${e(i.madeOn)} by ${e(i.adminEmail)}. Everything in this folder is what your site looked like at that moment.</p>
+</div></header>
+<main>
+
+<div class="card">
+  <h3>What was saved</h3>
+  <table>
+    <tr><th>Content</th><td>${plural(i.counts.modules, 'module')}${i.counts.hidden ? ` (${i.counts.hidden} hidden)` : ''}, ${plural(i.counts.phases, 'phase')}, ${plural(i.counts.steps, 'step')}, ${plural(i.counts.links, 'link')}</td></tr>
+    <tr><th>Appearance</th><td>${i.hasSettings ? 'Colours, fonts, sizes, header text and banner' : 'Default EOCO look (nothing customised yet)'}</td></tr>
+    <tr><th>Website address</th><td><code>${e(i.siteUrl)}</code></td></tr>
+    <tr><th>Supabase project</th><td><code>${e(i.supabaseUrl)}</code></td></tr>
+    <tr><th>Admin email</th><td><code>${e(i.adminEmail)}</code></td></tr>
+  </table>
+  ${i.missing.length ? `<p class="warn">These website files couldn't be included because the kit was made from a copy of the admin page that wasn't on your live site: ${i.missing.map(f => `<code>${e(f)}</code>`).join(', ')}. Download them from your GitHub repository instead.</p>` : ''}
+</div>
+
+<div class="card">
+  <h3>What's in this folder</h3>
+  <table>
+    <tr><th>File</th><th>Where it goes</th><th>What it's for</th></tr>
+    <tr><td><span class="file">START-HERE.html</span></td><td>You're reading it</td><td>This guide</td></tr>
+    <tr><td><span class="file">supabase/1-database-setup.sql</span></td><td>Supabase SQL Editor</td><td>Creates all the tables and security rules</td></tr>
+    <tr><td><span class="file">supabase/2-your-content.sql</span></td><td>Supabase SQL Editor</td><td>Puts back your phases, modules and appearance</td></tr>
+    <tr><td><span class="file">website/index.html</span></td><td>GitHub</td><td>Your roadmap website</td></tr>
+    <tr><td><span class="file">website/admin.html</span></td><td>GitHub</td><td>Your admin dashboard</td></tr>
+    <tr><td><span class="file">website/config.js</span></td><td>GitHub</td><td>Tells the website where your database is</td></tr>
+    <tr><td><span class="file">backup/${e(i.backupName)}</span></td><td>Admin → Backup → Restore</td><td>Quick content restore, if Supabase still works</td></tr>
+    <tr><td><span class="file">backup/modules.csv</span></td><td>Excel / Google Sheets</td><td>A readable copy of all your modules</td></tr>
+    ${i.usersIncluded ? `<tr><td><span class="file">backup/users.csv</span></td><td>Excel / Google Sheets</td><td>Who had accounts (for your records)</td></tr>` : ''}
+  </table>
+</div>
+
+<h2>Which situation are you in?</h2>
+<div class="two">
+  <div class="card">
+    <h3>Supabase and the website still work, but content was deleted or broken</h3>
+    <p>You only need to put the content back. Choose one:</p>
+    <ul>
+      <li>Open your admin page → <b>Backup</b> tab → <b>Restore from a backup</b> → choose <span class="file">backup/${e(i.backupName)}</span>.</li>
+      <li>Or: Supabase → SQL Editor → New query → paste <span class="file">supabase/2-your-content.sql</span> → Run.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Starting over completely</h3>
+    <p>New Supabase project, new GitHub repository, or both. Follow <b>Parts 1 to 4</b> below in order. Allow about 20 minutes.</p>
+    <p>If you're keeping one of them, skip the steps that create it. Each step says when you can skip it.</p>
+  </div>
+</div>
+
+<p class="ok"><b>First:</b> unzip this download (right-click it → <b>Extract All</b> on Windows, or double-click it on a Mac) so you can open the files inside.</p>
+
+<h2>Part 1: The database <small>in Supabase (supabase.com)</small></h2>
+
+${step(1, 'Create a Supabase project', `<p>Skip this if you're reusing your existing project.</p><ol>
+  <li>Go to <b>supabase.com</b> and sign in.</li>
+  <li>Click <b>New project</b>. Give it a name (for example <i>EOCO Business Roadmap</i>).</li>
+  <li>Create a database password and save it somewhere safe. You won't need it for these steps.</li>
+  <li>For <b>Region</b>, choose <b>Canada (Central)</b>, then click <b>Create new project</b>.</li>
+  <li>Wait about 2 minutes until the project dashboard appears.</li></ol>`)}
+
+${step(2, 'Run the setup file', `<ol>
+  <li>On the left edge of Supabase, click the <b>&gt;_</b> icon (<b>SQL Editor</b>).</li>
+  <li>Click <b>New query</b> (or the <b>+</b>) to get a blank tab.</li>
+  <li>On your computer, open <span class="file">supabase/1-database-setup.sql</span> with Notepad (Windows) or TextEdit (Mac). Press <b>Ctrl+A</b> then <b>Ctrl+C</b> to copy it all (Cmd+A, Cmd+C on a Mac).</li>
+  <li>Click in the blank SQL tab and press <b>Ctrl+V</b> to paste.</li>
+  <li>Your admin email is already filled in as <code>${e(i.adminEmail)}</code>. To use a different admin email, find that email in the pasted text (about a third of the way down) and change it, keeping the single quotes around it.</li>
+  <li>Click the green <b>Run</b> button. If a warning about "destructive operations" appears, click <b>Run this query</b>.</li></ol>
+  <p class="ok">You should see <b>Success. No rows returned.</b></p>`)}
+
+${step(3, 'Put your content back', `<ol>
+  <li>In the SQL Editor, click <b>New query</b> again.</li>
+  <li>Open <span class="file">supabase/2-your-content.sql</span>, copy everything, paste it into the blank tab.</li>
+  <li>Click <b>Run</b>.</li>
+  <li>To check: click the grid icon on the left (<b>Table Editor</b>) → <b>modules</b>. You should see ${plural(i.counts.modules, 'row')}. The <b>phases</b> table should have ${plural(i.counts.phases, 'row')}.</li></ol>`)}
+
+${step(4, 'Create your admin login', `<p>Skip this if you're reusing your existing project; your login still works.</p><ol>
+  <li>Click the padlock icon on the left (<b>Authentication</b>) → <b>Users</b>.</li>
+  <li>Click <b>Add user</b> → <b>Create new user</b>.</li>
+  <li>Enter <code>${e(i.adminEmail)}</code> (or whichever email you used in step 2) and choose a password.</li>
+  <li>Tick <b>Auto Confirm User</b>, then click <b>Create user</b>.</li></ol>`)}
+
+${step(5, 'Copy your two connection codes', `<p>Skip this if you're reusing your existing project; the codes in <span class="file">config.js</span> are still correct.</p><ol>
+  <li>Click the green <b>Connect</b> button at the top of Supabase.</li>
+  <li>Copy the <b>Project URL</b> (it looks like <code>https://abcdefgh.supabase.co</code>) into Notepad.</li>
+  <li>Copy the <b>anon</b> (also called <b>publishable</b>) key, a long string of letters and numbers, into Notepad.</li></ol>
+  <p class="warn">Never use the key called <b>service_role</b> or <b>secret</b>. It must not go on your website.</p>`)}
+
+<h2>Part 2: The website <small>on GitHub (github.com)</small></h2>
+
+${step(6, 'Open or create your repository', `<ul>
+  <li><b>Keeping your repository:</b> open it on github.com and go to step 7.</li>
+  <li><b>New repository:</b> click the <b>+</b> at the top right → <b>New repository</b> → name it <i>roadmap</i> → choose <b>Public</b> → click <b>Create repository</b>.</li></ul>`)}
+
+${step(7, 'Upload the three website files', `<ol>
+  <li>Click <b>Add file</b> → <b>Upload files</b>. On a brand-new repository, click the link that says <b>uploading an existing file</b>.</li>
+  <li>Open the <span class="file">website</span> folder on your computer and drag the three files inside it (<span class="file">index.html</span>, <span class="file">admin.html</span>, <span class="file">config.js</span>) onto the page. Drag the files, not the folder.</li>
+  <li>Scroll down and click <b>Commit changes</b>.</li></ol>`)}
+
+${step(8, 'Put your connection codes into config.js', `<p>Skip this if you kept the same Supabase project.</p><ol>
+  <li>In your repository, click <span class="file">config.js</span>, then the pencil icon ✏️ at the top right of the file.</li>
+  <li>Replace the web address after <code>SUPABASE_URL:</code> with your Project URL from step 5.</li>
+  <li>Replace the long code after <code>SUPABASE_ANON_KEY:</code> with your anon key from step 5.</li>
+  <li>Keep the single quotes around both. They should look like:<br>
+    <code>SUPABASE_URL: 'https://abcdefgh.supabase.co',</code><br><code>SUPABASE_ANON_KEY: 'eyJhbGciOi…',</code></li>
+  <li>Click <b>Commit changes</b>, then <b>Commit changes</b> again in the pop-up.</li></ol>`)}
+
+${step(9, 'Turn the website on', `<p>Skip this if you kept your existing repository; it's already on.</p><ol>
+  <li>In your repository, click <b>Settings</b> (top menu) → <b>Pages</b> (left menu).</li>
+  <li>Under <b>Build and deployment</b>, set <b>Source</b> to <b>Deploy from a branch</b>.</li>
+  <li>Set <b>Branch</b> to <b>main</b> and the folder to <b>/ (root)</b>, then click <b>Save</b>.</li>
+  <li>Wait 1 to 2 minutes and refresh. The top of the page will say <b>Your site is live at…</b> followed by your address. Copy it.</li></ol>`)}
+
+<h2>Part 3: Connect them and test</h2>
+
+${step(10, 'Tell Supabase your website address', `<p>This makes the "email me a sign-in link" button send visitors back to your site.</p><ol>
+  <li>In Supabase, click the padlock icon (<b>Authentication</b>) → <b>URL Configuration</b>.</li>
+  <li>Paste your website address into <b>Site URL</b> and click <b>Save</b>.</li>
+  <li>Under <b>Redirect URLs</b>, click <b>Add URL</b>, paste the same address, and save.</li></ol>`)}
+
+${step(11, 'Test everything', `<ol>
+  <li>Wait about 2 minutes after your last GitHub change.</li>
+  <li>Open your website address. Your roadmap should load with all your modules.</li>
+  <li>Add <code>admin.html</code> to the end of the address and sign in with your admin email and password.</li>
+  <li>In the admin, open the <b>Appearance</b> tab and check your colours and fonts came back.</li></ol>
+  <p class="ok">Done. Your roadmap is fully rebuilt.</p>`)}
+
+<h2>Part 4: Good to know</h2>
+<div class="card"><ul>
+  <li><b>Visitor accounts don't move to a new Supabase project.</b> Visitors sign in again with their email link and their checkmarks start fresh. ${i.usersIncluded ? '<span class="file">backup/users.csv</span> lists who had accounts and how far they got.' : ''}</li>
+  <li><b>Emails:</b> Supabase's built-in email sender only sends a few sign-in emails per hour. Before inviting lots of people, add your own under <b>Authentication → Emails → SMTP Settings</b>.</li>
+  <li><b>Other admins:</b> to add one, run this in the SQL Editor, then create their login as in step 4:<br><code>insert into admins (email) values ('their@email.com');</code></li>
+  <li><b>Keep this kit current:</b> download a new one from the admin Backup tab after big changes.</li></ul></div>
+
+<h2>If something goes wrong</h2>
+<div class="card"><table>
+  <tr><th>What you see</th><th>What to do</th></tr>
+  <tr><td>Website stuck on "Syncing Roadmap…"</td><td>The codes in <span class="file">config.js</span> are wrong or missing. Redo step 8, then wait 2 minutes and refresh.</td></tr>
+  <tr><td>Admin says "… isn't an admin"</td><td>The email in step 2 doesn't match your login. In the SQL Editor run <code>insert into admins (email) values ('your@email.com');</code> with your login email.</td></tr>
+  <tr><td>"Invalid login credentials"</td><td>Wrong password, or the user wasn't created or confirmed. Redo step 4.</td></tr>
+  <tr><td>Sign-in email link opens the wrong page</td><td>Redo step 10 with your exact website address.</td></tr>
+  <tr><td>Error when running 2-your-content.sql</td><td>Run 1-database-setup.sql first (step 2), then try again.</td></tr>
+  <tr><td>Changes don't show on the site</td><td>Wait 2 minutes, then press <b>Ctrl+F5</b> (Cmd+Shift+R on a Mac) to reload without the old copy.</td></tr>
+  <tr><td>Anything else</td><td>Take a screenshot and note which step number you're on.</td></tr>
+</table></div>
+
+</main></body></html>`;
+}
+
+$('kit-btn').onclick = async () => {
+  const btn = $('kit-btn'), status = $('kit-status');
+  const say = (t, cls) => { status.textContent = t; status.className = 'status' + (cls ? ' ' + cls : ''); };
+  btn.disabled = true; btn.textContent = 'Building kit…';
+  try {
+    say('Loading the zip tool…');
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+
+    say('Collecting your content…');
+    const all = await fetchEverything();
+    const { data: { session } } = await sb.auth.getSession();
+    const adminEmail = session?.user?.email || 'you@example.com';
+
+    say('Collecting website files…');
+    const [indexFile, adminFile, configFile] = await Promise.all(['index.html', 'admin.html', 'config.js'].map(fetchSiteFile));
+    const missing = [];
+    if (!indexFile) missing.push('index.html');
+    if (!adminFile) missing.push('admin.html');
+    const config = configFile || `// Supabase connection — used by index.html and admin.html.
+// Find both values in Supabase: click the green Connect button.
+// NEVER put the service_role / secret key here.
+window.EOCO_CONFIG = {
+  SUPABASE_URL: ${JSON.stringify(cfg.SUPABASE_URL || 'https://YOUR-PROJECT-ID.supabase.co')},
+  SUPABASE_ANON_KEY: ${JSON.stringify(cfg.SUPABASE_ANON_KEY || 'YOUR-ANON-PUBLIC-KEY')}
+};
+`;
+
+    let users = [];
+    if (hasV2) {
+      const { data } = await sb.rpc('admin_insights');
+      users = (data && data.recent_users) || [];
+    }
+
+    say('Packing the zip…');
+    const now = new Date();
+    const day = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const stamp = now.toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' });
+    const backupName = `eoco-backup-${day}.json`;
+    const zip = new JSZip();
+
+    const setupSQL = EOCO_SETUP_SQL.replace("values ('you@example.com')", `values (${sqlStr(adminEmail)})`);
+    zip.file('supabase/1-database-setup.sql', setupSQL);
+    zip.file('supabase/2-your-content.sql', buildContentSQL(all, stamp));
+    if (indexFile) zip.file('website/index.html', indexFile);
+    if (adminFile) zip.file('website/admin.html', adminFile);
+    zip.file('website/config.js', config);
+    zip.file('backup/' + backupName, JSON.stringify({ app: 'eoco-roadmap', version: 2, exported_at: now.toISOString(), ...all }, null, 2));
+    zip.file('backup/modules.csv', toCSV(all.modules, [...MODULE_COLS, 'published']));
+    if (users.length) {
+      zip.file('backup/users.csv', toCSV(users.map(u => ({ ...u,
+        province: label('province', u.province), industry: label('industry', u.industry), software: label('software', u.software) })),
+        ['email', 'created_at', 'last_sign_in_at', 'province', 'industry', 'software', 'steps_done']));
+    }
+    zip.file('START-HERE.html', buildGuide({
+      madeOn: stamp, adminEmail, backupName, missing, usersIncluded: users.length > 0,
+      hasSettings: !!all.settings && Object.keys(all.settings).length > 0,
+      siteUrl: location.origin + location.pathname.replace(/admin\.html$/, ''),
+      supabaseUrl: cfg.SUPABASE_URL || '',
+      counts: {
+        modules: all.modules.length,
+        hidden: all.modules.filter(m => m.published === false).length,
+        phases: new Set([...all.phases.map(p => p.name), ...all.modules.map(m => m.phase)]).size,
+        steps: all.modules.reduce((n, m) => n + (m.steps || []).length, 0),
+        links: all.modules.reduce((n, m) => n + toolCount(m), 0)
+      }
+    }));
+
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), { href: url, download: `eoco-site-kit-${day}.zip` });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    say(missing.length ? `Downloaded, but ${missing.join(' and ')} couldn't be included. See the guide.` : 'Downloaded. Keep it somewhere safe, like Google Drive.', missing.length ? 'error' : 'ok');
+    toast('Complete site kit downloaded');
+  } catch (err) {
+    say(`Couldn't build the kit: ${err.message}`, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Download complete kit';
+  }
 };
 
 boot();
