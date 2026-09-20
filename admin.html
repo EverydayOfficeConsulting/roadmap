@@ -274,6 +274,10 @@ table.data td.num, table.data th.num { text-align: right; font-variant-numeric: 
 /* ---------- Dialog + toast ---------- */
 dialog { border: 1px solid var(--line); border-radius: var(--radius-m); padding: 24px; max-width: 440px; width: calc(100% - 40px); background: var(--panel); color: var(--text); }
 dialog::backdrop { background: rgba(28, 37, 65, .5); }
+dialog { max-height: calc(100vh - 40px); overflow-y: auto; }
+dialog.wide { max-width: 640px; }
+dialog .grid-2 { gap: 0 12px; }
+dialog .field small { font-size: .78rem; }
 dialog h2 { margin: 0 0 8px; font-size: 1.1rem; font-weight: 600; }
 dialog p { margin: 0 0 16px; color: var(--muted); }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
@@ -434,10 +438,10 @@ dialog p { margin: 0 0 16px; color: var(--muted); }
     <div class="kit-body">
       <div>
         <div class="block-head"><h3>Complete site kit</h3><span>Recommended</span></div>
-        <p>One zip file with everything needed to rebuild the whole roadmap from nothing: your website files, the database setup, all your content and appearance settings, and a step-by-step guide that walks you through it.</p>
+        <p>One zip file with everything needed to rebuild the whole roadmap from nothing: your website files, the database setup, all your content and appearance settings, and a step-by-step guide written so someone who has never seen the setup can follow it, including accounts, your web address (domain) and sign-in emails.</p>
         <ul class="kit-list">
           <li><b>START-HERE.html</b> — the rebuild guide (opens in any browser)</li>
-          <li><b>website/</b> — index.html, admin.html and config.js, exactly as they are now</li>
+          <li><b>website/</b> — every file from your GitHub repository (or at least index.html, admin.html and config.js)</li>
           <li><b>supabase/</b> — two files to paste into the SQL Editor: the setup, then your content</li>
           <li><b>backup/</b> — a restore file for this Backup tab, a modules spreadsheet and your user list</li>
         </ul>
@@ -616,9 +620,10 @@ function toCSV(rows, cols) {
 }
 
 // reusable confirm dialog → resolves true/false
-function ask({ title, text, ok = 'Delete', danger = true, extra = '' }) {
+function ask({ title, text, ok = 'Delete', danger = true, extra = '', wide = false }) {
   return new Promise(resolve => {
     const dlg = $('confirm');
+    dlg.classList.toggle('wide', wide);
     $('confirm-title').textContent = title;
     $('confirm-text').textContent = text;
     $('confirm-extra').innerHTML = extra;
@@ -1699,16 +1704,153 @@ on conflict (id) do update set settings = excluded.settings;
   return out.join('\n');
 }
 
+/* ---------- Handover details (kept in this browser only) ---------- */
+const KIT_FIELDS = ['site_url', 'custom_domain', 'registrar', 'github_user', 'github_repo', 'supabase_login', 'smtp_provider', 'passwords_location', 'recovery_location', 'helper'];
+
+function detectSite() {
+  const host = location.hostname, path = location.pathname.replace(/admin\.html$/, '');
+  const d = { site_url: location.protocol.startsWith('http') ? location.origin + path : '' };
+  if (/\.github\.io$/i.test(host)) {
+    d.github_user = host.split('.')[0];
+    d.github_repo = path.split('/').filter(Boolean)[0] || host;
+  } else if (host && host !== 'localhost' && !/^[\d.]+$/.test(host) && location.protocol.startsWith('http')) {
+    d.custom_domain = host;
+  }
+  return d;
+}
+
+function kitDefaults() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('eoco_kit_details') || '{}'); } catch {}
+  const det = detectSite();
+  const out = {};
+  KIT_FIELDS.forEach(k => { out[k] = det[k] || saved[k] || ''; });
+  if (det.custom_domain === undefined && saved.custom_domain) out.custom_domain = saved.custom_domain;
+  return out;
+}
+
+const cleanDomain = v => String(v || '').trim().replace(/^https?:\/\//i, '').replace(/\/.*$/, '').toLowerCase();
+
+async function askKitDetails() {
+  const d = kitDefaults();
+  const f = (k, label, hint, ph = '', list = '') => `<label class="field"><span>${label}</span>
+    <input class="input" id="kit-${k}" value="${esc(d[k])}" placeholder="${esc(ph)}" ${list ? `list="${list}"` : ''}>${hint ? `<small>${hint}</small>` : ''}</label>`;
+  const ok = await ask({
+    title: 'Handover details',
+    text: 'These go into the guide so someone else could rebuild the site without asking you. Everything is optional, and it’s remembered on this computer for next time.',
+    ok: 'Build kit', danger: false, wide: true,
+    extra: `
+      <div class="grid-2">
+        ${f('custom_domain', 'Your own web address (domain)', 'Leave empty if your site address ends in github.io.', 'e.g. roadmap.eoco.ca')}
+        ${f('registrar', 'Where the domain was bought', 'The company you pay each year for the domain.', 'e.g. GoDaddy', 'kit-registrars')}
+      </div>
+      <datalist id="kit-registrars"><option value="GoDaddy"><option value="Namecheap"><option value="Cloudflare"><option value="Squarespace"><option value="Hover"><option value="Rebel.com"><option value="Porkbun"><option value="Wix"></datalist>
+      <div class="grid-2">
+        ${f('github_user', 'GitHub username', 'The name you sign in to GitHub with.', 'e.g. everydayoffice')}
+        ${f('github_repo', 'GitHub repository name', 'The project that holds the website files.', 'e.g. roadmap')}
+      </div>
+      <div class="grid-2">
+        ${f('supabase_login', 'Supabase account login', 'The email used to sign in at supabase.com.', 'e.g. you@business.ca')}
+        ${f('smtp_provider', 'Sign-in email service (if any)', 'Only if you set up your own email sender.', 'e.g. Resend, Brevo')}
+      </div>
+      ${f('passwords_location', 'Where the passwords are kept', '<b>Don’t type any passwords here.</b> Just say where to find them.', 'e.g. 1Password, shared vault “EOCO”')}
+      ${f('recovery_location', 'Where 2-step verification / recovery codes are kept', 'GitHub asks for these when signing in on a new device.', 'e.g. Printed, in the office safe')}
+      ${f('helper', 'Who to ask for help, or other notes', '', 'e.g. Call Sam at 902-555-0123')}`
+  });
+  if (!ok) return null;
+  const out = {};
+  KIT_FIELDS.forEach(k => { const el = $('kit-' + k); out[k] = el ? el.value.trim() : d[k]; });
+  out.custom_domain = cleanDomain(out.custom_domain);
+  out.github_user = out.github_user.replace(/^@/, '');
+  localStorage.setItem('eoco_kit_details', JSON.stringify(out));
+  return out;
+}
+
+/* ---------- Every file from the GitHub repository (public repos) ---------- */
+async function fetchRepoFiles(owner, repo, say) {
+  const api = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
+  const info = await fetch(api);
+  if (!info.ok) throw new Error(info.status === 404 ? 'repository not found (it may be private or the name may be wrong)' : 'GitHub said ' + info.status);
+  const branch = (await info.json()).default_branch || 'main';
+  const treeRes = await fetch(`${api}/git/trees/${encodeURIComponent(branch)}?recursive=1`);
+  if (!treeRes.ok) throw new Error('GitHub said ' + treeRes.status);
+  const tree = await treeRes.json();
+  const blobs = (tree.tree || []).filter(x => x.type === 'blob' && (x.size || 0) < 25 * 1024 * 1024);
+  if ((tree.truncated) || blobs.reduce((n, b) => n + (b.size || 0), 0) > 150 * 1024 * 1024) throw new Error('repository is too large to copy automatically');
+  const files = [];
+  let done = 0;
+  const queue = [...blobs];
+  const worker = async () => {
+    while (queue.length) {
+      const b = queue.shift();
+      const url = `https://raw.githubusercontent.com/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${encodeURIComponent(branch)}/${b.path.split('/').map(encodeURIComponent).join('/')}`;
+      const r = await fetch(url, { cache: 'no-store' });
+      if (!r.ok) throw new Error(`couldn't download ${b.path}`);
+      files.push({ path: b.path, data: await r.arrayBuffer() });
+      say(`Copying website files from GitHub… ${++done} of ${blobs.length}`);
+    }
+  };
+  await Promise.all(Array.from({ length: 6 }, worker));
+  return { branch, files };
+}
+
+/* ---------- The guide ---------- */
 function buildGuide(i) {
-  const e = esc;
-  const step = (n, title, body) => `<section class="step"><div class="num">${n}</div><div><h3>${title}</h3>${body}</div></section>`;
+  const e = esc, D = i.details;
+  let n = 0;
+  const nums = {};
+  const step = (title, body, skip, key) => { ++n; if (key) nums[key] = n; return stepHTML(title, body, skip); };
+  const stepHTML = (title, body, skip) => `<section class="step"><div class="num">${n}</div><div><h3>${title}</h3>${skip ? `<p class="skip">${skip}</p>` : ''}${body}</div></section>`;
+  const ghUser = D.github_user || 'YOUR-GITHUB-USERNAME';
+  const repoName = D.github_repo || 'roadmap';
+  const userSite = repoName.toLowerCase() === `${ghUser}.github.io`.toLowerCase();
+  const pagesUrl = userSite ? `https://${ghUser}.github.io/` : `https://${ghUser}.github.io/${repoName}/`;
+  const domain = D.custom_domain;
+  const finalUrl = domain ? `https://${domain}/` : (D.site_url && !/localhost/.test(D.site_url) ? D.site_url : pagesUrl);
+  const registrar = D.registrar || 'the company the domain was bought from';
+  const pw = D.passwords_location ? `Passwords are kept here: <b>${e(D.passwords_location)}</b>.` : 'Ask the site owner where the passwords are kept.';
+  const accounts = [
+    ['GitHub', 'Holds the website files and puts them online (free).', D.github_user ? `Username <code>${e(D.github_user)}</code>` : 'Ask the owner', 'github.com'],
+    ['Supabase', 'The database: modules, phases, appearance, visitor accounts (free plan).', D.supabase_login ? `<code>${e(D.supabase_login)}</code>` : 'Ask the owner', 'supabase.com'],
+    ['Admin dashboard', 'Where you edit the roadmap.', `<code>${e(i.adminEmail)}</code>`, e(finalUrl + 'admin.html')]
+  ];
+  if (domain) accounts.push([e(D.registrar || 'Domain company'), `Owns the web address <code>${e(domain)}</code>. Renews once a year (paid).`, D.passwords_location ? 'Saved with the passwords' : 'Ask the owner', D.registrar ? e(D.registrar) : '—']);
+  if (D.smtp_provider) accounts.push([e(D.smtp_provider), 'Sends the “sign-in link” emails to visitors.', D.passwords_location ? 'Saved with the passwords' : 'Ask the owner', e(D.smtp_provider)]);
+
+  // DNS instructions, used for a real domain or as an example in the appendix
+  const dnsBlock = (dom, example) => {
+    const labels = dom.split('.');
+    const apex = labels.length === 2 || (labels.length === 3 && labels[0] === 'www');
+    const root = labels[0] === 'www' ? labels.slice(1).join('.') : dom;
+    const sub = labels.slice(0, -2).join('.');
+    const rows = apex
+      ? `<tr><td>A</td><td><code>@</code></td><td><code>185.199.108.153</code></td></tr>
+         <tr><td>A</td><td><code>@</code></td><td><code>185.199.109.153</code></td></tr>
+         <tr><td>A</td><td><code>@</code></td><td><code>185.199.110.153</code></td></tr>
+         <tr><td>A</td><td><code>@</code></td><td><code>185.199.111.153</code></td></tr>
+         <tr><td>CNAME</td><td><code>www</code></td><td><code>${e(ghUser)}.github.io</code></td></tr>`
+      : `<tr><td>CNAME</td><td><code>${e(sub)}</code></td><td><code>${e(ghUser)}.github.io</code></td></tr>`;
+    return `<ol>
+      <li>Go to ${example ? 'the website of the company you bought the domain from' : `<b>${e(registrar)}</b>`} and sign in.</li>
+      <li>Find the domain <code>${e(apex ? root : dom.split('.').slice(-2).join('.'))}</code> and open its DNS settings. The button is usually called <b>DNS</b>, <b>Manage DNS</b>, <b>DNS records</b> or <b>Advanced DNS</b>.</li>
+      <li>Look for existing records with the same <b>Name/Host</b> as the ones below (${apex ? '<code>@</code> and <code>www</code>' : `<code>${e(sub)}</code>`}). If any of them point somewhere else, delete or edit them. Leave all other records alone, especially ones for email (MX).</li>
+      <li>Add ${apex ? 'these records' : 'this record'} (TTL can stay on the default or “Automatic”):
+        <table class="dns"><tr><th>Type</th><th>Name / Host</th><th>Value / Points to</th></tr>${rows}</table></li>
+      <li>Save. If you use <b>Cloudflare</b>, click the orange cloud next to each record so it turns grey (“DNS only”).</li></ol>
+      ${D.github_user ? '' : `<p class="warn">Replace <code>YOUR-GITHUB-USERNAME</code> with the GitHub username from step ${nums.github || 'Part 2'}.</p>`}`;
+  };
+
+  const repoNote = i.repo.included
+    ? `every file from your GitHub repository (${plural(i.repo.count, 'file')})`
+    : 'index.html, admin.html and config.js';
+
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>START HERE — EOCO Roadmap rebuild guide</title>
 <style>
 body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#F0F4F8;color:#1F2A3A;line-height:1.6}
 header{background:#1C2541;color:#fff;padding:36px 24px}
-header .in,main{max-width:820px;margin:0 auto}
+header .in,main{max-width:840px;margin:0 auto}
 header h1{margin:0 0 6px;font-size:1.7rem}
 header p{margin:0;color:#8DA9C4}
 main{padding:28px 24px 80px}
@@ -1717,37 +1859,69 @@ h2 small{display:block;font-size:.9rem;font-weight:400;color:#5B6B80}
 h3{margin:0 0 6px;font-size:1.05rem}
 .card{background:#fff;border:1px solid #D1D9E6;border-radius:8px;padding:18px 20px;margin:16px 0}
 .card h3{margin-top:0}
+.card ul{margin:6px 0 0;padding-left:20px}
 .step{display:grid;grid-template-columns:40px 1fr;gap:14px;background:#fff;border:1px solid #D1D9E6;border-radius:8px;padding:16px 18px;margin:12px 0}
 .num{width:34px;height:34px;border-radius:50%;background:#3A506B;color:#fff;display:grid;place-items:center;font-weight:700}
 .step ol,.step ul{margin:4px 0 0;padding-left:20px}
 .step li{margin-bottom:5px}
-code,.file{background:#EEF2F7;border:1px solid #D1D9E6;border-radius:4px;padding:1px 6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;overflow-wrap:anywhere}
+.skip{margin:0 0 6px;color:#5B6B80;font-style:italic}
+code,.file{background:#EEF2F7;border:1px solid #D1D9E6;border-radius:4px;padding:1px 6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;overflow-wrap:break-word}
 .file{white-space:nowrap}
 .ok{background:#E9F4EE;border-left:4px solid #2F6B4F;padding:10px 14px;border-radius:4px;margin:10px 0 0;font-size:.95rem}
 .warn{background:#FFF6E5;border-left:4px solid #C08A2E;padding:10px 14px;border-radius:4px;margin:10px 0 0;font-size:.95rem}
+.stop{background:#FBEFEF;border-left:4px solid #A33A3A;padding:10px 14px;border-radius:4px;margin:10px 0 0;font-size:.95rem}
 table{border-collapse:collapse;width:100%;font-size:.93rem}
 td,th{text-align:left;padding:8px 10px;border-bottom:1px solid #D1D9E6;vertical-align:top}
 th{background:#F6F8FB}
+table.dns{margin:8px 0 4px;background:#fff}
+.pieces{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.piece{background:#fff;border:1px solid #D1D9E6;border-radius:8px;padding:14px}
+.piece .pt{display:block;color:#3A506B;font-weight:700;margin-bottom:4px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:640px){.two{grid-template-columns:1fr}}
-@media print{body{background:#fff}header{background:#fff;color:#000;border-bottom:2px solid #000}header p{color:#333}.step,.card{break-inside:avoid}}
+.check li{list-style:none;margin-left:-20px}
+.check li::before{content:"☐  ";font-size:1.1em}
+@media(max-width:640px){.two,.pieces{grid-template-columns:1fr}}
+@media print{body{background:#fff}header{background:#fff;color:#000;border-bottom:2px solid #000}header p{color:#333}.step,.card,.piece{break-inside:avoid}}
 </style></head><body>
 <header><div class="in">
   <h1>EOCO Roadmap — complete rebuild kit</h1>
-  <p>Made ${e(i.madeOn)} by ${e(i.adminEmail)}. Everything in this folder is what your site looked like at that moment.</p>
+  <p>Made ${e(i.madeOn)} by ${e(i.adminEmail)}. Everything in this folder is what the site looked like at that moment.</p>
 </div></header>
 <main>
+
+<div class="card">
+  <h3>What is this?</h3>
+  <p style="margin:0">This folder can rebuild the EOCO Roadmap website from nothing, even if everything online was deleted. You don't need to know any code. Follow the numbered steps in order and do exactly what each one says. Set aside about <b>45 minutes</b> and use a computer, not a phone.</p>
+  <div class="pieces">
+    <div class="piece"><span class="pt">1. The website</span>The pages people see. The files live on <b>GitHub</b>, which also puts them online for free.</div>
+    <div class="piece"><span class="pt">2. The database</span>All the modules, phases, colours and visitor accounts. Lives on <b>Supabase</b>.</div>
+    <div class="piece"><span class="pt">3. The address</span>${domain ? `The web address <b>${e(domain)}</b>, rented yearly from <b>${e(D.registrar || 'a domain company')}</b>.` : `The web address. Right now it's a free GitHub address.`}</div>
+  </div>
+  <p style="margin:0">The website reads from the database. The address points people to the website. Rebuilding means putting each piece back and reconnecting them.</p>
+</div>
+
+<div class="card">
+  <h3>Before you start: accounts you'll need</h3>
+  <table><tr><th>Service</th><th>What it does</th><th>Sign in with</th><th>Website</th></tr>
+  ${accounts.map(a => `<tr><td><b>${a[0]}</b></td><td>${a[1]}</td><td>${a[2]}</td><td>${a[3]}</td></tr>`).join('')}
+  </table>
+  <p class="${D.passwords_location ? 'ok' : 'warn'}">${pw}${D.recovery_location ? ` If a site asks for a 2-step verification code and the phone isn't available, recovery codes are kept here: <b>${e(D.recovery_location)}</b>.` : ' GitHub may ask for a 2-step verification code from a phone app. Make sure you have that phone, or the printed recovery codes.'}</p>
+  ${D.helper ? `<p class="ok">Help or notes: <b>${e(D.helper)}</b></p>` : ''}
+  <p style="margin:12px 0 0">If one of these accounts no longer exists or can't be opened, you can create a new free one. The steps below tell you when that's fine.</p>
+</div>
 
 <div class="card">
   <h3>What was saved</h3>
   <table>
     <tr><th>Content</th><td>${plural(i.counts.modules, 'module')}${i.counts.hidden ? ` (${i.counts.hidden} hidden)` : ''}, ${plural(i.counts.phases, 'phase')}, ${plural(i.counts.steps, 'step')}, ${plural(i.counts.links, 'link')}</td></tr>
     <tr><th>Appearance</th><td>${i.hasSettings ? 'Colours, fonts, sizes, header text and banner' : 'Default EOCO look (nothing customised yet)'}</td></tr>
-    <tr><th>Website address</th><td><code>${e(i.siteUrl)}</code></td></tr>
+    <tr><th>Website files</th><td>${repoNote}</td></tr>
+    <tr><th>Website address</th><td><code>${e(finalUrl)}</code></td></tr>
     <tr><th>Supabase project</th><td><code>${e(i.supabaseUrl)}</code></td></tr>
     <tr><th>Admin email</th><td><code>${e(i.adminEmail)}</code></td></tr>
   </table>
-  ${i.missing.length ? `<p class="warn">These website files couldn't be included because the kit was made from a copy of the admin page that wasn't on your live site: ${i.missing.map(f => `<code>${e(f)}</code>`).join(', ')}. Download them from your GitHub repository instead.</p>` : ''}
+  ${!i.repo.included ? `<p class="warn">Only the three main website files are in this kit${i.repo.error ? ` (the full copy from GitHub didn't work: ${e(i.repo.error)})` : ''}. If you added anything else to GitHub, like images or a logo, it isn't here. To keep those too: open the repository on github.com, click the green <b>Code</b> button, then <b>Download ZIP</b>, and keep that zip with this kit.</p>` : ''}
+  ${i.missing.length ? `<p class="warn">These files couldn't be included: ${i.missing.map(f => `<code>${e(f)}</code>`).join(', ')}. Download them from the GitHub repository.</p>` : ''}
 </div>
 
 <div class="card">
@@ -1756,135 +1930,185 @@ th{background:#F6F8FB}
     <tr><th>File</th><th>Where it goes</th><th>What it's for</th></tr>
     <tr><td><span class="file">START-HERE.html</span></td><td>You're reading it</td><td>This guide</td></tr>
     <tr><td><span class="file">supabase/1-database-setup.sql</span></td><td>Supabase SQL Editor</td><td>Creates all the tables and security rules</td></tr>
-    <tr><td><span class="file">supabase/2-your-content.sql</span></td><td>Supabase SQL Editor</td><td>Puts back your phases, modules and appearance</td></tr>
-    <tr><td><span class="file">website/index.html</span></td><td>GitHub</td><td>Your roadmap website</td></tr>
-    <tr><td><span class="file">website/admin.html</span></td><td>GitHub</td><td>Your admin dashboard</td></tr>
-    <tr><td><span class="file">website/config.js</span></td><td>GitHub</td><td>Tells the website where your database is</td></tr>
+    <tr><td><span class="file">supabase/2-your-content.sql</span></td><td>Supabase SQL Editor</td><td>Puts back the phases, modules and appearance</td></tr>
+    <tr><td><span class="file">website/</span> (everything inside)</td><td>GitHub</td><td>The website: ${repoNote}</td></tr>
     <tr><td><span class="file">backup/${e(i.backupName)}</span></td><td>Admin → Backup → Restore</td><td>Quick content restore, if Supabase still works</td></tr>
-    <tr><td><span class="file">backup/modules.csv</span></td><td>Excel / Google Sheets</td><td>A readable copy of all your modules</td></tr>
-    ${i.usersIncluded ? `<tr><td><span class="file">backup/users.csv</span></td><td>Excel / Google Sheets</td><td>Who had accounts (for your records)</td></tr>` : ''}
+    <tr><td><span class="file">backup/modules.csv</span></td><td>Excel / Google Sheets</td><td>A readable copy of all the modules</td></tr>
+    ${i.usersIncluded ? `<tr><td><span class="file">backup/users.csv</span></td><td>Excel / Google Sheets</td><td>Who had accounts (private)</td></tr>` : ''}
   </table>
+  <p class="stop"><b>Keep this kit private.</b> ${i.usersIncluded ? 'It contains your visitors’ email addresses. ' : ''}Only the files inside the <span class="file">website</span> folder ever go on GitHub. Never upload START-HERE, the <span class="file">supabase</span> folder or the <span class="file">backup</span> folder there, because GitHub repositories are public.</p>
 </div>
 
 <h2>Which situation are you in?</h2>
 <div class="two">
   <div class="card">
-    <h3>Supabase and the website still work, but content was deleted or broken</h3>
+    <h3>The site still opens, but content was deleted or broken</h3>
     <p>You only need to put the content back. Choose one:</p>
     <ul>
-      <li>Open your admin page → <b>Backup</b> tab → <b>Restore from a backup</b> → choose <span class="file">backup/${e(i.backupName)}</span>.</li>
+      <li>Open <code>${e(finalUrl)}admin.html</code>, sign in, go to the <b>Backup</b> tab → <b>Restore from a backup</b> → choose <span class="file">backup/${e(i.backupName)}</span>.</li>
       <li>Or: Supabase → SQL Editor → New query → paste <span class="file">supabase/2-your-content.sql</span> → Run.</li>
     </ul>
   </div>
   <div class="card">
-    <h3>Starting over completely</h3>
-    <p>New Supabase project, new GitHub repository, or both. Follow <b>Parts 1 to 4</b> below in order. Allow about 20 minutes.</p>
-    <p>If you're keeping one of them, skip the steps that create it. Each step says when you can skip it.</p>
+    <h3>Starting over, or something is missing online</h3>
+    <p>Follow <b>every part below, in order</b>. Many steps start with “Skip this if…”. Only skip when that sentence is true for you.</p>
   </div>
 </div>
 
-<p class="ok"><b>First:</b> unzip this download (right-click it → <b>Extract All</b> on Windows, or double-click it on a Mac) so you can open the files inside.</p>
+<p class="ok"><b>First:</b> unzip this download so you can open the files inside. On Windows, right-click the zip → <b>Extract All</b> → <b>Extract</b>. On a Mac, double-click the zip.</p>
 
-<h2>Part 1: The database <small>in Supabase (supabase.com)</small></h2>
+<h2>Part 1: The database <small>on Supabase (supabase.com)</small></h2>
 
-${step(1, 'Create a Supabase project', `<p>Skip this if you're reusing your existing project.</p><ol>
-  <li>Go to <b>supabase.com</b> and sign in.</li>
+${step('Sign in to Supabase', `<ol>
+  <li>Go to <b>supabase.com</b> and click <b>Sign in</b>${D.supabase_login ? ` with <code>${e(D.supabase_login)}</code>` : ''}.</li>
+  <li>If the account doesn't exist anymore, click <b>Sign up</b> and create a new free account with an email address you can open. Confirm it from the email Supabase sends.</li>
+  <li>Once signed in, look for a project called something like <i>EOCO Business Roadmap</i>. If it's there, click it and open it.</li></ol>`)}
+
+${step('Create a Supabase project', `<ol>
   <li>Click <b>New project</b>. Give it a name (for example <i>EOCO Business Roadmap</i>).</li>
-  <li>Create a database password and save it somewhere safe. You won't need it for these steps.</li>
+  <li>Create a database password and store it with the other passwords. You won't need it for these steps.</li>
   <li>For <b>Region</b>, choose <b>Canada (Central)</b>, then click <b>Create new project</b>.</li>
-  <li>Wait about 2 minutes until the project dashboard appears.</li></ol>`)}
+  <li>Wait about 2 minutes until the project dashboard appears.</li></ol>`, 'Skip this if the project from step 1 still exists and opens.', 'project')}
 
-${step(2, 'Run the setup file', `<ol>
-  <li>On the left edge of Supabase, click the <b>&gt;_</b> icon (<b>SQL Editor</b>).</li>
-  <li>Click <b>New query</b> (or the <b>+</b>) to get a blank tab.</li>
-  <li>On your computer, open <span class="file">supabase/1-database-setup.sql</span> with Notepad (Windows) or TextEdit (Mac). Press <b>Ctrl+A</b> then <b>Ctrl+C</b> to copy it all (Cmd+A, Cmd+C on a Mac).</li>
+${step('Run the setup file', `<ol>
+  <li>On the left edge of Supabase, click the <b>&gt;_</b> icon (<b>SQL Editor</b>). Hover over the icons if you're unsure which is which.</li>
+  <li>Click <b>New query</b> (or the <b>+</b>) to get a blank tab. Clearing or replacing text in the editor never deletes anything.</li>
+  <li>On your computer, open <span class="file">supabase/1-database-setup.sql</span> with Notepad (Windows: right-click → <b>Open with</b> → Notepad) or TextEdit (Mac). Press <b>Ctrl+A</b> then <b>Ctrl+C</b> to copy it all (Cmd+A, Cmd+C on a Mac).</li>
   <li>Click in the blank SQL tab and press <b>Ctrl+V</b> to paste.</li>
-  <li>Your admin email is already filled in as <code>${e(i.adminEmail)}</code>. To use a different admin email, find that email in the pasted text (about a third of the way down) and change it, keeping the single quotes around it.</li>
-  <li>Click the green <b>Run</b> button. If a warning about "destructive operations" appears, click <b>Run this query</b>.</li></ol>
-  <p class="ok">You should see <b>Success. No rows returned.</b></p>`)}
+  <li>The admin email is already filled in as <code>${e(i.adminEmail)}</code>. To use a different one, find that email in the pasted text and change it, keeping the single quotes around it.</li>
+  <li>Click the green <b>Run</b> button. If a warning about “destructive operations” appears, click <b>Run this query</b>.</li></ol>
+  <p class="ok">You should see <b>Success. No rows returned.</b> It's safe to run this even on an existing project.</p>`, '', 'setup')}
 
-${step(3, 'Put your content back', `<ol>
+${step('Put the content back', `<ol>
   <li>In the SQL Editor, click <b>New query</b> again.</li>
-  <li>Open <span class="file">supabase/2-your-content.sql</span>, copy everything, paste it into the blank tab.</li>
+  <li>Open <span class="file">supabase/2-your-content.sql</span>, copy everything, and paste it into the blank tab.</li>
   <li>Click <b>Run</b>.</li>
   <li>To check: click the grid icon on the left (<b>Table Editor</b>) → <b>modules</b>. You should see ${plural(i.counts.modules, 'row')}. The <b>phases</b> table should have ${plural(i.counts.phases, 'row')}.</li></ol>`)}
 
-${step(4, 'Create your admin login', `<p>Skip this if you're reusing your existing project; your login still works.</p><ol>
+${step('Create the admin login', `<ol>
   <li>Click the padlock icon on the left (<b>Authentication</b>) → <b>Users</b>.</li>
-  <li>Click <b>Add user</b> → <b>Create new user</b>.</li>
-  <li>Enter <code>${e(i.adminEmail)}</code> (or whichever email you used in step 2) and choose a password.</li>
-  <li>Tick <b>Auto Confirm User</b>, then click <b>Create user</b>.</li></ol>`)}
+  <li>If <code>${e(i.adminEmail)}</code> is already in the list, skip the rest of this step.</li>
+  <li>Click <b>Add user</b> → <b>Create new user</b>. Enter <code>${e(i.adminEmail)}</code> (or the email you used in step ${nums.setup}) and choose a password. Store it with the other passwords.</li>
+  <li>Tick <b>Auto Confirm User</b>, then click <b>Create user</b>.</li></ol>`, '', 'admin')}
 
-${step(5, 'Copy your two connection codes', `<p>Skip this if you're reusing your existing project; the codes in <span class="file">config.js</span> are still correct.</p><ol>
+${step('Copy the two connection codes', `<ol>
   <li>Click the green <b>Connect</b> button at the top of Supabase.</li>
   <li>Copy the <b>Project URL</b> (it looks like <code>https://abcdefgh.supabase.co</code>) into Notepad.</li>
   <li>Copy the <b>anon</b> (also called <b>publishable</b>) key, a long string of letters and numbers, into Notepad.</li></ol>
-  <p class="warn">Never use the key called <b>service_role</b> or <b>secret</b>. It must not go on your website.</p>`)}
+  <p class="warn">Never use the key called <b>service_role</b> or <b>secret</b>. It must not go on the website.</p>`, `Skip this if you're using the same project as before (its address is <code>${e(i.supabaseUrl)}</code>). The codes in config.js are still correct.`, 'codes')}
 
 <h2>Part 2: The website <small>on GitHub (github.com)</small></h2>
 
-${step(6, 'Open or create your repository', `<ul>
-  <li><b>Keeping your repository:</b> open it on github.com and go to step 7.</li>
-  <li><b>New repository:</b> click the <b>+</b> at the top right → <b>New repository</b> → name it <i>roadmap</i> → choose <b>Public</b> → click <b>Create repository</b>.</li></ul>`)}
+${step('Sign in to GitHub', `<ol>
+  <li>Go to <b>github.com</b> and click <b>Sign in</b>${D.github_user ? ` with the username <code>${e(D.github_user)}</code>` : ''}. GitHub may ask for a 6-digit code from an authenticator app, or a recovery code.</li>
+  <li>If the account can't be used anymore, click <b>Sign up</b>, create a free account and confirm the email. Write down the new username; the website address depends on it.</li></ol>`, '', 'github')}
 
-${step(7, 'Upload the three website files', `<ol>
-  <li>Click <b>Add file</b> → <b>Upload files</b>. On a brand-new repository, click the link that says <b>uploading an existing file</b>.</li>
-  <li>Open the <span class="file">website</span> folder on your computer and drag the three files inside it (<span class="file">index.html</span>, <span class="file">admin.html</span>, <span class="file">config.js</span>) onto the page. Drag the files, not the folder.</li>
-  <li>Scroll down and click <b>Commit changes</b>.</li></ol>`)}
+${step('Open or create the repository', `<ul>
+  <li><b>If it exists:</b> click your profile picture (top right) → <b>Your repositories</b> → <b>${e(repoName)}</b>. Then go to the next step.</li>
+  <li><b>If it's gone, or it's a new account:</b> click the <b>+</b> at the top right → <b>New repository</b> → name it <code>${e(repoName)}</code> → choose <b>Public</b> → click <b>Create repository</b>.</li></ul>`)}
 
-${step(8, 'Put your connection codes into config.js', `<p>Skip this if you kept the same Supabase project.</p><ol>
-  <li>In your repository, click <span class="file">config.js</span>, then the pencil icon ✏️ at the top right of the file.</li>
-  <li>Replace the web address after <code>SUPABASE_URL:</code> with your Project URL from step 5.</li>
-  <li>Replace the long code after <code>SUPABASE_ANON_KEY:</code> with your anon key from step 5.</li>
-  <li>Keep the single quotes around both. They should look like:<br>
+${step('Upload the website files', `<ol>
+  <li>Click <b>Add file</b> → <b>Upload files</b>. On a brand-new, empty repository, click the link that says <b>uploading an existing file</b> instead.</li>
+  <li>On your computer, open the <span class="file">website</span> folder. Select everything inside it (<b>Ctrl+A</b>, or Cmd+A on a Mac) and drag it onto the GitHub page. Drag what's <i>inside</i> the folder, not the folder itself.</li>
+  <li>Wait for all the files to finish loading, scroll down and click <b>Commit changes</b>.</li></ol>
+  <p class="stop">Only upload what's inside <span class="file">website</span>. Nothing from the <span class="file">backup</span> or <span class="file">supabase</span> folders.</p>`, '', 'upload')}
+
+${step('Put the connection codes into config.js', `<ol>
+  <li>In the repository, click <span class="file">config.js</span>, then the pencil icon ✏️ at the top right of the file.</li>
+  <li>Replace the web address after <code>SUPABASE_URL:</code> with the Project URL from step ${nums.codes}.</li>
+  <li>Replace the long code after <code>SUPABASE_ANON_KEY:</code> with the anon key from step ${nums.codes}.</li>
+  <li>Keep the single quotes around both. They should look like this:<br>
     <code>SUPABASE_URL: 'https://abcdefgh.supabase.co',</code><br><code>SUPABASE_ANON_KEY: 'eyJhbGciOi…',</code></li>
-  <li>Click <b>Commit changes</b>, then <b>Commit changes</b> again in the pop-up.</li></ol>`)}
+  <li>Click <b>Commit changes</b>, then <b>Commit changes</b> again in the pop-up.</li></ol>`, `Skip this if you kept the same Supabase project (you skipped step ${nums.codes}).`, 'config')}
 
-${step(9, 'Turn the website on', `<p>Skip this if you kept your existing repository; it's already on.</p><ol>
-  <li>In your repository, click <b>Settings</b> (top menu) → <b>Pages</b> (left menu).</li>
+${step('Turn the website on', `<ol>
+  <li>In the repository, click <b>Settings</b> (top menu) → <b>Pages</b> (left menu).</li>
   <li>Under <b>Build and deployment</b>, set <b>Source</b> to <b>Deploy from a branch</b>.</li>
   <li>Set <b>Branch</b> to <b>main</b> and the folder to <b>/ (root)</b>, then click <b>Save</b>.</li>
-  <li>Wait 1 to 2 minutes and refresh. The top of the page will say <b>Your site is live at…</b> followed by your address. Copy it.</li></ol>`)}
+  <li>Wait 1 to 2 minutes and refresh the page. The top will say <b>Your site is live at…</b></li></ol>
+  ${domain ? '' : `<p class="ok">That address is the website. With the username and repository above it will be <code>${e(pagesUrl)}</code>.</p>`}`,
+  'Skip this if the repository already existed and the Pages page already says “Your site is live at…”.', 'pages')}
 
-<h2>Part 3: Connect them and test</h2>
+<h2>Part 3: The web address <small>${domain ? `pointing ${e(domain)} at the website` : 'the free GitHub address'}</small></h2>
+${domain ? `
+${step('Connect the domain in GitHub', `<ol>
+  <li>In the repository, go to <b>Settings</b> → <b>Pages</b>.</li>
+  <li>Under <b>Custom domain</b>, type <code>${e(domain)}</code> and click <b>Save</b>.</li>
+  <li>GitHub will start a “DNS check”. It will only succeed after the next step is done, so carry on.</li></ol>`, 'Skip Part 3 completely if the same GitHub account and repository are still in use and the domain still opens the site.', 'ghdomain')}
 
-${step(10, 'Tell Supabase your website address', `<p>This makes the "email me a sign-in link" button send visitors back to your site.</p><ol>
+${step(`Point the domain at GitHub (at ${e(D.registrar || 'your domain company')})`, dnsBlock(domain, false), '', 'dns')}
+
+${step('Wait, then switch on the padlock (HTTPS)', `<ol>
+  <li>Changes to a domain can take anywhere from a few minutes to 24 hours to work everywhere. Usually it's under an hour.</li>
+  <li>Go back to GitHub → <b>Settings</b> → <b>Pages</b> and refresh. When it says the DNS check was successful, tick <b>Enforce HTTPS</b>.</li>
+  <li>If <b>Enforce HTTPS</b> is greyed out, GitHub is still preparing the security certificate. Come back in a few hours and tick it then.</li></ol>
+  <p class="ok">When <code>https://${e(domain)}</code> opens the roadmap with a padlock in the address bar, this part is done.</p>`, '', 'https')}
+` : `
+<div class="card"><p style="margin:0">This site doesn't use its own domain. Its address is <code>${e(finalUrl)}</code>. If the site was rebuilt under a different GitHub username or repository name, the address changes to match. Use the new address in step ${n + 1} and let your visitors know. To add your own domain later, see <b>Appendix: adding your own domain</b> at the end.</p></div>`}
+
+<h2>Part 4: Connect everything and test</h2>
+
+${step('Tell Supabase the website address', `<p>This makes the “email me a sign-in link” button send visitors back to the right place.</p><ol>
   <li>In Supabase, click the padlock icon (<b>Authentication</b>) → <b>URL Configuration</b>.</li>
-  <li>Paste your website address into <b>Site URL</b> and click <b>Save</b>.</li>
-  <li>Under <b>Redirect URLs</b>, click <b>Add URL</b>, paste the same address, and save.</li></ol>`)}
+  <li>In <b>Site URL</b>, enter <code>${e(finalUrl)}</code> and click <b>Save</b>.</li>
+  <li>Under <b>Redirect URLs</b>, click <b>Add URL</b>, enter the same address, and save.</li></ol>`, '', 'siteurl')}
 
-${step(11, 'Test everything', `<ol>
-  <li>Wait about 2 minutes after your last GitHub change.</li>
-  <li>Open your website address. Your roadmap should load with all your modules.</li>
-  <li>Add <code>admin.html</code> to the end of the address and sign in with your admin email and password.</li>
-  <li>In the admin, open the <b>Appearance</b> tab and check your colours and fonts came back.</li></ol>
-  <p class="ok">Done. Your roadmap is fully rebuilt.</p>`)}
+${step('Test everything', `<ol>
+  <li>Wait about 2 minutes after the last GitHub change.</li>
+  <li>Open <code>${e(finalUrl)}</code>. The roadmap should load with all the modules.</li>
+  <li>Open <code>${e(finalUrl)}admin.html</code> and sign in with the admin email and password.</li>
+  <li>Open the <b>Appearance</b> tab and check the colours and fonts came back.</li>
+  <li>On the main site, click <b>Sign In</b>, enter your own email, and click the link in the email to make sure sign-in emails work.</li></ol>
+  <p class="ok">If all of that works, the rebuild is done.</p>`)}
 
-<h2>Part 4: Good to know</h2>
+<h2>Part 5: Sign-in emails</h2>
+${D.smtp_provider ? step(`Reconnect ${e(D.smtp_provider)}`, `<p>The site was set up to send its sign-in emails through <b>${e(D.smtp_provider)}</b>.</p><ol>
+  <li>Sign in to ${e(D.smtp_provider)} and find its <b>SMTP</b> settings. You need the <b>host</b>, <b>port</b>, <b>username</b> and <b>password</b> (sometimes called an API key), plus the sender email address.</li>
+  <li>In Supabase: <b>Authentication</b> → <b>Emails</b> → <b>SMTP Settings</b>. Turn on custom SMTP, fill in those details, and click <b>Save</b>.</li>
+  <li>Test it by signing in on the main site with your own email.</li></ol>`, 'Skip this if you kept the same Supabase project; the email settings are still there.')
+  : `<div class="card"><p style="margin:0">Supabase sends the sign-in emails itself. That's fine for testing, but it only sends a few emails per hour. If lots of visitors will be signing in, set up an email service (for example Resend or Brevo) under <b>Authentication</b> → <b>Emails</b> → <b>SMTP Settings</b>.</p></div>`}
+
+<h2>Part 6: Keeping it running</h2>
 <div class="card"><ul>
-  <li><b>Visitor accounts don't move to a new Supabase project.</b> Visitors sign in again with their email link and their checkmarks start fresh. ${i.usersIncluded ? '<span class="file">backup/users.csv</span> lists who had accounts and how far they got.' : ''}</li>
-  <li><b>Emails:</b> Supabase's built-in email sender only sends a few sign-in emails per hour. Before inviting lots of people, add your own under <b>Authentication → Emails → SMTP Settings</b>.</li>
-  <li><b>Other admins:</b> to add one, run this in the SQL Editor, then create their login as in step 4:<br><code>insert into admins (email) values ('their@email.com');</code></li>
-  <li><b>Keep this kit current:</b> download a new one from the admin Backup tab after big changes.</li></ul></div>
+  <li><b>Supabase pauses free projects that nobody uses for about a week.</b> If the site gets stuck on “Syncing Roadmap…”, sign in to Supabase. If the project says it's paused, click <b>Restore project</b> and wait a few minutes. Nothing is lost.</li>
+  ${domain ? `<li><b>The domain must be renewed every year</b> at ${e(D.registrar || 'the domain company')}. Turn on <b>auto-renew</b> there, and keep the payment card up to date. If it lapses, the address stops working and someone else could buy it.</li>` : ''}
+  <li><b>Visitor accounts don't move to a new Supabase project.</b> If you made a new project, visitors sign in again with their email link and their checkmarks start fresh.${i.usersIncluded ? ' <span class="file">backup/users.csv</span> lists who had accounts and how far they got.' : ''}</li>
+  <li><b>Adding another admin:</b> in the SQL Editor run <code>insert into admins (email) values ('their@email.com');</code>, then create their login as in step ${nums.admin}.</li>
+  <li><b>Make a fresh kit after big changes:</b> admin → <b>Backup</b> → <b>Download complete kit</b>. Keep copies in two places, for example Google Drive and a USB stick.</li></ul></div>
 
 <h2>If something goes wrong</h2>
 <div class="card"><table>
   <tr><th>What you see</th><th>What to do</th></tr>
-  <tr><td>Website stuck on "Syncing Roadmap…"</td><td>The codes in <span class="file">config.js</span> are wrong or missing. Redo step 8, then wait 2 minutes and refresh.</td></tr>
-  <tr><td>Admin says "… isn't an admin"</td><td>The email in step 2 doesn't match your login. In the SQL Editor run <code>insert into admins (email) values ('your@email.com');</code> with your login email.</td></tr>
-  <tr><td>"Invalid login credentials"</td><td>Wrong password, or the user wasn't created or confirmed. Redo step 4.</td></tr>
-  <tr><td>Sign-in email link opens the wrong page</td><td>Redo step 10 with your exact website address.</td></tr>
-  <tr><td>Error when running 2-your-content.sql</td><td>Run 1-database-setup.sql first (step 2), then try again.</td></tr>
+  <tr><td>Site stuck on “Syncing Roadmap…”</td><td>First check the Supabase project isn't paused (Part 6). If not, the codes in <span class="file">config.js</span> are wrong or missing: redo step ${nums.config}, wait 2 minutes, refresh.</td></tr>
+  <tr><td>A “404” page instead of the site</td><td>GitHub Pages isn't switched on or hasn't finished, or files were uploaded inside a folder instead of loose. Check step ${nums.upload} and step ${nums.pages}, then wait 5 minutes.</td></tr>
+  ${domain ? `<tr><td>The domain doesn't open the site, or GitHub says the DNS check failed</td><td>Check the records in step ${nums.dns} exactly match, and that old records for the same name were removed. Then wait: it can take up to 24 hours.</td></tr>
+  <tr><td>Browser says “Not secure” on the domain</td><td>Enforce HTTPS isn't ticked yet (step ${nums.https}). Wait a few hours and tick it.</td></tr>` : ''}
+  <tr><td>Admin says “… isn't an admin”</td><td>The email in step ${nums.setup} doesn't match the login. In the SQL Editor run <code>insert into admins (email) values ('your@email.com');</code> with the login email.</td></tr>
+  <tr><td>“Invalid login credentials”</td><td>Wrong password, or the user wasn't created or confirmed. Redo step ${nums.admin} (you can delete the user and make it again).</td></tr>
+  <tr><td>Sign-in email link opens the wrong page</td><td>Redo step ${nums.siteurl} with the exact website address.</td></tr>
+  <tr><td>Error when running 2-your-content.sql</td><td>Run 1-database-setup.sql first (step ${nums.setup}), then try again.</td></tr>
   <tr><td>Changes don't show on the site</td><td>Wait 2 minutes, then press <b>Ctrl+F5</b> (Cmd+Shift+R on a Mac) to reload without the old copy.</td></tr>
-  <tr><td>Anything else</td><td>Take a screenshot and note which step number you're on.</td></tr>
+  <tr><td>Anything else</td><td>Take a screenshot and note which step number you're on${D.helper ? `, then contact: <b>${e(D.helper)}</b>` : ''}.</td></tr>
 </table></div>
+
+${domain ? '' : `<h2>Appendix: adding your own domain <small>optional, only if you buy one</small></h2>
+<div class="card"><p style="margin-top:0">Replace <code>roadmap.yourbusiness.ca</code> below with your real domain.</p><ol>
+  <li>In GitHub: repository → <b>Settings</b> → <b>Pages</b> → <b>Custom domain</b> → type the domain → <b>Save</b>.</li>
+  <li>At the company you bought the domain from:</li></ol>
+  ${dnsBlock('roadmap.yourbusiness.ca', true)}
+  <ol start="3"><li>Wait up to 24 hours, then tick <b>Enforce HTTPS</b> in GitHub Pages.</li>
+  <li>Update <b>Site URL</b> and <b>Redirect URLs</b> in Supabase (Part 4) to <code>https://</code> plus your domain.</li></ol>
+  <p class="ok" style="margin-bottom:0">For a main domain like <code>yourbusiness.ca</code> (with nothing before it), use four <b>A</b> records with Name <code>@</code> pointing to <code>185.199.108.153</code>, <code>185.199.109.153</code>, <code>185.199.110.153</code> and <code>185.199.111.153</code>, plus a <b>CNAME</b> record with Name <code>www</code> pointing to <code>${e(ghUser)}.github.io</code>.</p></div>`}
 
 </main></body></html>`;
 }
 
+/* ---------- Build + download ---------- */
 $('kit-btn').onclick = async () => {
   const btn = $('kit-btn'), status = $('kit-status');
   const say = (t, cls) => { status.textContent = t; status.className = 'status' + (cls ? ' ' + cls : ''); };
+  const details = await askKitDetails();
+  if (!details) return;
   btn.disabled = true; btn.textContent = 'Building kit…';
   try {
     say('Loading the zip tool…');
@@ -1895,11 +2119,27 @@ $('kit-btn').onclick = async () => {
     const { data: { session } } = await sb.auth.getSession();
     const adminEmail = session?.user?.email || 'you@example.com';
 
+    // website files: the whole GitHub repository if we can, otherwise the three main files
+    const repo = { included: false, count: 0, error: '' };
+    let repoFiles = [];
+    if (details.github_user && details.github_repo) {
+      try {
+        say('Copying website files from GitHub…');
+        const r = await fetchRepoFiles(details.github_user, details.github_repo, say);
+        repoFiles = r.files; repo.included = true; repo.count = r.files.length;
+        const cname = r.files.find(f => f.path === 'CNAME');
+        if (cname && !details.custom_domain) details.custom_domain = cleanDomain(new TextDecoder().decode(cname.data).split('\n')[0]);
+      } catch (err) { repo.error = err.message; }
+    } else {
+      repo.error = 'no GitHub username and repository were given';
+    }
+
     say('Collecting website files…');
     const [indexFile, adminFile, configFile] = await Promise.all(['index.html', 'admin.html', 'config.js'].map(fetchSiteFile));
+    const have = p => repoFiles.some(f => f.path === p);
     const missing = [];
-    if (!indexFile) missing.push('index.html');
-    if (!adminFile) missing.push('admin.html');
+    if (!have('index.html') && !indexFile) missing.push('index.html');
+    if (!have('admin.html') && !adminFile) missing.push('admin.html');
     const config = configFile || `// Supabase connection — used by index.html and admin.html.
 // Find both values in Supabase: click the green Connect button.
 // NEVER put the service_role / secret key here.
@@ -1922,12 +2162,12 @@ window.EOCO_CONFIG = {
     const backupName = `eoco-backup-${day}.json`;
     const zip = new JSZip();
 
-    const setupSQL = EOCO_SETUP_SQL.replace("values ('you@example.com')", `values (${sqlStr(adminEmail)})`);
-    zip.file('supabase/1-database-setup.sql', setupSQL);
+    zip.file('supabase/1-database-setup.sql', EOCO_SETUP_SQL.replace("values ('you@example.com')", `values (${sqlStr(adminEmail)})`));
     zip.file('supabase/2-your-content.sql', buildContentSQL(all, stamp));
-    if (indexFile) zip.file('website/index.html', indexFile);
-    if (adminFile) zip.file('website/admin.html', adminFile);
-    zip.file('website/config.js', config);
+    repoFiles.forEach(f => zip.file('website/' + f.path, f.data));
+    if (!have('index.html') && indexFile) zip.file('website/index.html', indexFile);
+    if (!have('admin.html') && adminFile) zip.file('website/admin.html', adminFile);
+    if (!have('config.js')) zip.file('website/config.js', config);
     zip.file('backup/' + backupName, JSON.stringify({ app: 'eoco-roadmap', version: 2, exported_at: now.toISOString(), ...all }, null, 2));
     zip.file('backup/modules.csv', toCSV(all.modules, [...MODULE_COLS, 'published']));
     if (users.length) {
@@ -1936,16 +2176,15 @@ window.EOCO_CONFIG = {
         ['email', 'created_at', 'last_sign_in_at', 'province', 'industry', 'software', 'steps_done']));
     }
     zip.file('START-HERE.html', buildGuide({
-      madeOn: stamp, adminEmail, backupName, missing, usersIncluded: users.length > 0,
+      madeOn: stamp, adminEmail, backupName, missing, repo, details, usersIncluded: users.length > 0,
       hasSettings: !!all.settings && Object.keys(all.settings).length > 0,
-      siteUrl: location.origin + location.pathname.replace(/admin\.html$/, ''),
       supabaseUrl: cfg.SUPABASE_URL || '',
       counts: {
         modules: all.modules.length,
         hidden: all.modules.filter(m => m.published === false).length,
         phases: new Set([...all.phases.map(p => p.name), ...all.modules.map(m => m.phase)]).size,
-        steps: all.modules.reduce((n, m) => n + (m.steps || []).length, 0),
-        links: all.modules.reduce((n, m) => n + toolCount(m), 0)
+        steps: all.modules.reduce((k, m) => k + (m.steps || []).length, 0),
+        links: all.modules.reduce((k, m) => k + toolCount(m), 0)
       }
     }));
 
@@ -1954,7 +2193,10 @@ window.EOCO_CONFIG = {
     const a = Object.assign(document.createElement('a'), { href: url, download: `eoco-site-kit-${day}.zip` });
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 2000);
-    say(missing.length ? `Downloaded, but ${missing.join(' and ')} couldn't be included. See the guide.` : 'Downloaded. Keep it somewhere safe, like Google Drive.', missing.length ? 'error' : 'ok');
+    const warnings = [];
+    if (!repo.included) warnings.push(`only the 3 main website files are included (${repo.error})`);
+    if (missing.length) warnings.push(`${missing.join(' and ')} couldn't be included`);
+    say(warnings.length ? `Downloaded, but ${warnings.join('; ')}. The guide explains what to do.` : 'Downloaded. Keep it somewhere safe and private, like Google Drive.', warnings.length ? 'error' : 'ok');
     toast('Complete site kit downloaded');
   } catch (err) {
     say(`Couldn't build the kit: ${err.message}`, 'error');
